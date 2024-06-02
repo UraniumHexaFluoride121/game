@@ -1,20 +1,25 @@
 package render.renderables;
 
-import foundation.ObjPos;
+import foundation.MainPanel;
 import render.RenderOrder;
+import render.Renderable;
 
 import java.awt.*;
 
-public class RenderBackground extends RenderElement {
+public class RenderBackground implements Renderable {
     public Color color;
     public RenderBackground(Color color) {
-        super(RenderOrder.BACKGROUND);
         this.color = color;
     }
 
     @Override
     public void render(Graphics2D g) {
         g.setColor(color);
-        g.fillRect(0, 0, (int) ObjPos.RENDER_WINDOW_SIZE.x, (int) ObjPos.RENDER_WINDOW_SIZE.y);
+        g.fillRect(0, 0, (int) MainPanel.RENDER_WINDOW_SIZE.x, (int) MainPanel.RENDER_WINDOW_SIZE.y);
+    }
+
+    @Override
+    public RenderOrder getRenderOrder() {
+        return RenderOrder.BACKGROUND;
     }
 }

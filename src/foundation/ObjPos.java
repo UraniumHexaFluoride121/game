@@ -6,8 +6,6 @@ public class ObjPos {
     public float x;
     public float y;
 
-    public static ObjPos DEVICE_WINDOW_SIZE, RENDER_WINDOW_SIZE;
-
     public ObjPos(double x, double y) {
         this.x = (float) x;
         this.y = (float) y;
@@ -295,18 +293,6 @@ public class ObjPos {
 
     public Point toPoint() {
         return new Point((int) x, (int) y);
-    }
-
-    public ObjPos addHalfWindow() {
-        x += DEVICE_WINDOW_SIZE.x / 2;
-        y += DEVICE_WINDOW_SIZE.y / 2;
-        return this;
-    }
-
-    public ObjPos subtractHalfWindow() {
-        x -= DEVICE_WINDOW_SIZE.x / 2;
-        y -= DEVICE_WINDOW_SIZE.y / 2;
-        return this;
     }
 
     public float dotProduct(ObjPos other) {
