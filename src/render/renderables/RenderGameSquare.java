@@ -25,11 +25,11 @@ public class RenderGameSquare extends RenderGameElement {
 
     @Override
     public void render(Graphics2D g) {
-        g.setColor(Color.RED);
+        g.setColor(color);
         g.scale(1 / 1000d, 1 / 1000d);
         g.fillRect(
                 (int) ((gamePos.get().x - left) * 1000),
-                (int) ((gamePos.get().y - up) * 1000),
+                (int) ((gamePos.get().y - down) * 1000),
                 (int) ((left + right) * 1000),
                 (int) ((up + down) * 1000)
         );

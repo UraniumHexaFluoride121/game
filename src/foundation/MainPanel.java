@@ -1,9 +1,9 @@
 package foundation;
 
-import render.RenderOrder;
+import level.Level;
+import level.objects.DebugSquare;
 import render.Renderer;
 import render.renderables.RenderBackground;
-import render.renderables.RenderGameSquare;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,10 +17,13 @@ public class MainPanel extends JFrame {
     public static ObjPos RENDER_WINDOW_SIZE; //the size of the render box, in pixels
     public static ObjPos BLOCK_DIMENSIONS; //the size of the render box, in blocks
 
+    public static Level level = new Level(300);
+
     public void init() {
-        GAME_RENDERER.register(new RenderGameSquare(RenderOrder.NONE, Color.RED, 1, () -> new ObjPos(2.5f, 2.5f)));
+        level.addStatic(new DebugSquare(new ObjPos(2, 2), Color.BLUE).init());
+        level.addStatic(new DebugSquare(new ObjPos(29, 16), Color.RED).init());
+        level.addStatic(new DebugSquare(new ObjPos(2, 3), Color.GREEN).init());
         GAME_RENDERER.register(new RenderBackground(Color.WHITE));
-        System.out.println(BLOCK_DIMENSIONS);
     }
 
     @Override

@@ -10,7 +10,7 @@ import java.awt.event.WindowEvent;
 public class Main {
     public static MainPanel window = new MainPanel();
 
-    public static final Tick GAME_LOOP = new Tick();
+    public static final Tick TICK = new Tick();
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(Main::init);
@@ -76,6 +76,6 @@ public class Main {
         }
         window.init();
 
-        GAME_LOOP.start();
+        TICK.start();
     }
 }

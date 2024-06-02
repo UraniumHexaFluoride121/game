@@ -15,7 +15,9 @@ public class RenderBackground implements Renderable {
     @Override
     public void render(Graphics2D g) {
         g.setColor(color);
-        g.fillRect(0, 0, (int) MainPanel.RENDER_WINDOW_SIZE.x, (int) MainPanel.RENDER_WINDOW_SIZE.y);
+        g.scale(1 / 1000d, 1 / 1000d);
+        g.fillRect(0, 0, (int) (MainPanel.BLOCK_DIMENSIONS.x * 1000), (int) (MainPanel.BLOCK_DIMENSIONS.y * 1000));
+        g.scale(1000, 1000);
     }
 
     @Override
