@@ -1,15 +1,21 @@
 package foundation;
 
+import foundation.input.InputType;
 import level.Level;
+import level.objects.BlockLike;
 import level.objects.DebugSquare;
+import level.objects.PhysicsBlock;
+import level.objects.Player;
 import render.Renderer;
 import render.renderables.RenderBackground;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.geom.AffineTransform;
 
-public class MainPanel extends JFrame {
+public class MainPanel extends JFrame implements KeyListener {
     public static AffineTransform gameTransform = new AffineTransform();
     public static final Renderer GAME_RENDERER = new Renderer(gameTransform);
 
@@ -19,8 +25,12 @@ public class MainPanel extends JFrame {
 
     public static Level level = new Level(300);
 
+    BlockLike player;
+
     public void init() {
-        level.addStatic(new DebugSquare(new ObjPos(2, 2), Color.BLUE).init());
+        player = new Player(new ObjPos(4, 2), Color.YELLOW, level.inputHandler).init();
+        level.addStatic(player);
+        level.addStatic(new PhysicsBlock(new ObjPos(2, 2), Color.BLUE).init());
         level.addStatic(new DebugSquare(new ObjPos(29, 16), Color.RED).init());
         level.addStatic(new DebugSquare(new ObjPos(2, 3), Color.GREEN).init());
         GAME_RENDERER.register(new RenderBackground(Color.WHITE));
@@ -34,5 +44,20 @@ public class MainPanel extends JFrame {
         g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
         GAME_RENDERER.render(g2d);
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        level.inputHandler.queueInput(InputType.KEY_PRESSED, e);
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        level.inputHandler.queueInput(InputType.KEY_RELEASED, e);
     }
 }

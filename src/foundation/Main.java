@@ -8,9 +8,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class Main {
-    public static MainPanel window = new MainPanel();
-
     public static final Tick TICK = new Tick();
+
+    public static MainPanel window = new MainPanel();
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(Main::init);
@@ -35,6 +35,7 @@ public class Main {
                 System.exit(0);
             }
         });
+        window.addKeyListener(window);
         //MainPanel.DEVICE_WINDOW_SIZE = new ObjPos(1000, 400);
         MainPanel.DEVICE_WINDOW_SIZE = new ObjPos(Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height);
         MainPanel.RENDER_WINDOW_SIZE = MainPanel.DEVICE_WINDOW_SIZE.copy();

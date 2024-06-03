@@ -10,11 +10,10 @@ import render.renderables.RenderGameSquare;
 
 import java.awt.*;
 
-public class DebugSquare extends BlockLike {
+public class PhysicsBlock extends PhysicsObject {
     private final Color color;
     private final DynamicHitBox hitBox;
-
-    public DebugSquare(ObjPos pos, Color color) {
+    public PhysicsBlock(ObjPos pos, Color color) {
         super(pos);
         this.color = color;
         hitBox = new DynamicHitBox(1, 0, 0, 1, this::getPos);
@@ -27,7 +26,7 @@ public class DebugSquare extends BlockLike {
 
     @Override
     public TickOrder getTickOrder() {
-        return TickOrder.ANIMATIONS_ONLY;
+        return TickOrder.COLLISION_PHYSICS;
     }
 
     @Override
