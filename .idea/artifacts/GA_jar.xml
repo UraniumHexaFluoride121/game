@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="GA:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/GA_jar</output-path>
+    <root id="archive" name="GA.jar">
+      <element id="module-output" name="GA" />
+    </root>
+  </artifact>
+</component>
