@@ -1,5 +1,6 @@
 package physics;
 
+import foundation.ObjPos;
 import foundation.tick.TickOrder;
 import foundation.tick.Tickable;
 
@@ -21,6 +22,14 @@ public class CollisionHandler implements Tickable {
      * no need to test them against each other.
      */
     private final HashSet<CollisionObject>[] collisionObjects, dynamicObjects;
+
+    //World border collision objects are always tested against each dynamic object,
+    //no matter which section it happens to be in
+    private final HashSet<CollisionObject> worldBorderCollisionObjects = new HashSet<>();
+
+    //A set containing all dynamic objects. Used to iterate through all dynamics when
+    //refreshing their position in the sectioned set to avoid ConcurrentModificationException
+    private final HashSet<CollisionObject> dynamicObjectSet = new HashSet<>();
     private final int maxHeight, sectionSize, bufferSections, sectionCount;
 
     private boolean deleted = false;
@@ -38,6 +47,18 @@ public class CollisionHandler implements Tickable {
         for (int i = 0; i < sectionCount; i++) {
             dynamicObjects[i] = new HashSet<>();
         }
+        //World floor
+        worldBorderCollisionObjects.add(new WorldBorderObject(new StaticHitBox(
+                0, 10, 0, 30, new ObjPos())
+        ));
+        //Left wall
+        worldBorderCollisionObjects.add(new WorldBorderObject(new StaticHitBox(
+                maxHeight + sectionSize * bufferSections, 10, 10, 0, new ObjPos())
+        ));
+        //Right wall
+        worldBorderCollisionObjects.add(new WorldBorderObject(new StaticHitBox(
+                maxHeight + sectionSize * bufferSections, 10, 0, 10, new ObjPos(30))
+        ));
         registerTickable();
     }
 
@@ -48,6 +69,7 @@ public class CollisionHandler implements Tickable {
             if (o.getCollisionType() == CollisionType.DYNAMIC) {
                 dynamicObjects[data.bottomSection].add(o);
                 dynamicObjects[data.topSection].add(o);
+                dynamicObjectSet.add(o);
             }
             collisionObjects[data.bottomSection].add(o);
             collisionObjects[data.topSection].add(o);
@@ -60,6 +82,7 @@ public class CollisionHandler implements Tickable {
         if (o.getCollisionType() == CollisionType.DYNAMIC) {
             dynamicObjects[data.bottomSection].remove(o);
             dynamicObjects[data.topSection].remove(o);
+            dynamicObjectSet.remove(o);
         }
         collisionObjects[data.bottomSection].remove(o);
         collisionObjects[data.topSection].remove(o);
@@ -88,6 +111,18 @@ public class CollisionHandler implements Tickable {
     public void tick(float deltaTime) {
         if (deleted)
             return;
+
+        dynamicObjectSet.forEach(o -> {
+            CollisionObjectData newData = generateData(o);
+            CollisionObjectData oldData = o.getCollisionData();
+            if (!newData.equals(oldData)) {
+                dynamicObjects[oldData.bottomSection].remove(o);
+                dynamicObjects[oldData.topSection].remove(o);
+                dynamicObjects[newData.bottomSection].add(o);
+                dynamicObjects[newData.topSection].add(o);
+            }
+        });
+
         for (int i = 0; i < sectionCount; i++) {
             HashSet<CollisionObject> objects = collisionObjects[i];
             HashSet<CollisionObject> dynamics = dynamicObjects[i];
@@ -110,6 +145,16 @@ public class CollisionHandler implements Tickable {
                         otherObj.getCollisionData().collidedWith.add(dynamic);
                     }
                 });
+                if (dynamic.hasWorldBorderCollision()) {
+                    worldBorderCollisionObjects.forEach(otherObj -> {
+                        HitBox otherBox = otherObj.getHitBox();
+                        if (dynamicBox.isColliding(otherBox)) {
+                            dynamic.onCollision(otherObj);
+                            dynamic.getCollisionData().collidedWith.add(otherObj);
+                            otherObj.getCollisionData().collidedWith.add(dynamic);
+                        }
+                    });
+                }
             });
         }
         clearCollidedWith();
@@ -150,6 +195,14 @@ public class CollisionHandler implements Tickable {
         public CollisionObjectData(int bottomSection, int topSection) {
             this.bottomSection = bottomSection;
             this.topSection = topSection;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof CollisionObjectData data) {
+                return topSection == data.topSection && bottomSection == data.bottomSection;
+            }
+            return false;
         }
     }
 }

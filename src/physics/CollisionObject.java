@@ -1,11 +1,13 @@
 package physics;
 
-import foundation.ObjPos;
 import level.Level;
 
 public interface CollisionObject {
     HitBox getHitBox();
     boolean hasCollision();
+    default boolean hasWorldBorderCollision() {
+        return true;
+    }
     CollisionType getCollisionType();
 
     void setCollisionData(CollisionHandler.CollisionObjectData data);
