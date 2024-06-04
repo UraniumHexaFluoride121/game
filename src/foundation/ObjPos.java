@@ -95,6 +95,12 @@ public class ObjPos {
         return this;
     }
 
+    public ObjPos abs() {
+        x = Math.abs(x);
+        y = Math.abs(y);
+        return this;
+    }
+
     public ObjPos addRotated(float value, float radians) {
         x += ((float) (Math.cos(radians) * value));
         y += ((float) (Math.sin(radians) * value));
@@ -210,6 +216,16 @@ public class ObjPos {
 
     public ObjPos addY(float y) {
         this.y += y;
+        return this;
+    }
+
+    public ObjPos subtractX(float x) {
+        this.x -= x;
+        return this;
+    }
+
+    public ObjPos subtractY(float y) {
+        this.y -= y;
         return this;
     }
 

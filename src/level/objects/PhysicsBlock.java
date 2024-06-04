@@ -26,7 +26,7 @@ public class PhysicsBlock extends PhysicsObject {
 
     @Override
     public TickOrder getTickOrder() {
-        return TickOrder.COLLISION_PHYSICS;
+        return TickOrder.BLOCK_MOVEMENT;
     }
 
     @Override

@@ -27,16 +27,16 @@ public class InputHandler implements Tickable {
         registerTickable();
     }
 
-    public <T extends InputEvent> void addInput(InputType<T> type, Consumer<T> event, Predicate<T> condition, InputHandlingOrder order, boolean blocking) {
+    synchronized public <T extends InputEvent> void addInput(InputType<T> type, Consumer<T> event, Predicate<T> condition, InputHandlingOrder order, boolean blocking) {
         eventListeners.get(type).put(order, new InputListenerEventData<>(event, condition, blocking));
     }
 
-    public <T extends InputEvent> void queueInput(InputType<T> type, T event) {
+    synchronized public <T extends InputEvent> void queueInput(InputType<T> type, T event) {
         queuedInputs.add(new InputData<>(type, event));
     }
 
     @Override
-    public void tick(float deltaTime) {
+    synchronized public void tick(float deltaTime) {
         for (InputData<? extends InputEvent> input : queuedInputs) {
             processInput(input);
         }

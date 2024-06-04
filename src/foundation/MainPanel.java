@@ -30,9 +30,16 @@ public class MainPanel extends JFrame implements KeyListener {
     public void init() {
         player = new Player(new ObjPos(4, 2), Color.YELLOW, level.inputHandler).init();
         level.addStatic(player);
-        level.addStatic(new PhysicsBlock(new ObjPos(2, 2), Color.BLUE).init());
-        level.addStatic(new DebugSquare(new ObjPos(29, 16), Color.RED).init());
+        BlockLike blue = new PhysicsBlock(new ObjPos(2, 2), Color.BLUE).init();
+        level.addStatic(blue);
+        BlockLike red = new DebugSquare(new ObjPos(4, 5), Color.RED).init();
+        BlockLike red2 = new DebugSquare(new ObjPos(5, 5), Color.RED).init();
+        BlockLike red3 = new DebugSquare(new ObjPos(4, 6), Color.RED).init();
+        level.addStatic(red, red2, red3);
         level.addStatic(new DebugSquare(new ObjPos(2, 3), Color.GREEN).init());
+        level.collisionHandler.register(player);
+        level.collisionHandler.register(blue);
+        level.collisionHandler.register(red, red2, red3);
         GAME_RENDERER.register(new RenderBackground(Color.WHITE));
     }
 

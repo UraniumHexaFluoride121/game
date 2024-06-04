@@ -4,10 +4,12 @@ import foundation.Deletable;
 import foundation.Main;
 import foundation.input.InputHandler;
 import level.objects.BlockLike;
+import physics.CollisionHandler;
 
 public class Level implements Deletable {
     public final int maximumHeight;
     public final InputHandler inputHandler;
+    public final CollisionHandler collisionHandler;
 
     //All BlockLikes inserted as static MUST NOT have their positions modified, otherwise
     //they risk not being able to be accessed
@@ -15,14 +17,17 @@ public class Level implements Deletable {
 
     public Level(int maximumHeight) {
         inputHandler = new InputHandler();
+        collisionHandler = new CollisionHandler(maximumHeight, 16, 2);
         this.maximumHeight = maximumHeight;
         for (int i = 0; i < Main.BLOCKS_X; i++) {
             staticBlocks[i] = new BlockLike[maximumHeight];
         }
     }
 
-    public void addStatic(BlockLike b) {
-        staticBlocks[((int) b.pos.x)][((int) b.pos.y)] = b;
+    public void addStatic(BlockLike... blockLikes) {
+        for (BlockLike b : blockLikes) {
+            staticBlocks[((int) b.pos.x)][((int) b.pos.y)] = b;
+        }
     }
 
     @Override
@@ -36,5 +41,6 @@ public class Level implements Deletable {
             }
         }
         inputHandler.delete();
+        collisionHandler.delete();
     }
 }
