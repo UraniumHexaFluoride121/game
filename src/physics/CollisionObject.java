@@ -13,6 +13,12 @@ public interface CollisionObject {
     void setCollisionData(CollisionHandler.CollisionObjectData data);
     CollisionHandler.CollisionObjectData getCollisionData();
 
+    //The collision handler invokes this method just before the collision
+    //checks are done
+    default void dynamicPreTick(float deltaTime) {
+
+    }
+
     //Only one of the objects will have this method called. It is expected that
     //that object handle the collision for both of them
     default void onCollision(CollisionObject other) {

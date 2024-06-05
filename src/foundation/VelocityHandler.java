@@ -24,8 +24,11 @@ public class VelocityHandler extends ObjPos {
         y += acceleration.y * deltaTime;
     }
 
-    public void tickExponentialDecay(float deltaTime, float decayConstant) {
+    public void tickExponentialXDecay(float deltaTime, float decayConstant) {
         x = (float) (x * Math.exp(-decayConstant * deltaTime));
+    }
+
+    public void tickExponentialYDecay(float deltaTime, float decayConstant) {
         y = (float) (y * Math.exp(-decayConstant * deltaTime));
     }
 
@@ -35,6 +38,13 @@ public class VelocityHandler extends ObjPos {
             set(0, 0);
         else
             setLength(length - decayConstant * deltaTime);
+    }
+
+    public void tickLinearXDecay(float deltaTime, float decayConstant) {
+        if (Math.abs(x) < decayConstant * deltaTime)
+            x = 0;
+        else
+            x -= Math.signum(x) * decayConstant * deltaTime;
     }
 
     public VelocityHandler copyAsForceHandler() {

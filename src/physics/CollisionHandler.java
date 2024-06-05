@@ -121,6 +121,7 @@ public class CollisionHandler implements Tickable {
                 dynamicObjects[newData.bottomSection].add(o);
                 dynamicObjects[newData.topSection].add(o);
             }
+            o.dynamicPreTick(deltaTime);
         });
 
         for (int i = 0; i < sectionCount; i++) {
