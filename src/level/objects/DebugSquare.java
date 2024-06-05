@@ -2,6 +2,7 @@ package level.objects;
 
 import foundation.ObjPos;
 import foundation.tick.TickOrder;
+import physics.CollisionBehaviour;
 import physics.CollisionType;
 import physics.DynamicHitBox;
 import physics.HitBox;
@@ -44,5 +45,10 @@ public class DebugSquare extends BlockLike {
     @Override
     public CollisionType getCollisionType() {
         return CollisionType.STATIC;
+    }
+
+    @Override
+    public CollisionBehaviour getCollisionBehaviour() {
+        return CollisionBehaviour.IMMOVABLE;
     }
 }

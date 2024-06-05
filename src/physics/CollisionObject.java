@@ -9,6 +9,7 @@ public interface CollisionObject {
         return true;
     }
     CollisionType getCollisionType();
+    CollisionBehaviour getCollisionBehaviour();
 
     void setCollisionData(CollisionHandler.CollisionObjectData data);
     CollisionHandler.CollisionObjectData getCollisionData();

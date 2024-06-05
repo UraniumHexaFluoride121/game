@@ -27,9 +27,9 @@ public class CollisionHandler implements Tickable {
     //no matter which section it happens to be in
     private final HashSet<CollisionObject> worldBorderCollisionObjects = new HashSet<>();
 
-    //A set containing all dynamic objects. Used to iterate through all dynamics when
+    //A set containing all movable objects. Used to iterate through all movable objects when
     //refreshing their position in the sectioned set to avoid ConcurrentModificationException
-    private final HashSet<CollisionObject> dynamicObjectSet = new HashSet<>();
+    private final HashSet<CollisionObject> movableObjectSet = new HashSet<>();
     private final int maxHeight, sectionSize, bufferSections, sectionCount;
 
     private boolean deleted = false;
@@ -49,7 +49,7 @@ public class CollisionHandler implements Tickable {
         }
         //World floor
         worldBorderCollisionObjects.add(new WorldBorderObject(new StaticHitBox(
-                0, 10, 0, 30, new ObjPos())
+                0, 30, 0, 30, new ObjPos())
         ));
         //Left wall
         worldBorderCollisionObjects.add(new WorldBorderObject(new StaticHitBox(
@@ -66,11 +66,12 @@ public class CollisionHandler implements Tickable {
         for (CollisionObject o : objects) {
             CollisionObjectData data = generateData(o);
             o.setCollisionData(data);
-            if (o.getCollisionType() == CollisionType.DYNAMIC) {
+            if (o.getCollisionType().interactsDynamically) {
                 dynamicObjects[data.bottomSection].add(o);
                 dynamicObjects[data.topSection].add(o);
-                dynamicObjectSet.add(o);
             }
+            if (o.getCollisionType().requiresPositionUpdates)
+                movableObjectSet.add(o);
             collisionObjects[data.bottomSection].add(o);
             collisionObjects[data.topSection].add(o);
         }
@@ -79,11 +80,12 @@ public class CollisionHandler implements Tickable {
     public void remove(CollisionObject o) {
         CollisionObjectData data = o.getCollisionData();
         o.setCollisionData(null);
-        if (o.getCollisionType() == CollisionType.DYNAMIC) {
+        if (o.getCollisionType().interactsDynamically) {
             dynamicObjects[data.bottomSection].remove(o);
             dynamicObjects[data.topSection].remove(o);
-            dynamicObjectSet.remove(o);
         }
+        if (o.getCollisionType().requiresPositionUpdates)
+            movableObjectSet.remove(o);
         collisionObjects[data.bottomSection].remove(o);
         collisionObjects[data.topSection].remove(o);
     }
@@ -112,14 +114,21 @@ public class CollisionHandler implements Tickable {
         if (deleted)
             return;
 
-        dynamicObjectSet.forEach(o -> {
+        movableObjectSet.forEach(o -> {
             CollisionObjectData newData = generateData(o);
             CollisionObjectData oldData = o.getCollisionData();
             if (!newData.equals(oldData)) {
-                dynamicObjects[oldData.bottomSection].remove(o);
-                dynamicObjects[oldData.topSection].remove(o);
-                dynamicObjects[newData.bottomSection].add(o);
-                dynamicObjects[newData.topSection].add(o);
+                if (o.getCollisionType().interactsDynamically) {
+                    dynamicObjects[oldData.bottomSection].remove(o);
+                    dynamicObjects[oldData.topSection].remove(o);
+                    dynamicObjects[newData.bottomSection].add(o);
+                    dynamicObjects[newData.topSection].add(o);
+                }
+                collisionObjects[oldData.bottomSection].remove(o);
+                collisionObjects[oldData.topSection].remove(o);
+                collisionObjects[newData.bottomSection].add(o);
+                collisionObjects[newData.topSection].add(o);
+                o.setCollisionData(newData);
             }
             o.dynamicPreTick(deltaTime);
         });

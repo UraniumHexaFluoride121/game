@@ -28,6 +28,7 @@ public class Level implements Deletable {
         for (BlockLike b : blockLikes) {
             staticBlocks[((int) b.pos.x)][((int) b.pos.y)] = b;
         }
+        collisionHandler.register(blockLikes);
     }
 
     @Override

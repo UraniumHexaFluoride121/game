@@ -5,5 +5,8 @@ public enum InputHandlingOrder {
     MOVEMENT_UP,
     MOVEMENT_DOWN,
     MOVEMENT_LEFT,
-    MOVEMENT_RIGHT
+    MOVEMENT_RIGHT,
+
+    //TODO: Remove before release
+    DEBUG
 }

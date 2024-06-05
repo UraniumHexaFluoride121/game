@@ -24,6 +24,11 @@ public class WorldBorderObject implements CollisionObject {
     }
 
     @Override
+    public CollisionBehaviour getCollisionBehaviour() {
+        return CollisionBehaviour.IMMOVABLE;
+    }
+
+    @Override
     public void setCollisionData(CollisionHandler.CollisionObjectData data) {
         this.data = data;
     }

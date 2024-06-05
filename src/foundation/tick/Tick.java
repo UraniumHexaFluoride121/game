@@ -1,7 +1,6 @@
 package foundation.tick;
 
 import foundation.Main;
-import render.Renderer;
 
 import java.util.HashSet;
 import java.util.TreeMap;
@@ -33,6 +32,12 @@ public class Tick extends Thread {
         qRemove.clear();
     }
 
+    //The maximum delta time allowed by the game. If we have a delta time larger
+    //than this, we'll cap the delta time resulting in the game time running slower
+    //than normal. This is to avoid physics problems that would otherwise happen,
+    //for example weird snapping and blocks phasing through each other
+    public static final float MAX_DELTA_TIME = 0.02f;
+
     @Override
     public void run() {
         long time = System.currentTimeMillis();
@@ -47,14 +52,14 @@ public class Tick extends Thread {
             processQueued();
 
             //tick tickable objects
-            tickables.forEach((order, set) -> set.forEach(t -> t.tick(deltaTime)));
+            tickables.forEach((order, set) -> set.forEach(t -> t.tick(Math.min(deltaTime, MAX_DELTA_TIME))));
 
             //render frame
             Main.window.paintComponents(Main.window.getBufferStrategy().getDrawGraphics());
             Main.window.getBufferStrategy().show();
             //We make sure that a detectable amount of time has passed before processing the next tick
             //If we don't, the physics may not function properly
-            while (System.currentTimeMillis() - time == 0);
+            while (System.currentTimeMillis() - time < 1) ;
         }
     }
 }

@@ -2,6 +2,7 @@ package level.objects;
 
 import foundation.ObjPos;
 import foundation.VelocityHandler;
+import physics.CollisionBehaviour;
 import physics.CollisionObject;
 import physics.CollisionType;
 import physics.HitBox;
@@ -10,7 +11,7 @@ public abstract class PhysicsObject extends BlockLike {
     public VelocityHandler velocity = new VelocityHandler();
     public boolean onGround = false;
 
-    public static final ObjPos DEFAULT_GRAVITY = new ObjPos(0, -20);
+    public static final ObjPos DEFAULT_GRAVITY = new ObjPos(0, -30);
 
     public PhysicsObject(ObjPos pos) {
         super(pos);
@@ -41,7 +42,7 @@ public abstract class PhysicsObject extends BlockLike {
     public void processMovement(float deltaTime) {
         velocity.applyAcceleration(getGravity(), deltaTime);
         velocity.tickExponentialXDecay(deltaTime, 3f);
-        velocity.tickExponentialYDecay(deltaTime, 1f);
+        velocity.tickExponentialYDecay(deltaTime, .5f);
         velocity.tickLinearXDecay(deltaTime, 1.5f);
         pos.add(velocity.copy().multiply(deltaTime));
     }
@@ -49,6 +50,11 @@ public abstract class PhysicsObject extends BlockLike {
     @Override
     public CollisionType getCollisionType() {
         return CollisionType.DYNAMIC;
+    }
+
+    @Override
+    public CollisionBehaviour getCollisionBehaviour() {
+        return CollisionBehaviour.PHYSICS;
     }
 
     @Override
@@ -60,7 +66,7 @@ public abstract class PhysicsObject extends BlockLike {
     public void onCollision(CollisionObject other) {
         HitBox thisBox = getHitBox();
         HitBox otherBox = other.getHitBox();
-        if (other.getCollisionType() == CollisionType.STATIC) {
+        if (other.getCollisionBehaviour() == CollisionBehaviour.IMMOVABLE) {
             ObjPos overlap = thisBox.collisionOverlap(otherBox);
             if (Math.abs(overlap.y * velocity.x) < Math.abs(overlap.x * velocity.y)) {
                 pos.subtractY(overlap.y);
