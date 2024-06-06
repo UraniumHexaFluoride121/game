@@ -3,6 +3,7 @@ package level.objects;
 import foundation.MainPanel;
 import foundation.ObjPos;
 import foundation.tick.Tickable;
+import level.ObjectLayer;
 import physics.CollisionHandler;
 import physics.CollisionObject;
 import render.Renderable;
@@ -35,6 +36,10 @@ public abstract class BlockLike implements Tickable, Renderable, CollisionObject
 
     public ObjPos getPos() {
         return pos;
+    }
+
+    public ObjectLayer getLayer() {
+        return ObjectLayer.MAIN;
     }
 
     @Override

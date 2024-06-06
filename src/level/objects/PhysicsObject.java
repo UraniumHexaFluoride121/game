@@ -2,6 +2,7 @@ package level.objects;
 
 import foundation.ObjPos;
 import foundation.VelocityHandler;
+import level.ObjectLayer;
 import physics.CollisionBehaviour;
 import physics.CollisionObject;
 import physics.CollisionType;
@@ -55,6 +56,11 @@ public abstract class PhysicsObject extends BlockLike {
     @Override
     public CollisionBehaviour getCollisionBehaviour() {
         return CollisionBehaviour.PHYSICS;
+    }
+
+    @Override
+    public ObjectLayer getLayer() {
+        return ObjectLayer.DYNAMIC;
     }
 
     @Override

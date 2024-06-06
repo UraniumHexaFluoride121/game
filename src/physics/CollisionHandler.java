@@ -77,17 +77,19 @@ public class CollisionHandler implements Tickable {
         }
     }
 
-    public void remove(CollisionObject o) {
-        CollisionObjectData data = o.getCollisionData();
-        o.setCollisionData(null);
-        if (o.getCollisionType().interactsDynamically) {
-            dynamicObjects[data.bottomSection].remove(o);
-            dynamicObjects[data.topSection].remove(o);
+    public void remove(CollisionObject... objects) {
+        for (CollisionObject o : objects) {
+            CollisionObjectData data = o.getCollisionData();
+            o.setCollisionData(null);
+            if (o.getCollisionType().interactsDynamically) {
+                dynamicObjects[data.bottomSection].remove(o);
+                dynamicObjects[data.topSection].remove(o);
+            }
+            if (o.getCollisionType().requiresPositionUpdates)
+                movableObjectSet.remove(o);
+            collisionObjects[data.bottomSection].remove(o);
+            collisionObjects[data.topSection].remove(o);
         }
-        if (o.getCollisionType().requiresPositionUpdates)
-            movableObjectSet.remove(o);
-        collisionObjects[data.bottomSection].remove(o);
-        collisionObjects[data.topSection].remove(o);
     }
 
     private CollisionObjectData generateData(CollisionObject o) {

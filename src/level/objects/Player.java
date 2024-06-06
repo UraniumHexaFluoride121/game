@@ -40,4 +40,6 @@ public class Player extends PhysicsBlock {
             applyAcceleration(movement, deltaTime);
         }
     }
+
+
 }
