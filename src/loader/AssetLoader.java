@@ -1,4 +1,4 @@
-package asset;
+package loader;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

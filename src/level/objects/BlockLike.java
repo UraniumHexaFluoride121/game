@@ -56,7 +56,7 @@ public abstract class BlockLike implements Tickable, Renderable, CollisionObject
     public void delete() {
         renderElement.delete();
         removeTickable();
-        MainPanel.GAME_RENDERER.register(this);
+        MainPanel.GAME_RENDERER.remove(this);
     }
 
     @Override

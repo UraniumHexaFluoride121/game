@@ -1,6 +1,8 @@
 package foundation;
 
+import loader.JsonLoader;
 import foundation.tick.Tick;
+import loader.ResourceLocation;
 
 import javax.swing.*;
 import java.awt.*;
@@ -52,11 +54,11 @@ public class Main {
         } else {
             MainPanel.RENDER_WINDOW_SIZE.multiply(0.95f, 0.95f); //If we can't full-screen it, we should add some margin to the window
             textureSize = (int) Math.min(MainPanel.RENDER_WINDOW_SIZE.x / (BLOCKS_X * 16), MainPanel.RENDER_WINDOW_SIZE.y / (MIN_BLOCKS_Y * 16)); //Recalculate texture size with the margin in mind
-            MainPanel.RENDER_WINDOW_SIZE.set(textureSize * 16 * 30, MainPanel.RENDER_WINDOW_SIZE.y); //set the final size of the render box
+            MainPanel.RENDER_WINDOW_SIZE.set(textureSize * 16 * BLOCKS_X, MainPanel.RENDER_WINDOW_SIZE.y); //set the final size of the render box
 
             Insets insets = window.getInsets();
             //set screen size plus insets. There shouldn't be a problem with adding insets since we have margin.
-            window.setSize(textureSize * 16 * 30 + insets.left + insets.right, (int) MainPanel.RENDER_WINDOW_SIZE.y + insets.top + insets.bottom);
+            window.setSize(textureSize * 16 * BLOCKS_X + insets.left + insets.right, (int) MainPanel.RENDER_WINDOW_SIZE.y + insets.top + insets.bottom);
             MainPanel.gameTransform.translate(insets.left, insets.top);
         }
         MainPanel.BLOCK_DIMENSIONS = new ObjPos(BLOCKS_X, MainPanel.RENDER_WINDOW_SIZE.y / (textureSize * 16));
