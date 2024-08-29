@@ -1,8 +1,6 @@
 package foundation;
 
-import loader.JsonLoader;
 import foundation.tick.Tick;
-import loader.ResourceLocation;
 
 import javax.swing.*;
 import java.awt.*;

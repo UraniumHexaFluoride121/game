@@ -11,4 +11,9 @@ public class ResourceLocation {
     public String getPath(String assetsPath) {
         return assetsPath + relativePath;
     }
+
+    @Override
+    public String toString() {
+        return relativePath;
+    }
 }
