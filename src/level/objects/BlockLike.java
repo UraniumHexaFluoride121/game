@@ -2,16 +2,16 @@ package level.objects;
 
 import foundation.MainPanel;
 import foundation.ObjPos;
-import foundation.tick.Tickable;
+import foundation.tick.RegisteredTickable;
 import level.ObjectLayer;
 import physics.CollisionHandler;
 import physics.CollisionObject;
-import render.Renderable;
+import render.OrderedRenderable;
 import render.renderables.RenderGameElement;
 
 import java.awt.*;
 
-public abstract class BlockLike implements Tickable, Renderable, CollisionObject {
+public abstract class BlockLike implements RegisteredTickable, OrderedRenderable, CollisionObject {
     public RenderGameElement renderElement;
     public ObjPos pos;
     public CollisionHandler.CollisionObjectData collisionObjectData;

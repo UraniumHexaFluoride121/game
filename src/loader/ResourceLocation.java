@@ -16,4 +16,17 @@ public class ResourceLocation {
     public String toString() {
         return relativePath;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ResourceLocation r) {
+            return r.relativePath.equals(relativePath);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return relativePath.hashCode();
+    }
 }

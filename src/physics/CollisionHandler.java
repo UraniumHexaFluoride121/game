@@ -2,11 +2,11 @@ package physics;
 
 import foundation.ObjPos;
 import foundation.tick.TickOrder;
-import foundation.tick.Tickable;
+import foundation.tick.RegisteredTickable;
 
 import java.util.HashSet;
 
-public class CollisionHandler implements Tickable {
+public class CollisionHandler implements RegisteredTickable {
     /*
      * We divide the collisions into sections along the Y-axis. These sections are so that
      * we can only check collisions for objects within the same section, thus avoiding collision

@@ -6,8 +6,8 @@ import java.util.HashSet;
 import java.util.TreeMap;
 
 public class Tick extends Thread {
-    private final HashSet<Tickable> qRegister = new HashSet<>(), qRemove = new HashSet<>();
-    private final TreeMap<TickOrder, HashSet<Tickable>> tickables = new TreeMap<>();
+    private final HashSet<RegisteredTickable> qRegister = new HashSet<>(), qRemove = new HashSet<>();
+    private final TreeMap<TickOrder, HashSet<RegisteredTickable>> tickables = new TreeMap<>();
 
     public Tick() {
         for (TickOrder value : TickOrder.values()) {
@@ -15,11 +15,11 @@ public class Tick extends Thread {
         }
     }
 
-    public void register(Tickable t) {
+    public void register(RegisteredTickable t) {
         qRegister.add(t);
     }
 
-    public void remove(Tickable t) {
+    public void remove(RegisteredTickable t) {
         qRemove.add(t);
     }
 

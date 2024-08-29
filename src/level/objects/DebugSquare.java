@@ -2,13 +2,15 @@ package level.objects;
 
 import foundation.ObjPos;
 import foundation.tick.TickOrder;
+import loader.AssetManager;
+import loader.ResourceLocation;
 import physics.CollisionBehaviour;
 import physics.CollisionType;
 import physics.DynamicHitBox;
 import physics.HitBox;
 import render.RenderOrder;
 import render.renderables.RenderGameElement;
-import render.renderables.RenderGameSquare;
+import render.renderables.RenderSingleTexture;
 
 import java.awt.*;
 
@@ -24,7 +26,7 @@ public class DebugSquare extends BlockLike {
 
     @Override
     public RenderGameElement createRefreshedRenderer() {
-        return new RenderGameSquare(RenderOrder.BLOCK, color, 1, 0, 0, 1, this::getPos);
+        return new RenderSingleTexture(RenderOrder.BLOCK, this::getPos, AssetManager.getAnimatedTexture(new ResourceLocation("test.json")));
     }
 
     @Override

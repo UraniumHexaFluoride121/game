@@ -2,11 +2,11 @@ package render.renderables;
 
 import foundation.MainPanel;
 import render.RenderOrder;
-import render.Renderable;
+import render.OrderedRenderable;
 
 import java.awt.*;
 
-public class RenderBackground implements Renderable {
+public class RenderBackground implements OrderedRenderable {
     public Color color;
     public RenderBackground(Color color) {
         this.color = color;

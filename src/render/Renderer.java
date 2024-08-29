@@ -5,10 +5,10 @@ import java.awt.geom.AffineTransform;
 import java.util.HashSet;
 import java.util.TreeMap;
 
-public class Renderer implements Renderable {
+public class Renderer implements OrderedRenderable {
     public final AffineTransform transform;
-    private final HashSet<Renderable> qRegister = new HashSet<>(), qRemove = new HashSet<>();
-    private final TreeMap<RenderOrder, HashSet<Renderable>> renderables = new TreeMap<>();
+    private final HashSet<OrderedRenderable> qRegister = new HashSet<>(), qRemove = new HashSet<>();
+    private final TreeMap<RenderOrder, HashSet<OrderedRenderable>> renderables = new TreeMap<>();
 
     public Renderer() {
         this(new AffineTransform());
@@ -21,11 +21,11 @@ public class Renderer implements Renderable {
         }
     }
 
-    public void register(Renderable r) {
+    public void register(OrderedRenderable r) {
         qRegister.add(r);
     }
 
-    public void remove(Renderable r) {
+    public void remove(OrderedRenderable r) {
         qRemove.add(r);
     }
 

@@ -1,7 +1,7 @@
 package foundation.input;
 
 import foundation.tick.TickOrder;
-import foundation.tick.Tickable;
+import foundation.tick.RegisteredTickable;
 
 import java.awt.event.InputEvent;
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class InputHandler implements Tickable {
+public class InputHandler implements RegisteredTickable {
     ArrayList<InputData<?>> queuedInputs = new ArrayList<>();
 
     //We store each input event in a TreeMap, sorted by the event order

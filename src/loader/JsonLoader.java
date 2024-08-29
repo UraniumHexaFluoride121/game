@@ -3,12 +3,10 @@ package loader;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 //This Json parser should always work as long as the file is properly formatted, incorrectly
 //formatted Json will result in unpredictable behaviour
-public class JsonLoader {
+class JsonLoader {
     //The path to the assets folder, relative to this class file
     private static final String ASSETS_PATH = "../assets/";
 
@@ -25,7 +23,7 @@ public class JsonLoader {
         dataStream = new DataInputStream(stream);
     }
 
-    public static JsonType readJsonResource(ResourceLocation r) {
+    public static JsonDataStructure readJsonResource(ResourceLocation r) {
         JsonLoader loader = new JsonLoader(r);
         try {
             char c = loader.readNextChar();
@@ -39,7 +37,7 @@ public class JsonLoader {
         }
     }
 
-    public JsonObject readObject() {
+    private JsonObject readObject() {
         JsonObject o = new JsonObject();
         try {
             char c = readNextChar();
@@ -69,6 +67,10 @@ public class JsonLoader {
                         value = readArray();
                         c = readNextChar();
                     }
+                    case 'f', 't' -> {
+                        value = readBoolean(c);
+                        c = readNextChar();
+                    }
                     default -> {
                         NumberResult r = readNumber(c);
                         value = r.number;
@@ -85,7 +87,7 @@ public class JsonLoader {
         return o;
     }
 
-    public JsonArray readArray() {
+    private JsonArray readArray() {
         JsonArray array = new JsonArray();
         try {
             char c = readNextChar();
@@ -106,6 +108,10 @@ public class JsonLoader {
                     }
                     case '[' -> {
                         value = readArray();
+                        c = readNextChar();
+                    }
+                    case 'f', 't' -> {
+                        value = readBoolean(c);
                         c = readNextChar();
                     }
                     default -> {
@@ -144,63 +150,31 @@ public class JsonLoader {
         try {
             StringBuilder s = new StringBuilder().append(firstChar);
             char c = readNextChar();
-            boolean isFloat = false;
+            boolean hasDecimalPlace = false;
             while ((c >= '0' && c <= '9') || c == '.' || c == '-') {
                 if (c == '.') {
-                    isFloat = true;
+                    hasDecimalPlace = true;
                     s.append(c);
                 } else {
                     s.append(Character.getNumericValue(c));
                 }
                 c = readNextChar();
             }
-            return new NumberResult(isFloat ? Float.parseFloat(s.toString()) : Integer.parseInt(s.toString()), c);
+            return new NumberResult(hasDecimalPlace ? Float.parseFloat(s.toString()) : Integer.parseInt(s.toString()), c);
         } catch (IOException e) {
             throw new RuntimeException("Reached end of file while reading number at file " + resource.relativePath);
         }
     }
 
-    private static class NumberResult {
-        public Number number;
-        public char next;
-
-        public NumberResult(Number number, char next) {
-            this.number = number;
-            this.next = next;
-        }
-    }
-
-    public static sealed class JsonType {
-        public boolean isList;
-
-        public JsonType(boolean isList) {
-            this.isList = isList;
-        }
-    }
-
-    public static final class JsonObject extends JsonType {
-        public HashMap<String, Object> pairs = new HashMap<>();
-
-        public JsonObject() {
-            super(false);
-        }
-
-        @Override
-        public String toString() {
-            return pairs.toString();
-        }
-    }
-
-    public static final class JsonArray extends JsonType {
-        public ArrayList<Object> items = new ArrayList<>();
-
-        public JsonArray() {
-            super(true);
-        }
-
-        @Override
-        public String toString() {
-            return items.toString();
+    private boolean readBoolean(char firstChar) {
+        try {
+            StringBuilder s = new StringBuilder().append(firstChar);
+            for (int i = 0; i < (firstChar == 'f' ? 4 : 3); i++) {
+                s.append(readNextChar());
+            }
+            return s.toString().equals("true");
+        } catch (IOException e) {
+            throw new RuntimeException("Reached end of file while reading boolean at file " + resource.relativePath);
         }
     }
 
@@ -213,5 +187,15 @@ public class JsonLoader {
                 currentRow++;
         } while (c == 10 || c == 13 || c == ' ');
         return c;
+    }
+
+    private static class NumberResult {
+        public Number number;
+        public char next;
+
+        public NumberResult(Number number, char next) {
+            this.number = number;
+            this.next = next;
+        }
     }
 }

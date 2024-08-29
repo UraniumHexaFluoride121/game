@@ -1,14 +1,16 @@
 package render.renderables;
 
+import foundation.Deletable;
 import foundation.ObjPos;
 import foundation.tick.TickOrder;
+import foundation.tick.RegisteredTickable;
 import foundation.tick.Tickable;
 import render.RenderOrder;
-import render.Renderable;
+import render.OrderedRenderable;
 
 import java.util.function.Supplier;
 
-public abstract class RenderGameElement implements Renderable, Tickable {
+public abstract class RenderGameElement implements OrderedRenderable, Tickable, Deletable {
     private final RenderOrder renderOrder;
     protected Supplier<ObjPos> gamePos;
 
@@ -33,12 +35,5 @@ public abstract class RenderGameElement implements Renderable, Tickable {
     @Override
     public void tick(float deltaTime) {
 
-    }
-
-    //Since we never register this object to a tick thread, we need not worry about tick order.
-    //It is expected that tick order instead be handled by the rendering object, if necessary.
-    @Override
-    public TickOrder getTickOrder() {
-        return null;
     }
 }
