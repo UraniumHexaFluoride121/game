@@ -25,9 +25,11 @@ public abstract class AssetManager {
     public static TextureAsset getTextureAsset(ResourceLocation resource) {
         if (textureAssets.containsKey(resource))
             return textureAssets.get(resource);
+
         JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(resource));
         ResourceLocation imageResource = new ResourceLocation(obj.get("path", JsonType.STRING_JSON_TYPE));
         AffineTransform transform = new AffineTransform();
+
         if (obj.containsName("transform")) {
             JsonObject transformObject = obj.get("transform", JsonType.JSON_OBJECT_TYPE);
             transform.translate(
@@ -47,10 +49,21 @@ public abstract class AssetManager {
     public static AnimatedTexture getAnimatedTexture(ResourceLocation resource) {
         JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(resource));
         JsonArray renderables = obj.get("renderables", JsonType.JSON_ARRAY_TYPE);
-        AnimatedTexture texture = new AnimatedTexture(obj.getOrDefault("pickRandomFrame", false, JsonType.BOOLEAN_JSON_TYPE), obj.get("frameDuration", JsonType.FLOAT_JSON_TYPE));
+        JsonArray initial = obj.getOrDefault("initial", null, JsonType.JSON_ARRAY_TYPE);
+
+        AnimatedTexture texture = new AnimatedTexture(
+                obj.getOrDefault("pickRandomFrame", false, JsonType.BOOLEAN_JSON_TYPE),
+                obj.get("frameDuration", JsonType.FLOAT_JSON_TYPE));
+
         renderables.forEach(o -> {
             texture.addRenderable(deserializeRenderable(o));
         }, JsonType.JSON_OBJECT_TYPE);
+
+        if (initial != null) {
+            initial.forEach(o -> {
+                texture.addRenderableInitial(deserializeRenderable(o));
+            }, JsonType.JSON_OBJECT_TYPE);
+        }
         return texture;
     }
 
@@ -74,6 +87,7 @@ public abstract class AssetManager {
         ResourceLocation path = new ResourceLocation(object.get("path", JsonType.STRING_JSON_TYPE));
         return switch (type) {
             case "TextureAsset" -> getTextureAsset(path);
+            case "AnimatedTexture" -> getAnimatedTexture(path);
             default -> throw new RuntimeException("Unknown Renderable type: " + type);
         };
     }
