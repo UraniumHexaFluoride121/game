@@ -7,10 +7,12 @@ import physics.CollisionBehaviour;
 import physics.CollisionObject;
 import physics.CollisionType;
 import physics.HitBox;
+import render.RenderEvent;
 
 public abstract class PhysicsObject extends BlockLike {
     public VelocityHandler velocity = new VelocityHandler();
     public boolean onGround = false;
+    private boolean previouslyOnGround = true, previouslyFalling = false;
 
     public static final ObjPos DEFAULT_GRAVITY = new ObjPos(0, -30);
 
@@ -36,8 +38,16 @@ public abstract class PhysicsObject extends BlockLike {
 
     @Override
     public void tick(float deltaTime) {
+        if (velocity.y < 0 && !previouslyFalling)
+            renderElement.onEvent(RenderEvent.ON_BLOCK_FALLING);
+        previouslyFalling = velocity.y < 0;
+
         super.tick(deltaTime);
         processMovement(deltaTime);
+
+        if (onGround && !previouslyOnGround)
+            renderElement.onEvent(RenderEvent.ON_BLOCK_LAND);
+        previouslyOnGround = onGround;
     }
 
     public void processMovement(float deltaTime) {

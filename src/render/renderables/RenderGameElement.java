@@ -5,12 +5,14 @@ import foundation.ObjPos;
 import foundation.tick.TickOrder;
 import foundation.tick.RegisteredTickable;
 import foundation.tick.Tickable;
+import render.RenderEvent;
+import render.RenderEventListener;
 import render.RenderOrder;
 import render.OrderedRenderable;
 
 import java.util.function.Supplier;
 
-public abstract class RenderGameElement implements OrderedRenderable, Tickable, Deletable {
+public abstract class RenderGameElement implements OrderedRenderable, Tickable, Deletable, RenderEventListener {
     private final RenderOrder renderOrder;
     protected Supplier<ObjPos> gamePos;
 
@@ -31,9 +33,14 @@ public abstract class RenderGameElement implements OrderedRenderable, Tickable, 
     }
 
     //Use for animated textures only, no game logic. This method should only be invoked
-    //by the parent object when being rendered, NEVER directly registered to the tick thread.
+    //by the parent object, NEVER directly registered to the tick thread.
     @Override
     public void tick(float deltaTime) {
+
+    }
+
+    @Override
+    public void onEvent(RenderEvent event) {
 
     }
 }

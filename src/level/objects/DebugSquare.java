@@ -10,7 +10,7 @@ import physics.DynamicHitBox;
 import physics.HitBox;
 import render.RenderOrder;
 import render.renderables.RenderGameElement;
-import render.renderables.RenderSingleTexture;
+import render.renderables.RenderTexture;
 
 import java.awt.*;
 
@@ -26,7 +26,7 @@ public class DebugSquare extends BlockLike {
 
     @Override
     public RenderGameElement createRefreshedRenderer() {
-        return new RenderSingleTexture(RenderOrder.BLOCK, this::getPos, AssetManager.getAnimatedTexture(new ResourceLocation("test.json")));
+        return new RenderTexture(RenderOrder.BLOCK, this::getPos, AssetManager.getAnimatedTexture(new ResourceLocation("test.json")));
     }
 
     @Override

@@ -1,13 +1,16 @@
 package render;
 
-import foundation.tick.AnimatedTickable;
+import foundation.tick.Tickable;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 
-public class AnimatedTexture implements Renderable, AnimatedTickable {
+public class AnimatedTexture implements Renderable, Tickable, RenderEventListener {
     private final ArrayList<Renderable> elements = new ArrayList<>();
     private final ArrayList<Renderable> initial = new ArrayList<>();
+    private final HashSet<RenderEvent> startInitialEvents = new HashSet<>();
+
     private int index = 0;
     private float currentTime = 0;
     private final float frameDuration;
@@ -22,6 +25,10 @@ public class AnimatedTexture implements Renderable, AnimatedTickable {
 
     public void addRenderable(Renderable r) {
         elements.add(r);
+    }
+
+    public void addStartInitialEvent(RenderEvent r) {
+        startInitialEvents.add(r);
     }
 
     public void addRenderableInitial(Renderable r) {
@@ -47,6 +54,8 @@ public class AnimatedTexture implements Renderable, AnimatedTickable {
                 }
             }
         }
+        if (getActiveList().get(index) instanceof Tickable t)
+            t.tick(deltaTime);
     }
 
     @Override
@@ -55,10 +64,15 @@ public class AnimatedTexture implements Renderable, AnimatedTickable {
     }
 
     @Override
-    public void onSwitchTo() {
-        if (!pickRandomFrame) {
-            index = 0;
-            isOnInitial = true;
+    public void onEvent(RenderEvent event) {
+        if (startInitialEvents.contains(event)) {
+            if (!pickRandomFrame) {
+                index = 0;
+                isOnInitial = true;
+                currentTime = 0;
+            }
         }
+        if (getActiveList().get(index) instanceof RenderEventListener listener)
+            listener.onEvent(event);
     }
 }

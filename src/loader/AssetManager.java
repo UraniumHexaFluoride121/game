@@ -1,6 +1,7 @@
 package loader;
 
 import render.AnimatedTexture;
+import render.RenderEvent;
 import render.Renderable;
 import render.TextureAsset;
 
@@ -50,6 +51,7 @@ public abstract class AssetManager {
         JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(resource));
         JsonArray renderables = obj.get("renderables", JsonType.JSON_ARRAY_TYPE);
         JsonArray initial = obj.getOrDefault("initial", null, JsonType.JSON_ARRAY_TYPE);
+        JsonArray startInitial = obj.getOrDefault("startInitialEvents", null, JsonType.JSON_ARRAY_TYPE);
 
         AnimatedTexture texture = new AnimatedTexture(
                 obj.getOrDefault("pickRandomFrame", false, JsonType.BOOLEAN_JSON_TYPE),
@@ -64,6 +66,13 @@ public abstract class AssetManager {
                 texture.addRenderableInitial(deserializeRenderable(o));
             }, JsonType.JSON_OBJECT_TYPE);
         }
+
+        if (startInitial != null) {
+            startInitial.forEach(event -> {
+                texture.addStartInitialEvent(deserializeRenderEvent(event));
+            }, JsonType.STRING_JSON_TYPE);
+        }
+
         return texture;
     }
 
@@ -90,5 +99,11 @@ public abstract class AssetManager {
             case "AnimatedTexture" -> getAnimatedTexture(path);
             default -> throw new RuntimeException("Unknown Renderable type: " + type);
         };
+    }
+
+    private static RenderEvent deserializeRenderEvent(String event) {
+        if (!RenderEvent.ALL_EVENTS.containsKey(event))
+            throw new RuntimeException("Unknown RenderEvent: " + event);
+        return RenderEvent.ALL_EVENTS.get(event);
     }
 }
