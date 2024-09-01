@@ -13,11 +13,9 @@ import render.renderables.RenderTexture;
 import java.awt.*;
 
 public class PhysicsBlock extends PhysicsObject {
-    private final Color color;
     private final DynamicHitBox hitBox;
-    public PhysicsBlock(ObjPos pos, Color color) {
+    public PhysicsBlock(ObjPos pos) {
         super(pos);
-        this.color = color;
         hitBox = new DynamicHitBox(1, 0, 0, 1, this::getPos);
     }
 

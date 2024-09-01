@@ -3,7 +3,7 @@ package foundation;
 import foundation.input.InputType;
 import level.Level;
 import level.objects.BlockLike;
-import level.objects.DebugSquare;
+import level.objects.StaticBlock;
 import level.objects.PhysicsBlock;
 import level.objects.Player;
 import render.Renderer;
@@ -28,15 +28,17 @@ public class MainPanel extends JFrame implements KeyListener {
     BlockLike player;
 
     public void init() {
-        player = new Player(new ObjPos(4, 2), Color.YELLOW, level.inputHandler).init();
+        player = new Player(new ObjPos(4, 2), level.inputHandler).init();
         level.addBlocks(player);
-        BlockLike blue = new PhysicsBlock(new ObjPos(2, 2), Color.BLUE).init();
-        level.addBlocks(blue);
-        BlockLike red = new DebugSquare(new ObjPos(4, 5), Color.RED).init();
-        BlockLike red2 = new DebugSquare(new ObjPos(5, 5), Color.RED).init();
-        BlockLike red3 = new DebugSquare(new ObjPos(4, 6), Color.RED).init();
+        BlockLike blue = new PhysicsBlock(new ObjPos(2.5, 7)).init();
+        BlockLike blue2 = new PhysicsBlock(new ObjPos(7, 3)).init();
+        BlockLike blue3 = new PhysicsBlock(new ObjPos(7, 5)).init();
+        level.addBlocks(blue, blue2, blue3);
+        BlockLike red = new StaticBlock(new ObjPos(4, 5)).init();
+        BlockLike red2 = new StaticBlock(new ObjPos(5, 5)).init();
+        BlockLike red3 = new StaticBlock(new ObjPos(4, 6)).init();
         level.addBlocks(red, red2, red3);
-        level.addBlocks(new DebugSquare(new ObjPos(2, 3), Color.GREEN).init());
+        level.addBlocks(new StaticBlock(new ObjPos(2, 3)).init());
         GAME_RENDERER.register(new RenderBackground(Color.WHITE));
     }
 

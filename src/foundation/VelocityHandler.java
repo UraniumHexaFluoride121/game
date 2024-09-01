@@ -47,7 +47,7 @@ public class VelocityHandler extends ObjPos {
             x -= Math.signum(x) * decayConstant * deltaTime;
     }
 
-    public VelocityHandler copyAsForceHandler() {
+    public VelocityHandler copyAsVelocityHandler() {
         return new VelocityHandler(x, y);
     }
 }

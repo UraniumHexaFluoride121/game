@@ -235,6 +235,14 @@ public class ObjPos {
         return this;
     }
 
+    public ObjPos snapErrorToZero(float epsilon) {
+        if (Math.abs(x) < epsilon)
+            x = epsilon;
+        if (Math.abs(y) < epsilon)
+            y = epsilon;
+        return this;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof ObjPos))

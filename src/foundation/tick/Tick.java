@@ -36,7 +36,7 @@ public class Tick extends Thread {
     //than this, we'll cap the delta time resulting in the game time running slower
     //than normal. This is to avoid physics problems that would otherwise happen,
     //for example weird snapping and blocks phasing through each other
-    public static final float MAX_DELTA_TIME = 0.02f;
+    public static final float MAX_DELTA_TIME = 0.03f;
 
     @Override
     public void run() {
@@ -59,7 +59,7 @@ public class Tick extends Thread {
             Main.window.getBufferStrategy().show();
             //We make sure that a detectable amount of time has passed before processing the next tick
             //If we don't, the physics may not function properly
-            while (System.currentTimeMillis() - time < 1) ;
+            while (System.currentTimeMillis() - time < 1);
         }
     }
 }

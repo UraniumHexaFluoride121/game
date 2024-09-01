@@ -14,13 +14,11 @@ import render.renderables.RenderTexture;
 
 import java.awt.*;
 
-public class DebugSquare extends BlockLike {
-    private final Color color;
+public class StaticBlock extends BlockLike {
     private final DynamicHitBox hitBox;
 
-    public DebugSquare(ObjPos pos, Color color) {
+    public StaticBlock(ObjPos pos) {
         super(pos);
-        this.color = color;
         hitBox = new DynamicHitBox(1, 0, 0, 1, this::getPos);
     }
 

@@ -1,10 +1,11 @@
 package physics;
 
 import foundation.ObjPos;
-import foundation.tick.TickOrder;
 import foundation.tick.RegisteredTickable;
+import foundation.tick.TickOrder;
 
 import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CollisionHandler implements RegisteredTickable {
     /*
@@ -30,12 +31,11 @@ public class CollisionHandler implements RegisteredTickable {
     //A set containing all movable objects. Used to iterate through all movable objects when
     //refreshing their position in the sectioned set to avoid ConcurrentModificationException
     private final HashSet<CollisionObject> movableObjectSet = new HashSet<>();
-    private final int maxHeight, sectionSize, bufferSections, sectionCount;
+    private final int sectionSize, bufferSections, sectionCount;
 
     private boolean deleted = false;
 
     public CollisionHandler(int maxHeight, int sectionSize, int bufferSections) {
-        this.maxHeight = maxHeight;
         this.sectionSize = sectionSize;
         this.bufferSections = bufferSections;
         sectionCount = ((int) Math.ceil((double) maxHeight / sectionSize)) + 2 * bufferSections;
@@ -135,6 +135,21 @@ public class CollisionHandler implements RegisteredTickable {
             o.dynamicPreTick(deltaTime);
         });
 
+        int loops = 0;
+        while (true) {
+            loops++;
+            AtomicBoolean isCollision = testIsCollision(loops <= 3, loops >= 12);
+            if (!isCollision.get())
+                break;
+            clearCollidedWith();
+            if (loops > 20)
+                throw new RuntimeException("Failed to solve collision");
+        }
+        clearCollidedWith();
+    }
+
+    private AtomicBoolean testIsCollision(boolean constraintsOnly, boolean alwaysSnap) {
+        AtomicBoolean hasHadCollision = new AtomicBoolean(false);
         for (int i = 0; i < sectionCount; i++) {
             HashSet<CollisionObject> objects = collisionObjects[i];
             HashSet<CollisionObject> dynamics = dynamicObjects[i];
@@ -152,24 +167,26 @@ public class CollisionHandler implements RegisteredTickable {
 
                     HitBox otherBox = otherObj.getHitBox();
                     if (dynamicBox.isColliding(otherBox)) {
-                        dynamic.onCollision(otherObj);
+                        dynamic.onCollision(otherObj, constraintsOnly, alwaysSnap);
                         dynamic.getCollisionData().collidedWith.add(otherObj);
                         otherObj.getCollisionData().collidedWith.add(dynamic);
+                        hasHadCollision.set(true);
                     }
                 });
                 if (dynamic.hasWorldBorderCollision()) {
                     worldBorderCollisionObjects.forEach(otherObj -> {
                         HitBox otherBox = otherObj.getHitBox();
                         if (dynamicBox.isColliding(otherBox)) {
-                            dynamic.onCollision(otherObj);
+                            dynamic.onCollision(otherObj, constraintsOnly, alwaysSnap);
                             dynamic.getCollisionData().collidedWith.add(otherObj);
                             otherObj.getCollisionData().collidedWith.add(dynamic);
+                            hasHadCollision.set(true);
                         }
                     });
                 }
             });
         }
-        clearCollidedWith();
+        return hasHadCollision;
     }
 
     @Override

@@ -21,8 +21,15 @@ public interface CollisionObject {
     }
 
     //Only one of the objects will have this method called. It is expected that
-    //that object handle the collision for both of them
-    default void onCollision(CollisionObject other) {
+    //that object handle the collision for both of them. constraintsOnly if for the
+    //initial collision to set everything in place before allowing physics objects to
+    //push each other, preventing cases where for example a block could "catch" on another
+    //while moving over it when it's not supposed to. alwaysSnap is set if the collision could
+    //not be solved, forcing blocks to snap regardless of constraints as a final attempt
+    //at solving the collision. This can for example solve situations with three blocks in a
+    //row where the middle one gets bounced back and forth, where snapping would force it into
+    //place.
+    default void onCollision(CollisionObject other, boolean constrainsOnly, boolean alwaysSnap) {
 
     }
 

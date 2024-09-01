@@ -6,16 +6,15 @@ import foundation.input.InputHandlingOrder;
 import foundation.input.InputType;
 import render.RenderEvent;
 
-import java.awt.*;
 import java.awt.event.KeyEvent;
 
 public class Player extends PhysicsBlock {
     private boolean space, left, right;
 
-    public Player(ObjPos pos, Color color, InputHandler handler) {
-        super(pos, color);
+    public Player(ObjPos pos, InputHandler handler) {
+        super(pos);
         handler.addInput(InputType.KEY_PRESSED, e -> {
-            if (onGround) {
+            if (downConstrained) {
                 applyImpulse(new ObjPos(0, 2));
                 renderElement.onEvent(RenderEvent.ON_PLAYER_INPUT_JUMP);
             }
