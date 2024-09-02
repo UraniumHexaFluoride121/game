@@ -2,29 +2,20 @@ package level.objects;
 
 import foundation.ObjPos;
 import foundation.tick.TickOrder;
-import loader.AssetManager;
-import loader.ResourceLocation;
+import level.ObjectLayer;
 import physics.CollisionBehaviour;
 import physics.CollisionType;
-import physics.DynamicHitBox;
 import physics.HitBox;
-import render.RenderOrder;
-import render.renderables.RenderGameElement;
-import render.renderables.RenderTexture;
-
-import java.awt.*;
 
 public class StaticBlock extends BlockLike {
-    private final DynamicHitBox hitBox;
+    private final CollisionType collisionType;
+    public final ObjectLayer objectLayer;
 
-    public StaticBlock(ObjPos pos) {
+    public StaticBlock(ObjPos pos, float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight, CollisionType collisionType, ObjectLayer objectLayer) {
         super(pos);
-        hitBox = new DynamicHitBox(1, 0, 0, 1, this::getPos);
-    }
-
-    @Override
-    public RenderGameElement createRefreshedRenderer() {
-        return new RenderTexture(RenderOrder.BLOCK, this::getPos, AssetManager.getAnimatedTexture(new ResourceLocation("test.json")));
+        this.collisionType = collisionType;
+        this.objectLayer = objectLayer;
+        createHitBox(hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
     }
 
     @Override
@@ -44,11 +35,16 @@ public class StaticBlock extends BlockLike {
 
     @Override
     public CollisionType getCollisionType() {
-        return CollisionType.STATIC;
+        return collisionType;
     }
 
     @Override
     public CollisionBehaviour getCollisionBehaviour() {
         return CollisionBehaviour.IMMOVABLE;
+    }
+
+    @Override
+    public ObjectLayer getLayer() {
+        return objectLayer;
     }
 }

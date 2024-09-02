@@ -138,11 +138,11 @@ public class CollisionHandler implements RegisteredTickable {
         int loops = 0;
         while (true) {
             loops++;
-            AtomicBoolean isCollision = testIsCollision(loops <= 3, loops >= 12);
+            AtomicBoolean isCollision = testIsCollision(loops <= 5, loops >= 25);
             if (!isCollision.get())
                 break;
             clearCollidedWith();
-            if (loops > 20)
+            if (loops > 50)
                 throw new RuntimeException("Failed to solve collision");
         }
         clearCollidedWith();

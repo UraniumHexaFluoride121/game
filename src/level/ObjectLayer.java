@@ -1,13 +1,23 @@
 package level;
 
 public enum ObjectLayer {
-    MAIN(false, true),
-    DYNAMIC(true, false);
+    FOREGROUND(false, true, "foreground"),
+    DYNAMIC(true, false, "dynamic");
 
     public final boolean addToDynamic, addToStatic;
+    public final String s;
 
-    ObjectLayer(boolean addToDynamic, boolean addToStatic) {
+    ObjectLayer(boolean addToDynamic, boolean addToStatic, String s) {
         this.addToDynamic = addToDynamic;
         this.addToStatic = addToStatic;
+        this.s = s;
+    }
+
+    public static ObjectLayer getObjectLayer(String s) {
+        for (ObjectLayer layer : ObjectLayer.values()) {
+            if (layer.s.equals(s))
+                return layer;
+        }
+        throw new IllegalArgumentException("Unknown object layer: " + s);
     }
 }

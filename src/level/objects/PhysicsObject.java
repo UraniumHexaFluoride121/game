@@ -13,7 +13,6 @@ public abstract class PhysicsObject extends BlockLike {
     public VelocityHandler velocity = new VelocityHandler();
     public boolean downConstrained = false, upConstrained = false, leftConstrained = false, rightConstrained = false;
     private boolean previouslyOnGround = true, previouslyFalling = false;
-    private VelocityHandler preCollisionVelocity;
 
     public static final ObjPos DEFAULT_GRAVITY = new ObjPos(0, -30);
 
@@ -80,7 +79,6 @@ public abstract class PhysicsObject extends BlockLike {
         upConstrained = false;
         leftConstrained = false;
         rightConstrained = false;
-        preCollisionVelocity = velocity.copyAsVelocityHandler();
     }
 
     @Override
@@ -133,7 +131,7 @@ public abstract class PhysicsObject extends BlockLike {
                             pos.subtractY(overlap.y * 0.5f);
                             physicsObject.pos.subtractY(overlap.y * -0.5f);
                             if (cancelVelocity) {
-                                float v = (velocity.y + physicsObject.velocity.y) / 2;
+                                float v = (velocity.y * getMass() + physicsObject.velocity.y * physicsObject.getMass()) / (getMass() + physicsObject.getMass());
                                 velocity.y = v;
                                 physicsObject.velocity.y = v;
                             }
@@ -153,7 +151,7 @@ public abstract class PhysicsObject extends BlockLike {
                             pos.subtractY(overlap.y * 0.5f);
                             physicsObject.pos.subtractY(overlap.y * -0.5f);
                             if (cancelVelocity) {
-                                float v = (velocity.y + physicsObject.velocity.y) / 2;
+                                float v = (velocity.y * getMass() + physicsObject.velocity.y * physicsObject.getMass()) / (getMass() + physicsObject.getMass());
                                 velocity.y = v;
                                 physicsObject.velocity.y = v;
                             }
@@ -177,7 +175,7 @@ public abstract class PhysicsObject extends BlockLike {
                             pos.subtractX(overlap.x * 0.5f);
                             physicsObject.pos.subtractX(overlap.x * -0.5f);
                             if (cancelVelocity) {
-                                float v = (velocity.x + physicsObject.velocity.x) / 2;
+                                float v = (velocity.x * getMass() + physicsObject.velocity.x * physicsObject.getMass()) / (getMass() + physicsObject.getMass());
                                 velocity.x = v;
                                 physicsObject.velocity.x = v;
                             }
@@ -197,7 +195,7 @@ public abstract class PhysicsObject extends BlockLike {
                             pos.subtractX(overlap.x * 0.5f);
                             physicsObject.pos.subtractX(overlap.x * -0.5f);
                             if (cancelVelocity) {
-                                float v = (velocity.x + physicsObject.velocity.x) / 2;
+                                float v = (velocity.x * getMass() + physicsObject.velocity.x * physicsObject.getMass()) / (getMass() + physicsObject.getMass());
                                 velocity.x = v;
                                 physicsObject.velocity.x = v;
                             }

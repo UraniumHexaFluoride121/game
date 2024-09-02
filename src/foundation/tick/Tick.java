@@ -59,7 +59,7 @@ public class Tick extends Thread {
             Main.window.getBufferStrategy().show();
             //We make sure that a detectable amount of time has passed before processing the next tick
             //If we don't, the physics may not function properly
-            while (System.currentTimeMillis() - time < 1);
+            while (System.currentTimeMillis() - time < 5);
         }
     }
 }

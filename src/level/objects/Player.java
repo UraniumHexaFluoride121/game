@@ -11,8 +11,8 @@ import java.awt.event.KeyEvent;
 public class Player extends PhysicsBlock {
     private boolean space, left, right;
 
-    public Player(ObjPos pos, InputHandler handler) {
-        super(pos);
+    public Player(ObjPos pos, float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight, InputHandler handler) {
+        super(pos, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
         handler.addInput(InputType.KEY_PRESSED, e -> {
             if (downConstrained) {
                 applyImpulse(new ObjPos(0, 2));

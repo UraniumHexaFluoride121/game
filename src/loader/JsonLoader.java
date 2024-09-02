@@ -6,7 +6,7 @@ import java.io.InputStream;
 
 //This Json parser should always work as long as the file is properly formatted, incorrectly
 //formatted Json will result in unpredictable behaviour
-class JsonLoader {
+public class JsonLoader {
     //The path to the assets folder, relative to this class file
     private static final String ASSETS_PATH = "../assets/";
 
@@ -135,7 +135,7 @@ class JsonLoader {
         try {
             char c;
             while (true) {
-                c = readNextChar();
+                c = readNextCharRaw();
                 if (c == '"')
                     break;
                 builder.append(c);
@@ -186,6 +186,15 @@ class JsonLoader {
             if (c == '\n')
                 currentRow++;
         } while (c == 10 || c == 13 || c == ' ');
+        return c;
+    }
+
+    private char readNextCharRaw() throws IOException {
+        char c;
+        byte b = dataStream.readByte();
+        c = (char) b;
+        if (c == '\n')
+            currentRow++;
         return c;
     }
 

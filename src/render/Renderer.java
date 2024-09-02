@@ -5,7 +5,7 @@ import java.awt.geom.AffineTransform;
 import java.util.HashSet;
 import java.util.TreeMap;
 
-public class Renderer implements OrderedRenderable {
+public class Renderer implements Renderable {
     public final AffineTransform transform;
     private final HashSet<OrderedRenderable> qRegister = new HashSet<>(), qRemove = new HashSet<>();
     private final TreeMap<RenderOrder, HashSet<OrderedRenderable>> renderables = new TreeMap<>();

@@ -1,6 +1,10 @@
-package render;
+package render.texture;
 
 import foundation.tick.Tickable;
+import loader.*;
+import render.RenderEvent;
+import render.RenderEventListener;
+import render.Renderable;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -17,7 +21,7 @@ public class AnimatedTexture implements Renderable, Tickable, RenderEventListene
     private final boolean pickRandomFrame;
     private boolean isOnInitial;
 
-    public AnimatedTexture(boolean pickRandomFrame, float frameDuration) {
+    private AnimatedTexture(boolean pickRandomFrame, float frameDuration) {
         this.pickRandomFrame = pickRandomFrame;
         this.frameDuration = frameDuration;
         isOnInitial = !pickRandomFrame;
@@ -74,5 +78,34 @@ public class AnimatedTexture implements Renderable, Tickable, RenderEventListene
         }
         if (getActiveList().get(index) instanceof RenderEventListener listener)
             listener.onEvent(event);
+    }
+
+    public static AnimatedTexture getAnimatedTexture(ResourceLocation resource) {
+        JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(resource));
+        JsonArray renderables = obj.get("renderables", JsonType.JSON_ARRAY_TYPE);
+        JsonArray initial = obj.getOrDefault("initial", null, JsonType.JSON_ARRAY_TYPE);
+        JsonArray startInitial = obj.getOrDefault("startInitialEvents", null, JsonType.JSON_ARRAY_TYPE);
+
+        AnimatedTexture texture = new AnimatedTexture(
+                obj.getOrDefault("pickRandomFrame", false, JsonType.BOOLEAN_JSON_TYPE),
+                obj.get("frameDuration", JsonType.FLOAT_JSON_TYPE));
+
+        renderables.forEach(o -> {
+            texture.addRenderable(AssetManager.deserializeRenderable(o));
+        }, JsonType.JSON_OBJECT_TYPE);
+
+        if (initial != null) {
+            initial.forEach(o -> {
+                texture.addRenderableInitial(AssetManager.deserializeRenderable(o));
+            }, JsonType.JSON_OBJECT_TYPE);
+        }
+
+        if (startInitial != null) {
+            startInitial.forEach(event -> {
+                texture.addStartInitialEvent(AssetManager.deserializeRenderEvent(event));
+            }, JsonType.STRING_JSON_TYPE);
+        }
+
+        return texture;
     }
 }

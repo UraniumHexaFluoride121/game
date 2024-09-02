@@ -1,17 +1,24 @@
 package loader;
 
-import render.AnimatedTexture;
+import foundation.MainPanel;
+import foundation.ObjPos;
+import level.ObjectLayer;
+import level.objects.*;
+import physics.CollisionType;
 import render.RenderEvent;
+import render.RenderOrder;
 import render.Renderable;
-import render.TextureAsset;
+import render.renderables.RenderTexture;
+import render.texture.AnimatedTexture;
+import render.texture.LayeredTexture;
+import render.texture.TextureAsset;
 
 import javax.imageio.ImageIO;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.Function;
 
 //Utility class to store any assets needed for the game. All asset loading requests
 //must go through the AssetManager, so that already loaded assets don't get loaded
@@ -20,60 +27,97 @@ public abstract class AssetManager {
     //The path to the assets folder, relative to this class file
     private static final String ASSETS_PATH = "../assets/";
 
-    private static final HashMap<ResourceLocation, TextureAsset> textureAssets = new HashMap<>();
     private static final HashMap<ResourceLocation, BufferedImage> textures = new HashMap<>();
+    public static final HashMap<String, Function<ObjPos, ? extends BlockLike>> blocks = new HashMap<>();
 
-    public static TextureAsset getTextureAsset(ResourceLocation resource) {
-        if (textureAssets.containsKey(resource))
-            return textureAssets.get(resource);
-
-        JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(resource));
-        ResourceLocation imageResource = new ResourceLocation(obj.get("path", JsonType.STRING_JSON_TYPE));
-        AffineTransform transform = new AffineTransform();
-
-        if (obj.containsName("transform")) {
-            JsonObject transformObject = obj.get("transform", JsonType.JSON_OBJECT_TYPE);
-            transform.translate(
-                    transformObject.getOrDefault("xOffset", 0f, JsonType.FLOAT_JSON_TYPE),
-                    transformObject.getOrDefault("yOffset", 0f, JsonType.FLOAT_JSON_TYPE)
-            );
-            transform.scale(
-                    transformObject.getOrDefault("xScale", 1f, JsonType.FLOAT_JSON_TYPE),
-                    transformObject.getOrDefault("yScale", 1f, JsonType.FLOAT_JSON_TYPE)
-            );
-        }
-        TextureAsset textureAsset = new TextureAsset(resource, getImage(imageResource), transform);
-        textureAssets.put(resource, textureAsset);
-        return textureAsset;
+    public static void createAllLevelSections(ResourceLocation resource) {
+        JsonArray sections = ((JsonObject) JsonLoader.readJsonResource(resource))
+                .getOrDefault("insertedSections", new JsonArray(), JsonType.JSON_ARRAY_TYPE);
+        sections.forEach(section -> {
+            createLevelSection(
+                    new ResourceLocation(section.get("path", JsonType.STRING_JSON_TYPE)),
+                    section.get("heightOffset", JsonType.INTEGER_JSON_TYPE));
+        }, JsonType.JSON_OBJECT_TYPE);
     }
 
-    public static AnimatedTexture getAnimatedTexture(ResourceLocation resource) {
+    public static void createLevelSection(ResourceLocation resource, int heightOffset) {
+        if (heightOffset < 0)
+            throw new IllegalArgumentException("Level section " + resource.toString() + " was created with negative height offset");
         JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(resource));
-        JsonArray renderables = obj.get("renderables", JsonType.JSON_ARRAY_TYPE);
-        JsonArray initial = obj.getOrDefault("initial", null, JsonType.JSON_ARRAY_TYPE);
-        JsonArray startInitial = obj.getOrDefault("startInitialEvents", null, JsonType.JSON_ARRAY_TYPE);
+        JsonArray blocksArray = obj.get("blocks", JsonType.JSON_ARRAY_TYPE);
+        JsonObject key = obj.get("key", JsonType.JSON_OBJECT_TYPE);
+        int size = blocksArray.size();
+        blocksArray.forEachI((row, i) -> {
+            char[] chars = row.toCharArray();
+            for (int j = 0; j < Math.min(30, chars.length); j++) {
+                String s = String.valueOf(chars[j]);
+                if (key.containsName(s)) {
+                    MainPanel.level.addBlocks(blocks.get(key.get(s, JsonType.STRING_JSON_TYPE)).apply(new ObjPos(j, (size - 1) - i + heightOffset)));
+                }
+            }
+        }, JsonType.STRING_JSON_TYPE);
+    }
 
-        AnimatedTexture texture = new AnimatedTexture(
-                obj.getOrDefault("pickRandomFrame", false, JsonType.BOOLEAN_JSON_TYPE),
-                obj.get("frameDuration", JsonType.FLOAT_JSON_TYPE));
+    public static void readBlocks(ResourceLocation resource) {
+        JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(resource));
+        JsonArray blocksArray = obj.get("blocks", JsonType.JSON_ARRAY_TYPE);
+        blocksArray.forEach(blockObj -> {
+            BlockType type = BlockType.getBlockType(blockObj.getOrDefault("type", "static_block", JsonType.STRING_JSON_TYPE));
+            String blockName = blockObj.get("name", JsonType.STRING_JSON_TYPE);
+            if (blockName.equals("player"))
+                type = BlockType.PLAYER;
+            JsonObject hitBox = blockObj.getOrDefault("hitBox", null, JsonType.JSON_OBJECT_TYPE);
 
-        renderables.forEach(o -> {
-            texture.addRenderable(deserializeRenderable(o));
+            JsonObject texture = blockObj.get("texture", JsonType.JSON_OBJECT_TYPE);
+
+            float hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight;
+            if (hitBox != null) {
+                hitBoxUp = hitBox.getOrDefault("up", 16f, JsonType.FLOAT_JSON_TYPE) / 16;
+                hitBoxDown = hitBox.getOrDefault("down", 16f, JsonType.FLOAT_JSON_TYPE) / 16;
+                hitBoxLeft = hitBox.getOrDefault("left", 16f, JsonType.FLOAT_JSON_TYPE) / 16;
+                hitBoxRight = hitBox.getOrDefault("right", 16f, JsonType.FLOAT_JSON_TYPE) / 16;
+            } else {
+                hitBoxUp = 1;
+                hitBoxDown = 0;
+                hitBoxLeft = 0;
+                hitBoxRight = 1;
+            }
+            if (hitBoxUp + hitBoxDown < 0 || hitBoxRight + hitBoxLeft < 0)
+                throw new IllegalArgumentException("HitBox cannot have negative size");
+
+            ObjectLayer layer = ObjectLayer.getObjectLayer(texture.getOrDefault("layer", "foreground", JsonType.STRING_JSON_TYPE));
+
+            switch (type) {
+                case PLAYER -> blocks.put(blockName, pos -> {
+                    Player player = new Player(pos, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, MainPanel.getInputHandler());
+                    return player.init(new RenderTexture(
+                            RenderOrder.getRenderOrder(texture.getOrDefault("order", "player", JsonType.STRING_JSON_TYPE)), player::getPos,
+                            deserializeRenderable(texture)));
+                });
+                case STATIC_BLOCK -> blocks.put(blockName, pos -> {
+                    StaticBlock staticBlock = new StaticBlock(pos, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.STATIC, layer);
+                    return staticBlock.init(new RenderTexture(
+                            RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), staticBlock::getPos,
+                            deserializeRenderable(texture)));
+                });
+                case MOVABLE_BLOCK -> blocks.put(blockName, pos -> {
+                    StaticBlock staticBlock = new StaticBlock(pos, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.MOVABLE, layer);
+                    return staticBlock.init(new RenderTexture(
+                            RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), staticBlock::getPos,
+                            deserializeRenderable(texture)));
+                });
+                case PHYSICS_BLOCK -> blocks.put(blockName, pos -> {
+                    PhysicsBlock physicsBlock = new PhysicsBlock(pos, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
+                    return physicsBlock.init(new RenderTexture(
+                            RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), physicsBlock::getPos,
+                            deserializeRenderable(texture)));
+                });
+            }
+
         }, JsonType.JSON_OBJECT_TYPE);
 
-        if (initial != null) {
-            initial.forEach(o -> {
-                texture.addRenderableInitial(deserializeRenderable(o));
-            }, JsonType.JSON_OBJECT_TYPE);
-        }
-
-        if (startInitial != null) {
-            startInitial.forEach(event -> {
-                texture.addStartInitialEvent(deserializeRenderEvent(event));
-            }, JsonType.STRING_JSON_TYPE);
-        }
-
-        return texture;
+        if (!blocks.containsKey("player"))
+            throw new RuntimeException("A player block was not defined");
     }
 
     public static BufferedImage getImage(ResourceLocation resource) {
@@ -91,19 +135,20 @@ public abstract class AssetManager {
         }
     }
 
-    private static Renderable deserializeRenderable(JsonObject object) {
+    public static Renderable deserializeRenderable(JsonObject object) {
         String type = object.get("type", JsonType.STRING_JSON_TYPE);
         ResourceLocation path = new ResourceLocation(object.get("path", JsonType.STRING_JSON_TYPE));
         return switch (type) {
-            case "TextureAsset" -> getTextureAsset(path);
-            case "AnimatedTexture" -> getAnimatedTexture(path);
-            default -> throw new RuntimeException("Unknown Renderable type: " + type);
+            case "TextureAsset" -> TextureAsset.getTextureAsset(path);
+            case "AnimatedTexture" -> AnimatedTexture.getAnimatedTexture(path);
+            case "LayeredTexture" -> LayeredTexture.getLayeredTexture(path);
+            default -> throw new IllegalArgumentException("Unknown Renderable type: " + type);
         };
     }
 
-    private static RenderEvent deserializeRenderEvent(String event) {
+    public static RenderEvent deserializeRenderEvent(String event) {
         if (!RenderEvent.ALL_EVENTS.containsKey(event))
-            throw new RuntimeException("Unknown RenderEvent: " + event);
+            throw new IllegalArgumentException("Unknown RenderEvent: " + event);
         return RenderEvent.ALL_EVENTS.get(event);
     }
 }

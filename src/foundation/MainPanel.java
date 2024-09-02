@@ -1,11 +1,10 @@
 package foundation;
 
+import foundation.input.InputHandler;
 import foundation.input.InputType;
 import level.Level;
-import level.objects.BlockLike;
-import level.objects.StaticBlock;
-import level.objects.PhysicsBlock;
-import level.objects.Player;
+import loader.AssetManager;
+import loader.ResourceLocation;
 import render.Renderer;
 import render.renderables.RenderBackground;
 
@@ -16,6 +15,8 @@ import java.awt.event.KeyListener;
 import java.awt.geom.AffineTransform;
 
 public class MainPanel extends JFrame implements KeyListener {
+    //path to the main level file
+    public static final ResourceLocation LEVEL_PATH = new ResourceLocation("level.json");
     public static AffineTransform gameTransform = new AffineTransform();
     public static final Renderer GAME_RENDERER = new Renderer(gameTransform);
 
@@ -25,21 +26,26 @@ public class MainPanel extends JFrame implements KeyListener {
 
     public static Level level = new Level(300);
 
-    BlockLike player;
-
     public void init() {
-        player = new Player(new ObjPos(4, 2), level.inputHandler).init();
+        AssetManager.readBlocks(LEVEL_PATH);
+        AssetManager.createAllLevelSections(LEVEL_PATH);
+        //level.addBlocks(AssetManager.blocks.get("player").apply(new ObjPos(1, 1)));
+        /*player = new Player(new ObjPos(4, 2), level.inputHandler).init();
         level.addBlocks(player);
         BlockLike blue = new PhysicsBlock(new ObjPos(2.5, 7)).init();
         BlockLike blue2 = new PhysicsBlock(new ObjPos(7, 3)).init();
         BlockLike blue3 = new PhysicsBlock(new ObjPos(7, 5)).init();
         level.addBlocks(blue, blue2, blue3);
-        BlockLike red = new StaticBlock(new ObjPos(4, 5)).init();
-        BlockLike red2 = new StaticBlock(new ObjPos(5, 5)).init();
-        BlockLike red3 = new StaticBlock(new ObjPos(4, 6)).init();
+        BlockLike red = new MovableBlock(new ObjPos(4, 5)).init();
+        BlockLike red2 = new MovableBlock(new ObjPos(5, 5)).init();
+        BlockLike red3 = new MovableBlock(new ObjPos(4, 6)).init();
         level.addBlocks(red, red2, red3);
-        level.addBlocks(new StaticBlock(new ObjPos(2, 3)).init());
+        level.addBlocks(new MovableBlock(new ObjPos(2, 3)).init());*/
         GAME_RENDERER.register(new RenderBackground(Color.WHITE));
+    }
+
+    public static InputHandler getInputHandler() {
+        return level.inputHandler;
     }
 
     @Override
