@@ -1,5 +1,6 @@
 package level.objects;
 
+import foundation.Direction;
 import foundation.ObjPos;
 import foundation.input.InputHandler;
 import foundation.input.InputHandlingOrder;
@@ -14,7 +15,7 @@ public class Player extends PhysicsBlock {
     public Player(ObjPos pos, float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight, InputHandler handler) {
         super(pos, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
         handler.addInput(InputType.KEY_PRESSED, e -> {
-            if (downConstrained) {
+            if (constraints.is(Direction.DOWN)) {
                 applyImpulse(new ObjPos(0, 2));
                 renderElement.onEvent(RenderEvent.ON_PLAYER_INPUT_JUMP);
             }
