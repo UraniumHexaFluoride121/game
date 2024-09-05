@@ -2,9 +2,9 @@ package level.objects;
 
 public enum BlockType {
             PLAYER("player"),
-            PHYSICS_BLOCK("physics_block"),
-            STATIC_BLOCK("static_block"),
-            MOVABLE_BLOCK("movable_block");
+            PHYSICS_BLOCK("physicsBlock"),
+            STATIC_BLOCK("staticBlock"),
+            MOVABLE_BLOCK("movableBlock");
 
     public final String s;
 

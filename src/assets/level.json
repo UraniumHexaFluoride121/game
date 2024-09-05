@@ -6,37 +6,8 @@
     }
   ],
   "blocks": [
-    {
-      "name": "player",
-      "texture": {
-        "path": "test.json",
-        "type": "AnimatedTexture",
-        "order": "player"
-      },
-      "hitBox": {
-        "up": 16,
-        "down": 0,
-        "left": 0,
-        "right": 16
-      }
-    },
-    {
-      "name": "test",
-      "texture": {
-        "path": "layered.json",
-        "type": "LayeredTexture",
-        "order": "block"
-      },
-      "layer": "foreground",
-      "type": "physics_block"
-    },
-    {
-      "name": "static",
-      "texture": {
-        "path": "testimage1.json",
-        "type": "TextureAsset",
-        "order": "block"
-      }
-    }
+    "player.json",
+    "testblock.json",
+    "staticblock.json"
   ]
 }

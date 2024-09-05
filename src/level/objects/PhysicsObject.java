@@ -12,12 +12,14 @@ public abstract class PhysicsObject extends BlockLike {
     public Constraints constraints = new Constraints(), previousConstraints = new Constraints();
     public ObjPos prevPos;
     private boolean previouslyFalling = false;
+    public final float mass;
 
     public static final ObjPos DEFAULT_GRAVITY = new ObjPos(0, -30);
 
-    public PhysicsObject(ObjPos pos) {
+    public PhysicsObject(ObjPos pos, float mass) {
         super(pos);
         prevPos = pos.copy();
+        this.mass = mass;
     }
 
     public void applyImpulse(ObjPos impulse) {
@@ -33,7 +35,7 @@ public abstract class PhysicsObject extends BlockLike {
     }
 
     public float getMass() {
-        return 0.1f;
+        return mass;
     }
 
     @Override
@@ -99,18 +101,19 @@ public abstract class PhysicsObject extends BlockLike {
                         return;
                     }
                 }
-                if (velocity.y < 0) {
+                //Cancel out velocity, but only if the velocity was facing toward the colliding hit box
+                if (Math.signum(overlap.y) == Math.signum(velocity.y)) {
+                    velocity.y = 0;
+                    if (overlap.y < 0) {
+                        constraints.set(Direction.DOWN, otherBox.getTop());
+                    } else {
+                        constraints.set(Direction.UP, otherBox.getBottom());
+                    }
+                }
+                if (overlap.y < 0) {
                     pos.y = otherBox.getTop() + thisBox.down;
                 } else {
                     pos.y = otherBox.getBottom() - thisBox.up;
-                }
-                //Cancel out velocity, but only if the velocity was facing toward the colliding hit box
-                if (Math.signum(overlap.y) == Math.signum(velocity.y))
-                    velocity.y = 0;
-                if (overlap.y < 0) {
-                    constraints.set(Direction.DOWN, otherBox.getTop());
-                } else {
-                    constraints.set(Direction.UP, otherBox.getBottom());
                 }
             } else {
                 if (velocity.y < 0) {
@@ -126,17 +129,18 @@ public abstract class PhysicsObject extends BlockLike {
                         return;
                     }
                 }
-                if (velocity.x < 0) {
+                if (Math.signum(overlap.x) == Math.signum(velocity.x)) {
+                    velocity.x = 0;
+                    if (overlap.x < 0) {
+                        constraints.set(Direction.LEFT, otherBox.getRight());
+                    } else {
+                        constraints.set(Direction.RIGHT, otherBox.getLeft());
+                    }
+                }
+                if (overlap.x < 0) {
                     pos.x = otherBox.getRight() + thisBox.left;
                 } else {
                     pos.x = otherBox.getLeft() - thisBox.right;
-                }
-                if (Math.signum(overlap.x) == Math.signum(velocity.x))
-                    velocity.x = 0;
-                if (overlap.x < 0) {
-                    constraints.set(Direction.LEFT, otherBox.getRight());
-                } else {
-                    constraints.set(Direction.RIGHT, otherBox.getLeft());
                 }
             }
         } else {

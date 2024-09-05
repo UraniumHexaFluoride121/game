@@ -61,11 +61,15 @@ public abstract class AssetManager {
     public static void readBlocks(ResourceLocation resource) {
         JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(resource));
         JsonArray blocksArray = obj.get("blocks", JsonType.JSON_ARRAY_TYPE);
-        blocksArray.forEach(blockObj -> {
-            BlockType type = BlockType.getBlockType(blockObj.getOrDefault("type", "static_block", JsonType.STRING_JSON_TYPE));
+        blocksArray.forEach(blockPath -> {
+            JsonObject blockObj = ((JsonObject) JsonLoader.readJsonResource(new ResourceLocation(blockPath)));
+            BlockType type = BlockType.getBlockType(blockObj.getOrDefault("type", "staticBlock", JsonType.STRING_JSON_TYPE));
             String blockName = blockObj.get("name", JsonType.STRING_JSON_TYPE);
-            if (blockName.equals("player"))
+            if (blockName.equals("player")) {
                 type = BlockType.PLAYER;
+            } else if (type == BlockType.PLAYER) {
+                throw new RuntimeException("Only the block called \"player\" is allowed to have type PLAYER");
+            }
             JsonObject hitBox = blockObj.getOrDefault("hitBox", null, JsonType.JSON_OBJECT_TYPE);
 
             JsonObject texture = blockObj.get("texture", JsonType.JSON_OBJECT_TYPE);
@@ -73,8 +77,8 @@ public abstract class AssetManager {
             float hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight;
             if (hitBox != null) {
                 hitBoxUp = hitBox.getOrDefault("up", 16f, JsonType.FLOAT_JSON_TYPE) / 16;
-                hitBoxDown = hitBox.getOrDefault("down", 16f, JsonType.FLOAT_JSON_TYPE) / 16;
-                hitBoxLeft = hitBox.getOrDefault("left", 16f, JsonType.FLOAT_JSON_TYPE) / 16;
+                hitBoxDown = hitBox.getOrDefault("down", 0f, JsonType.FLOAT_JSON_TYPE) / 16;
+                hitBoxLeft = hitBox.getOrDefault("left", 0f, JsonType.FLOAT_JSON_TYPE) / 16;
                 hitBoxRight = hitBox.getOrDefault("right", 16f, JsonType.FLOAT_JSON_TYPE) / 16;
             } else {
                 hitBoxUp = 1;
@@ -89,32 +93,38 @@ public abstract class AssetManager {
 
             switch (type) {
                 case PLAYER -> blocks.put(blockName, pos -> {
-                    Player player = new Player(pos, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, MainPanel.getInputHandler());
+                    Player player = new Player(pos,
+                            blockObj.getOrDefault("mass", 1f, JsonType.FLOAT_JSON_TYPE),
+                            hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, MainPanel.getInputHandler());
                     return player.init(new RenderTexture(
                             RenderOrder.getRenderOrder(texture.getOrDefault("order", "player", JsonType.STRING_JSON_TYPE)), player::getPos,
                             deserializeRenderable(texture)));
                 });
                 case STATIC_BLOCK -> blocks.put(blockName, pos -> {
+                    if (layer.addToDynamic)
+                        throw new IllegalArgumentException("staticBlocks type " + blockName + " was placed into a dynamic object layer " + layer);
                     StaticBlock staticBlock = new StaticBlock(pos, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.STATIC, layer);
                     return staticBlock.init(new RenderTexture(
                             RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), staticBlock::getPos,
                             deserializeRenderable(texture)));
                 });
                 case MOVABLE_BLOCK -> blocks.put(blockName, pos -> {
-                    StaticBlock staticBlock = new StaticBlock(pos, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.MOVABLE, layer);
+                    StaticBlock staticBlock = new StaticBlock(pos, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.MOVABLE, ObjectLayer.DYNAMIC);
                     return staticBlock.init(new RenderTexture(
                             RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), staticBlock::getPos,
                             deserializeRenderable(texture)));
                 });
                 case PHYSICS_BLOCK -> blocks.put(blockName, pos -> {
-                    PhysicsBlock physicsBlock = new PhysicsBlock(pos, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
+                    PhysicsBlock physicsBlock = new PhysicsBlock(pos,
+                            blockObj.getOrDefault("mass", 1f, JsonType.FLOAT_JSON_TYPE),
+                            hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
                     return physicsBlock.init(new RenderTexture(
                             RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), physicsBlock::getPos,
                             deserializeRenderable(texture)));
                 });
             }
 
-        }, JsonType.JSON_OBJECT_TYPE);
+        }, JsonType.STRING_JSON_TYPE);
 
         if (!blocks.containsKey("player"))
             throw new RuntimeException("A player block was not defined");

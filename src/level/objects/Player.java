@@ -12,11 +12,11 @@ import java.awt.event.KeyEvent;
 public class Player extends PhysicsBlock {
     private boolean space, left, right;
 
-    public Player(ObjPos pos, float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight, InputHandler handler) {
-        super(pos, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
+    public Player(ObjPos pos, float mass, float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight, InputHandler handler) {
+        super(pos, mass, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
         handler.addInput(InputType.KEY_PRESSED, e -> {
             if (constraints.is(Direction.DOWN)) {
-                applyImpulse(new ObjPos(0, 2));
+                applyImpulse(new ObjPos(0, 20));
                 renderElement.onEvent(RenderEvent.ON_PLAYER_INPUT_JUMP);
             }
             space = true;
