@@ -17,7 +17,7 @@ public class LayeredTexture implements Renderable, Tickable, RenderEventListener
     private LayeredTexture() {
     }
 
-    public void add(Renderable r) {
+    private void add(Renderable r) {
         textures.add(r);
         if (r instanceof Tickable t)
             tickableTextures.add(t);

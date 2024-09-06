@@ -10,6 +10,7 @@ import render.RenderOrder;
 import render.Renderable;
 import render.renderables.RenderTexture;
 import render.texture.AnimatedTexture;
+import render.texture.EventSwitcherTexture;
 import render.texture.LayeredTexture;
 import render.texture.TextureAsset;
 
@@ -152,6 +153,7 @@ public abstract class AssetManager {
             case "TextureAsset" -> TextureAsset.getTextureAsset(path);
             case "AnimatedTexture" -> AnimatedTexture.getAnimatedTexture(path);
             case "LayeredTexture" -> LayeredTexture.getLayeredTexture(path);
+            case "EventSwitcherTexture" -> EventSwitcherTexture.getEventSwitcherTexture(path);
             default -> throw new IllegalArgumentException("Unknown Renderable type: " + type);
         };
     }

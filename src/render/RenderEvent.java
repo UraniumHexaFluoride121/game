@@ -22,6 +22,12 @@ public class RenderEvent {
         ALL_EVENTS.put(s, this);
     }
 
+    public static RenderEvent getRenderEvent(String s) {
+        if (ALL_EVENTS.containsKey(s))
+            return ALL_EVENTS.get(s);
+        throw new IllegalArgumentException("Unknown render event: " + s);
+    }
+
     @Override
     public String toString() {
         return s;

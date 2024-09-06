@@ -15,15 +15,11 @@ public class Player extends PhysicsBlock {
     public Player(ObjPos pos, float mass, float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight, InputHandler handler) {
         super(pos, mass, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
         handler.addInput(InputType.KEY_PRESSED, e -> {
-            if (constraints.is(Direction.DOWN)) {
-                applyImpulse(new ObjPos(0, 20));
-                renderElement.onEvent(RenderEvent.ON_PLAYER_INPUT_JUMP);
-            }
             space = true;
         }, e -> e.getKeyCode() == KeyEvent.VK_SPACE, InputHandlingOrder.MOVEMENT_UP, false);
 
         handler.addInput(InputType.KEY_PRESSED, e -> {
-            if (!left){
+            if (!left) {
                 if (right)
                     renderElement.onEvent(RenderEvent.ON_PLAYER_INPUT_STANDING_STILL);
                 else
@@ -64,9 +60,21 @@ public class Player extends PhysicsBlock {
         }, e -> e.getKeyCode() == KeyEvent.VK_D, InputHandlingOrder.MOVEMENT_RIGHT, false);
     }
 
+    public float jumpTimer = 0;
+
     @Override
     public void tick(float deltaTime) {
         super.tick(deltaTime);
+
+        if (jumpTimer > 0)
+            jumpTimer = Math.max(0, jumpTimer - deltaTime);
+
+        if (space && jumpTimer == 0 &&  constraints.is(Direction.DOWN)) {
+            jumpTimer = 0.2f;
+            applyImpulse(new ObjPos(0, 20));
+            renderElement.onEvent(RenderEvent.ON_PLAYER_INPUT_JUMP);
+        }
+
         ObjPos movement = new ObjPos();
 
         if (left && !right)

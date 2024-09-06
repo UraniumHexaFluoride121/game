@@ -47,6 +47,7 @@ public class AnimatedTexture implements Renderable, Tickable, RenderEventListene
     public void tick(float deltaTime) {
         currentTime += deltaTime;
         if (currentTime > frameDuration) {
+            Renderable prev = getActiveList().get(index);
             currentTime -= frameDuration;
             if (pickRandomFrame) {
                 index = ((int) (Math.random() * getActiveList().size()));
@@ -57,6 +58,9 @@ public class AnimatedTexture implements Renderable, Tickable, RenderEventListene
                     isOnInitial = false;
                 }
             }
+            Renderable newRenderable = getActiveList().get(index);
+            if (prev != newRenderable && newRenderable instanceof RenderEventListener l)
+                l.onEvent(RenderEvent.ON_SWITCH_TO);
         }
         if (getActiveList().get(index) instanceof Tickable t)
             t.tick(deltaTime);

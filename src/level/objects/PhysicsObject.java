@@ -148,7 +148,23 @@ public abstract class PhysicsObject extends BlockLike {
                 ObjPos overlap = thisBox.collisionOverlap(otherBox);
                 float collisionYVelocity = velocity.y - physicsObject.velocity.y;
                 float collisionXVelocity = velocity.x - physicsObject.velocity.x;
-                if (Math.abs(overlap.y * (collisionXVelocity + 0.05f)) < Math.abs(overlap.x * (collisionYVelocity + 0.05f))) {
+                //There are cases where we know that a collision is "incorrect" to calculate
+                //on the Y-axis, and we therefore want to calculate it on the X-axis. We also do the
+                //same if we detect an incorrect collision on the X-axis
+                boolean forceXCollision = !constraintsOnly && Math.signum(overlap.y) != Math.signum(collisionYVelocity);
+                boolean forceYCollision = !constraintsOnly && Math.signum(overlap.x) != Math.signum(collisionXVelocity);
+                boolean isYAxis = Math.abs(overlap.y * (collisionXVelocity + 0.05f)) < Math.abs(overlap.x * (collisionYVelocity + 0.05f));
+                if (!constraintsOnly) {
+                    if (isYAxis) {
+                        if (forceXCollision)
+                            isYAxis = false;
+                    } else {
+                        if (forceYCollision)
+                            isYAxis = true;
+                    }
+                }
+
+                if (isYAxis) {
                     //Cancel out velocity, but only if the velocity was facing toward the colliding hit box
                     boolean cancelVelocity = Math.signum(overlap.y) == Math.signum(collisionYVelocity);
 
@@ -166,8 +182,8 @@ public abstract class PhysicsObject extends BlockLike {
                         } else if (!constraintsOnly) {
                             //We make sure that the objects are separated slightly further apart than necessary,
                             //because otherwise they could still intersect even after separation due to floating-point errors
-                            pos.subtractY(overlap.y * 0.501f);
-                            physicsObject.pos.subtractY(overlap.y * -0.501f);
+                            pos.subtractY(overlap.y * 0.51f);
+                            physicsObject.pos.subtractY(overlap.y * -0.51f);
                             if (cancelVelocity) {
                                 float v = (velocity.y * getMass() + physicsObject.velocity.y * physicsObject.getMass()) / (getMass() + physicsObject.getMass());
                                 velocity.y = v;
@@ -186,8 +202,8 @@ public abstract class PhysicsObject extends BlockLike {
                                 velocity.y = 0;
                             constraints.set(Direction.UP, otherBox.getBottom());
                         } else if (!constraintsOnly) {
-                            pos.subtractY(overlap.y * 0.501f);
-                            physicsObject.pos.subtractY(overlap.y * -0.501f);
+                            pos.subtractY(overlap.y * 0.51f);
+                            physicsObject.pos.subtractY(overlap.y * -0.51f);
                             if (cancelVelocity) {
                                 float v = (velocity.y * getMass() + physicsObject.velocity.y * physicsObject.getMass()) / (getMass() + physicsObject.getMass());
                                 velocity.y = v;
@@ -209,8 +225,8 @@ public abstract class PhysicsObject extends BlockLike {
                                 physicsObject.velocity.x = 0;
                             physicsObject.constraints.set(Direction.RIGHT, thisBox.getLeft());
                         } else if (!constraintsOnly) {
-                            pos.subtractX(overlap.x * 0.501f);
-                            physicsObject.pos.subtractX(overlap.x * -0.501f);
+                            pos.subtractX(overlap.x * 0.51f);
+                            physicsObject.pos.subtractX(overlap.x * -0.51f);
                             if (cancelVelocity) {
                                 float v = (velocity.x * getMass() + physicsObject.velocity.x * physicsObject.getMass()) / (getMass() + physicsObject.getMass());
                                 velocity.x = v;
@@ -229,8 +245,8 @@ public abstract class PhysicsObject extends BlockLike {
                                 velocity.x = 0;
                             constraints.set(Direction.RIGHT, otherBox.getLeft());
                         } else if (!constraintsOnly) {
-                            pos.subtractX(overlap.x * 0.501f);
-                            physicsObject.pos.subtractX(overlap.x * -0.501f);
+                            pos.subtractX(overlap.x * 0.51f);
+                            physicsObject.pos.subtractX(overlap.x * -0.51f);
                             if (cancelVelocity) {
                                 float v = (velocity.x * getMass() + physicsObject.velocity.x * physicsObject.getMass()) / (getMass() + physicsObject.getMass());
                                 velocity.x = v;
