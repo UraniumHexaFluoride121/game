@@ -2,8 +2,8 @@ package render.texture;
 
 import foundation.tick.Tickable;
 import loader.*;
-import render.RenderEvent;
-import render.RenderEventListener;
+import render.event.RenderEvent;
+import render.event.RenderEventListener;
 import render.Renderable;
 
 import java.awt.*;

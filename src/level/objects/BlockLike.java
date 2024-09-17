@@ -8,6 +8,8 @@ import level.ObjectLayer;
 import physics.*;
 import render.OrderedRenderable;
 import render.RenderOrder;
+import render.event.RenderBlockUpdate;
+import render.event.RenderEvent;
 import render.renderables.RenderGameElement;
 
 import java.awt.*;
@@ -42,6 +44,10 @@ public abstract class BlockLike implements RegisteredTickable, OrderedRenderable
     }
 
     public abstract ObjectLayer getLayer();
+
+    public void renderUpdateBlock(RenderEvent type) {
+        renderElement.onEvent(new RenderBlockUpdate(type, this));
+    }
 
     @Override
     public void render(Graphics2D g) {

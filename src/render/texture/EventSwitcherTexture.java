@@ -2,8 +2,8 @@ package render.texture;
 
 import foundation.tick.Tickable;
 import loader.*;
-import render.RenderEvent;
-import render.RenderEventListener;
+import render.event.RenderEvent;
+import render.event.RenderEventListener;
 import render.Renderable;
 
 import java.awt.*;
@@ -38,6 +38,8 @@ public class EventSwitcherTexture implements Renderable, Tickable, RenderEventLi
             activeTexture = textures.get(event);
             if (activeTexture instanceof Tickable t)
                 activeTextureAsTickable = t;
+            else
+                activeTextureAsTickable = null;
         }
         if (activeTexture instanceof RenderEventListener l) {
             l.onEvent(event);
@@ -56,7 +58,6 @@ public class EventSwitcherTexture implements Renderable, Tickable, RenderEventLi
         EventSwitcherTexture texture = new EventSwitcherTexture();
 
         renderables.forEach(o -> {
-            System.out.println(o);
             texture.add(RenderEvent.getRenderEvent(o.get("event", JsonType.STRING_JSON_TYPE)), AssetManager.deserializeRenderable(o));
         }, JsonType.JSON_OBJECT_TYPE);
 

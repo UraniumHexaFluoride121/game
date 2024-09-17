@@ -6,6 +6,7 @@ import level.Level;
 import loader.AssetManager;
 import loader.ResourceLocation;
 import render.Renderer;
+import render.event.RenderEvent;
 import render.renderables.RenderBackground;
 
 import javax.swing.*;
@@ -29,18 +30,8 @@ public class MainPanel extends JFrame implements KeyListener {
     public void init() {
         AssetManager.readBlocks(LEVEL_PATH);
         AssetManager.createAllLevelSections(LEVEL_PATH);
-        //level.addBlocks(AssetManager.blocks.get("player").apply(new ObjPos(1, 1)));
-        /*player = new Player(new ObjPos(4, 2), level.inputHandler).init();
-        level.addBlocks(player);
-        BlockLike blue = new PhysicsBlock(new ObjPos(2.5, 7)).init();
-        BlockLike blue2 = new PhysicsBlock(new ObjPos(7, 3)).init();
-        BlockLike blue3 = new PhysicsBlock(new ObjPos(7, 5)).init();
-        level.addBlocks(blue, blue2, blue3);
-        BlockLike red = new MovableBlock(new ObjPos(4, 5)).init();
-        BlockLike red2 = new MovableBlock(new ObjPos(5, 5)).init();
-        BlockLike red3 = new MovableBlock(new ObjPos(4, 6)).init();
-        level.addBlocks(red, red2, red3);
-        level.addBlocks(new MovableBlock(new ObjPos(2, 3)).init());*/
+        level.updateBlocks(RenderEvent.ON_GAME_INIT);
+
         GAME_RENDERER.register(new RenderBackground(Color.WHITE));
     }
 

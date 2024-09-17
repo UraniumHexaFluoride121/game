@@ -5,7 +5,7 @@ import foundation.ObjPos;
 import foundation.input.InputHandler;
 import foundation.input.InputHandlingOrder;
 import foundation.input.InputType;
-import render.RenderEvent;
+import render.event.RenderEvent;
 
 import java.awt.event.KeyEvent;
 

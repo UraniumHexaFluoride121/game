@@ -5,6 +5,7 @@ import foundation.Main;
 import foundation.input.InputHandler;
 import level.objects.BlockLike;
 import physics.CollisionHandler;
+import render.event.RenderEvent;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -59,6 +60,17 @@ public class Level implements Deletable {
                 dynamicBlocks.remove(b);
         }
         collisionHandler.remove(blockLikes);
+    }
+
+    public void updateBlocks(RenderEvent type) {
+        for (BlockLike[][] layer : staticBlocks.values()) {
+            for (BlockLike[] column : layer) {
+                for (BlockLike block : column) {
+                    if (block != null)
+                        block.renderUpdateBlock(type);
+                }
+            }
+        }
     }
 
     @Override

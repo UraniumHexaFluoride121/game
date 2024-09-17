@@ -2,8 +2,8 @@ package render.renderables;
 
 import foundation.ObjPos;
 import foundation.tick.Tickable;
-import render.RenderEvent;
-import render.RenderEventListener;
+import render.event.RenderEvent;
+import render.event.RenderEventListener;
 import render.RenderOrder;
 import render.Renderable;
 

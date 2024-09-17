@@ -2,11 +2,9 @@ package render.renderables;
 
 import foundation.Deletable;
 import foundation.ObjPos;
-import foundation.tick.TickOrder;
-import foundation.tick.RegisteredTickable;
 import foundation.tick.Tickable;
-import render.RenderEvent;
-import render.RenderEventListener;
+import render.event.RenderEvent;
+import render.event.RenderEventListener;
 import render.RenderOrder;
 import render.OrderedRenderable;
 
