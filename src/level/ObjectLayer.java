@@ -2,6 +2,7 @@ package level;
 
 public enum ObjectLayer {
     FOREGROUND(false, true, "foreground"),
+    BACKGROUND(false, true, "background"),
     DYNAMIC(true, false, "dynamic");
 
     public final boolean addToDynamic, addToStatic;

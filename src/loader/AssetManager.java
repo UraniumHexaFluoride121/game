@@ -49,7 +49,7 @@ public abstract class AssetManager {
             char[] chars = row.toCharArray();
             for (int j = 0; j < Math.min(30, chars.length); j++) {
                 String s = String.valueOf(chars[j]);
-                if (key.containsName(s)) {
+                if (!s.equals(" ") && key.containsName(s)) {
                     MainPanel.level.addBlocks(blocks.get(key.get(s, JsonType.STRING_JSON_TYPE)).apply(new ObjPos(j, (size - 1) - i + heightOffset)));
                 }
             }
@@ -87,6 +87,7 @@ public abstract class AssetManager {
             if (hitBoxUp + hitBoxDown < 0 || hitBoxRight + hitBoxLeft < 0)
                 throw new IllegalArgumentException("HitBox cannot have negative size");
 
+            boolean hasCollision = blockObj.getOrDefault("hasCollision", true, JsonType.BOOLEAN_JSON_TYPE);
             ObjectLayer layer = ObjectLayer.getObjectLayer(texture.getOrDefault("layer", "foreground", JsonType.STRING_JSON_TYPE));
 
             switch (type) {
@@ -101,13 +102,13 @@ public abstract class AssetManager {
                 case STATIC_BLOCK -> blocks.put(blockName, pos -> {
                     if (layer.addToDynamic)
                         throw new IllegalArgumentException("staticBlocks type " + blockName + " was placed into a dynamic object layer " + layer);
-                    StaticBlock staticBlock = new StaticBlock(pos, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.STATIC, layer);
+                    StaticBlock staticBlock = new StaticBlock(pos, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.STATIC, layer, hasCollision);
                     return staticBlock.init(new RenderTexture(
                             RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), staticBlock::getPos,
                             deserializeRenderable(texture)));
                 });
                 case MOVABLE_BLOCK -> blocks.put(blockName, pos -> {
-                    StaticBlock staticBlock = new StaticBlock(pos, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.MOVABLE, ObjectLayer.DYNAMIC);
+                    StaticBlock staticBlock = new StaticBlock(pos, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.MOVABLE, ObjectLayer.DYNAMIC, hasCollision);
                     return staticBlock.init(new RenderTexture(
                             RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), staticBlock::getPos,
                             deserializeRenderable(texture)));

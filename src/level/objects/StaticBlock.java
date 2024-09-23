@@ -10,11 +10,13 @@ import physics.HitBox;
 public class StaticBlock extends BlockLike {
     private final CollisionType collisionType;
     public final ObjectLayer objectLayer;
+    public final boolean hasCollision;
 
-    public StaticBlock(ObjPos pos, float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight, CollisionType collisionType, ObjectLayer objectLayer) {
+    public StaticBlock(ObjPos pos, float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight, CollisionType collisionType, ObjectLayer objectLayer, boolean hasCollision) {
         super(pos);
         this.collisionType = collisionType;
         this.objectLayer = objectLayer;
+        this.hasCollision = hasCollision;
         createHitBox(hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
     }
 
@@ -30,7 +32,7 @@ public class StaticBlock extends BlockLike {
 
     @Override
     public boolean hasCollision() {
-        return true;
+        return hasCollision;
     }
 
     @Override

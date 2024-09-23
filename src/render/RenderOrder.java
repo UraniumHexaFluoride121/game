@@ -2,6 +2,7 @@ package render;
 
 public enum RenderOrder {
     //Higher up on this list means lower Z-order
+    SOLID_COLOUR_BACKGROUND("solidColourBackground"),
     BACKGROUND("background"),
     PLAYER("player"),
     BLOCK("block");

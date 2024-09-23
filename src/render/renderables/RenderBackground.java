@@ -22,6 +22,6 @@ public class RenderBackground implements OrderedRenderable {
 
     @Override
     public RenderOrder getRenderOrder() {
-        return RenderOrder.BACKGROUND;
+        return RenderOrder.SOLID_COLOUR_BACKGROUND;
     }
 }
