@@ -42,6 +42,12 @@ public class Level implements Deletable {
         this.maximumHeight = maximumHeight;
     }
 
+    public BlockLike getBlock(ObjectLayer layer, int x, int y) {
+        if (x < 0 || x >= 30 || y < 0 || y >= maximumHeight || !layer.addToStatic)
+            return null;
+        return staticBlocks.get(layer)[x][y];
+    }
+
     public void addBlocks(BlockLike... blockLikes) {
         for (BlockLike b : blockLikes) {
             if (b.getLayer().addToStatic)

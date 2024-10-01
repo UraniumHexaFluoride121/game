@@ -19,9 +19,11 @@ public abstract class BlockLike implements RegisteredTickable, OrderedRenderable
     public RenderGameElement renderElement;
     public ObjPos pos;
     public CollisionHandler.CollisionObjectData collisionObjectData;
+    public final String name;
 
-    public BlockLike(ObjPos pos) {
+    public BlockLike(ObjPos pos, String name) {
         this.pos = pos;
+        this.name = name;
     }
 
     //init MUST be called after object creation

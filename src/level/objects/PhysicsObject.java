@@ -16,8 +16,8 @@ public abstract class PhysicsObject extends BlockLike {
 
     public static final ObjPos DEFAULT_GRAVITY = new ObjPos(0, -30);
 
-    public PhysicsObject(ObjPos pos, float mass) {
-        super(pos);
+    public PhysicsObject(ObjPos pos, String name, float mass) {
+        super(pos, name);
         prevPos = pos.copy();
         this.mass = mass;
     }

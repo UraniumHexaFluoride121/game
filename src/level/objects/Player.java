@@ -12,8 +12,8 @@ import java.awt.event.KeyEvent;
 public class Player extends PhysicsBlock {
     private boolean space, left, right;
 
-    public Player(ObjPos pos, float mass, float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight, InputHandler handler) {
-        super(pos, mass, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
+    public Player(ObjPos pos, String name, float mass, float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight, InputHandler handler) {
+        super(pos, name, mass, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
         handler.addInput(InputType.KEY_PRESSED, e -> {
             space = true;
         }, e -> e.getKeyCode() == KeyEvent.VK_SPACE, InputHandlingOrder.MOVEMENT_UP, false);

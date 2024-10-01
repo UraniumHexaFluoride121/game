@@ -181,6 +181,12 @@ public class ObjPos {
         return this;
     }
 
+    public ObjPos divide(ObjPos other) {
+        x /= other.x;
+        y /= other.y;
+        return this;
+    }
+
     public ObjPos divide(float x, float y) {
         this.x /= x;
         this.y /= y;

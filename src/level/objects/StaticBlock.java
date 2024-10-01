@@ -12,8 +12,8 @@ public class StaticBlock extends BlockLike {
     public final ObjectLayer objectLayer;
     public final boolean hasCollision;
 
-    public StaticBlock(ObjPos pos, float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight, CollisionType collisionType, ObjectLayer objectLayer, boolean hasCollision) {
-        super(pos);
+    public StaticBlock(ObjPos pos, String name, float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight, CollisionType collisionType, ObjectLayer objectLayer, boolean hasCollision) {
+        super(pos, name);
         this.collisionType = collisionType;
         this.objectLayer = objectLayer;
         this.hasCollision = hasCollision;

@@ -5,8 +5,8 @@ import foundation.tick.TickOrder;
 import physics.HitBox;
 
 public class PhysicsBlock extends PhysicsObject {
-    public PhysicsBlock(ObjPos pos, float mass, float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight) {
-        super(pos, mass);
+    public PhysicsBlock(ObjPos pos, String name, float mass, float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight) {
+        super(pos, name, mass);
         createHitBox(hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
     }
 

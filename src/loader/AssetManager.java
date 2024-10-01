@@ -5,11 +5,12 @@ import foundation.ObjPos;
 import level.ObjectLayer;
 import level.objects.*;
 import physics.CollisionType;
-import render.event.RenderEvent;
 import render.RenderOrder;
 import render.Renderable;
+import render.event.RenderEvent;
 import render.renderables.RenderTexture;
 import render.texture.*;
+import render.texture.ct.ConnectedTexture;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -50,7 +51,11 @@ public abstract class AssetManager {
             for (int j = 0; j < Math.min(30, chars.length); j++) {
                 String s = String.valueOf(chars[j]);
                 if (!s.equals(" ") && key.containsName(s)) {
-                    MainPanel.level.addBlocks(blocks.get(key.get(s, JsonType.STRING_JSON_TYPE)).apply(new ObjPos(j, (size - 1) - i + heightOffset)));
+                    String name = key.get(s, JsonType.STRING_JSON_TYPE);
+                    Function<ObjPos, ? extends BlockLike> blockCreationFunction = blocks.get(name);
+                    if (blockCreationFunction == null)
+                        throw new RuntimeException("Level section was created with unrecognised block \"" + name + "\"");
+                    MainPanel.level.addBlocks(blockCreationFunction.apply(new ObjPos(j, (size - 1) - i + heightOffset)));
                 }
             }
         }, JsonType.STRING_JSON_TYPE);
@@ -92,7 +97,7 @@ public abstract class AssetManager {
 
             switch (type) {
                 case PLAYER -> blocks.put(blockName, pos -> {
-                    Player player = new Player(pos,
+                    Player player = new Player(pos, blockName,
                             blockObj.getOrDefault("mass", 1f, JsonType.FLOAT_JSON_TYPE),
                             hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, MainPanel.getInputHandler());
                     return player.init(new RenderTexture(
@@ -102,19 +107,19 @@ public abstract class AssetManager {
                 case STATIC_BLOCK -> blocks.put(blockName, pos -> {
                     if (layer.addToDynamic)
                         throw new IllegalArgumentException("staticBlocks type " + blockName + " was placed into a dynamic object layer " + layer);
-                    StaticBlock staticBlock = new StaticBlock(pos, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.STATIC, layer, hasCollision);
+                    StaticBlock staticBlock = new StaticBlock(pos, blockName, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.STATIC, layer, hasCollision);
                     return staticBlock.init(new RenderTexture(
                             RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), staticBlock::getPos,
                             deserializeRenderable(texture)));
                 });
                 case MOVABLE_BLOCK -> blocks.put(blockName, pos -> {
-                    StaticBlock staticBlock = new StaticBlock(pos, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.MOVABLE, ObjectLayer.DYNAMIC, hasCollision);
+                    StaticBlock staticBlock = new StaticBlock(pos, blockName, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.MOVABLE, ObjectLayer.DYNAMIC, hasCollision);
                     return staticBlock.init(new RenderTexture(
                             RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), staticBlock::getPos,
                             deserializeRenderable(texture)));
                 });
                 case PHYSICS_BLOCK -> blocks.put(blockName, pos -> {
-                    PhysicsBlock physicsBlock = new PhysicsBlock(pos,
+                    PhysicsBlock physicsBlock = new PhysicsBlock(pos, blockName,
                             blockObj.getOrDefault("mass", 1f, JsonType.FLOAT_JSON_TYPE),
                             hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
                     return physicsBlock.init(new RenderTexture(
@@ -153,6 +158,7 @@ public abstract class AssetManager {
             case "LayeredTexture" -> LayeredTexture.getLayeredTexture(path);
             case "EventSwitcherTexture" -> EventSwitcherTexture.getEventSwitcherTexture(path);
             case "RandomTexture" -> RandomTexture.getRandomTexture(path);
+            case "ConnectedTexture" -> ConnectedTexture.getConnectedTextures(path);
             default -> throw new IllegalArgumentException("Unknown Renderable type: " + type);
         };
     }
