@@ -70,12 +70,11 @@ public class Main {
 
         window.setVisible(true);
 
-        window.createBufferStrategy(2);
-        /*try {
+        try {
             window.createBufferStrategy(2, new BufferCapabilities(new ImageCapabilities(true), new ImageCapabilities(false), BufferCapabilities.FlipContents.PRIOR));
         } catch (AWTException e) {
-            //throw new RuntimeException("Failed to create buffer strategy " + e.getLocalizedMessage());
-        }*/
+            throw new RuntimeException("Failed to create buffer strategy");
+        }
         window.init();
 
         TICK.start();
