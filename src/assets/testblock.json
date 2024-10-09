@@ -1,0 +1,10 @@
+{
+  "name": "test",
+  "texture": {
+    "path": "layered.json",
+    "type": "LayeredTexture",
+    "order": "block"
+  },
+  "layer": "foreground",
+  "type": "physicsBlock"
+}

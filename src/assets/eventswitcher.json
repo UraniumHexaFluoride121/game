@@ -1,0 +1,14 @@
+{
+  "renderables": [
+    {
+      "event": "onBlockLand",
+      "type": "TextureAsset",
+      "path": "testimage1.json"
+    },
+    {
+      "event": "onBlockFalling",
+      "type": "TextureAsset",
+      "path": "testimage3.json"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "static_example",
+  "texture": {
+    "path": "connectedTexture.json",
+    "type": "ConnectedTexture",
+    "order": "block"
+  }
+}

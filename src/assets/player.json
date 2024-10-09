@@ -1,0 +1,14 @@
+{
+  "name": "player",
+  "texture": {
+    "path": "player-random.json",
+    "type": "RandomTexture",
+    "order": "player"
+  },
+  "hitBox": {
+    "up": 16,
+    "down": 0,
+    "right": 16
+  },
+  "mass": 1
+}

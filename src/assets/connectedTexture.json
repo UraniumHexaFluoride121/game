@@ -1,0 +1,13 @@
+{
+  "renderables": [
+    {
+      "path": "testimage1.json",
+      "type": "TextureAsset"
+    },
+    {
+      "path": "testimage3.json",
+      "type": "TextureAsset",
+      "condition": "existsBlock[l] && existsBlock[r]"
+    }
+  ]
+}

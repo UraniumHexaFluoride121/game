@@ -1,0 +1,16 @@
+{
+  "renderables": [
+    {
+      "type": "TextureAsset",
+      "path": "testimage3.json"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "testimage1.json"
+    }
+  ],
+  "randomiseEvents": [
+    "onBlockLand"
+  ],
+  "guaranteeUnique": true
+}

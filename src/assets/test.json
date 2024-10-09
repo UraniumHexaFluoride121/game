@@ -1,0 +1,23 @@
+{
+  "renderables": [
+    {
+      "type": "TextureAsset",
+      "path": "testimage1.json"
+    },
+    {
+      "type": "LayeredTexture",
+      "path": "layered.json"
+    }
+  ],
+  "startInitialEvents": [
+    "onBlockLand"
+  ],
+  "initial": [
+    {
+      "type": "TextureAsset",
+      "path": "testimage3.json"
+    }
+  ],
+  "pickRandomFrame": false,
+  "frameDuration": 1
+}
