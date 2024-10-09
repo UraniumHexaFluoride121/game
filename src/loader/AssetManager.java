@@ -139,6 +139,10 @@ public abstract class AssetManager {
             return textures.get(resource);
         try {
             InputStream inputStream = AssetManager.class.getResourceAsStream(resource.getPath(ASSETS_PATH));
+            if (inputStream == null) {
+                //When packaged as a jar file, the assets path cannot be accessed the same way
+                inputStream = AssetManager.class.getResourceAsStream(resource.getPath("/"));
+            }
             if (inputStream == null)
                 throw new RuntimeException("Unable to load image with path " + resource.relativePath);
             BufferedImage image = ImageIO.read(inputStream);

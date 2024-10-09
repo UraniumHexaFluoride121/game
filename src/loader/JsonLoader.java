@@ -17,6 +17,10 @@ public class JsonLoader {
     private JsonLoader(ResourceLocation resource) {
         this.resource = resource;
         InputStream stream = JsonLoader.class.getResourceAsStream(resource.getPath(ASSETS_PATH));
+        if (stream == null) {
+            //When packaged as a jar file, the assets path cannot be accessed the same way
+            stream = JsonLoader.class.getResourceAsStream(resource.getPath("/"));
+        }
         if (stream == null)
             throw new RuntimeException("JsonLoader could not find the file with resource location " +
                     resource.relativePath + " using asset path " + ASSETS_PATH);

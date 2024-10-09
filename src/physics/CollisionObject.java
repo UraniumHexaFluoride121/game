@@ -33,6 +33,9 @@ public interface CollisionObject {
 
     }
 
+    float getFriction();
+    float getBounciness();
+
     default void registerCollision(Level level) {
         level.collisionHandler.register(this);
     }

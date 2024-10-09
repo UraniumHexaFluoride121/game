@@ -3,14 +3,11 @@ package foundation;
 import foundation.input.InputHandler;
 import foundation.input.InputType;
 import level.Level;
-import level.ObjectLayer;
 import loader.AssetManager;
 import loader.ResourceLocation;
 import render.Renderer;
 import render.event.RenderEvent;
 import render.renderables.RenderBackground;
-import render.texture.ct.CTExpression;
-import render.texture.ct.CTExpressionData;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,9 +31,10 @@ public class MainPanel extends JFrame implements KeyListener {
         AssetManager.readBlocks(LEVEL_PATH);
         AssetManager.createAllLevelSections(LEVEL_PATH);
         level.updateBlocks(RenderEvent.ON_GAME_INIT);
-        System.out.println(CTExpression.parser.parseExpression("block[u].hasCollision").apply(new CTExpressionData(
+        //Expression parser debug
+        /*System.out.println(CTExpression.parser.parseExpression("block[u].hasCollision").apply(new CTExpressionData(
                 level.getBlock(ObjectLayer.FOREGROUND, 4, 1), level
-        )));
+        )));*/
         GAME_RENDERER.register(new RenderBackground(Color.WHITE));
     }
 

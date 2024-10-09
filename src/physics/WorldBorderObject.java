@@ -37,4 +37,14 @@ public class WorldBorderObject implements CollisionObject {
     public CollisionHandler.CollisionObjectData getCollisionData() {
         return data;
     }
+
+    @Override
+    public float getFriction() {
+        return 1;
+    }
+
+    @Override
+    public float getBounciness() {
+        return 0;
+    }
 }

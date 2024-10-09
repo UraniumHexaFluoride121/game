@@ -18,6 +18,7 @@ public abstract class BlockLike implements RegisteredTickable, OrderedRenderable
     public HitBox hitBox;
     public RenderGameElement renderElement;
     public ObjPos pos;
+    public float friction = 1, bounciness = 0;
     public CollisionHandler.CollisionObjectData collisionObjectData;
     public final String name;
 
@@ -69,6 +70,16 @@ public abstract class BlockLike implements RegisteredTickable, OrderedRenderable
         MainPanel.GAME_RENDERER.remove(this);
         if (hitBox instanceof Deletable d)
             d.delete();
+    }
+
+    @Override
+    public float getFriction() {
+        return friction;
+    }
+
+    @Override
+    public float getBounciness() {
+        return bounciness;
     }
 
     @Override

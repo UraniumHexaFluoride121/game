@@ -1,8 +1,6 @@
 package level.objects;
 
-import foundation.Direction;
-import foundation.ObjPos;
-import foundation.VelocityHandler;
+import foundation.*;
 import level.ObjectLayer;
 import physics.*;
 import render.event.RenderEvent;
@@ -79,6 +77,21 @@ public abstract class PhysicsObject extends BlockLike {
     @Override
     public void dynamicPreTick(float deltaTime) {
         constraints = new Constraints();
+    }
+
+    public float computeFriction() {
+        float blockBelowFriction = 0;
+        int blockBelowCount = 0;
+        for (int i = 0; i < 5; i++) {
+            CollisionObject objectBelow = MainPanel.level.collisionHandler.getObjectAt(new ObjPos(MathHelper.lerp(hitBox.getLeft(), hitBox.getRight(), MathHelper.normalise(0, 4, i)), hitBox.getBottom() - 0.05f));
+            if (objectBelow != null) {
+                blockBelowCount++;
+                blockBelowFriction += objectBelow.getFriction();
+            }
+        }
+        if (blockBelowCount == 0)
+            return getFriction();
+        return getFriction() * (blockBelowFriction / blockBelowCount);
     }
 
     @Override

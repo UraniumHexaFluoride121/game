@@ -189,6 +189,14 @@ public class CollisionHandler implements RegisteredTickable {
         return hasHadCollision;
     }
 
+    public CollisionObject getObjectAt(ObjPos pos) {
+        for (CollisionObject object : collisionObjects[yPosToSection(pos.y)]) {
+            if (object.hasCollision() && object.getHitBox().isPositionInside(pos))
+                return object;
+        }
+        return null;
+    }
+
     @Override
     public TickOrder getTickOrder() {
         return TickOrder.COLLISION_CHECK;

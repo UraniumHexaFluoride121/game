@@ -14,6 +14,10 @@ public interface HitBox {
                 (getTop() > box.getBottom() && box.getTop() > getBottom());
     }
 
+    default boolean isPositionInside(ObjPos pos) {
+        return pos.y < getTop() && pos.y > getBottom() && pos.x < getRight() && pos.x > getLeft();
+    }
+
     //Overlap direction is how much of the hit box is overlapping
     //toward the other box. For example, if this box hits another, equally
     //sized box from the right, at the same Y-value, and is overlapping by two units,
