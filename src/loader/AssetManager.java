@@ -77,7 +77,8 @@ public abstract class AssetManager {
 
             JsonObject texture = blockObj.get("texture", JsonType.JSON_OBJECT_TYPE);
 
-            int friction = blockObj.getOrDefault("friction", 1, JsonType.INTEGER_JSON_TYPE);
+            float friction = blockObj.getOrDefault("friction", 1f, JsonType.FLOAT_JSON_TYPE);
+            float bounciness = blockObj.getOrDefault("bounciness", 0f, JsonType.FLOAT_JSON_TYPE);
 
             float hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight;
             if (hitBox != null) {
@@ -103,6 +104,7 @@ public abstract class AssetManager {
                             blockObj.getOrDefault("mass", 1f, JsonType.FLOAT_JSON_TYPE),
                             hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, MainPanel.getInputHandler());
                     player.setFriction(friction);
+                    player.setBounciness(bounciness);
                     return player.init(new RenderTexture(
                             RenderOrder.getRenderOrder(texture.getOrDefault("order", "player", JsonType.STRING_JSON_TYPE)), player::getPos,
                             deserializeRenderable(texture)));
@@ -112,6 +114,7 @@ public abstract class AssetManager {
                         throw new IllegalArgumentException("staticBlocks type " + blockName + " was placed into a dynamic object layer " + layer);
                     StaticBlock staticBlock = new StaticBlock(pos, blockName, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.STATIC, layer, hasCollision);
                     staticBlock.setFriction(friction);
+                    staticBlock.setBounciness(bounciness);
                     return staticBlock.init(new RenderTexture(
                             RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), staticBlock::getPos,
                             deserializeRenderable(texture)));
@@ -119,6 +122,7 @@ public abstract class AssetManager {
                 case MOVABLE_BLOCK -> blocks.put(blockName, pos -> {
                     StaticBlock staticBlock = new StaticBlock(pos, blockName, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.MOVABLE, ObjectLayer.DYNAMIC, hasCollision);
                     staticBlock.setFriction(friction);
+                    staticBlock.setBounciness(bounciness);
                     return staticBlock.init(new RenderTexture(
                             RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), staticBlock::getPos,
                             deserializeRenderable(texture)));
@@ -128,6 +132,7 @@ public abstract class AssetManager {
                             blockObj.getOrDefault("mass", 1f, JsonType.FLOAT_JSON_TYPE),
                             hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
                     physicsBlock.setFriction(friction);
+                    physicsBlock.setBounciness(bounciness);
                     return physicsBlock.init(new RenderTexture(
                             RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), physicsBlock::getPos,
                             deserializeRenderable(texture)));
