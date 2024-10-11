@@ -53,9 +53,10 @@ public abstract class PhysicsObject extends BlockLike {
     public void processMovement(float deltaTime) {
         prevPos = pos.copy();
         velocity.applyAcceleration(getGravity(), deltaTime);
-        velocity.tickExponentialXDecay(deltaTime, 3f);
+        float f = computeFriction();
+        velocity.tickExponentialXDecay(deltaTime, 3f * f);
         velocity.tickExponentialYDecay(deltaTime, .5f);
-        velocity.tickLinearXDecay(deltaTime, 1.5f);
+        velocity.tickLinearXDecay(deltaTime, 1.5f * f);
         pos.add(velocity.copy().multiply(deltaTime));
     }
 

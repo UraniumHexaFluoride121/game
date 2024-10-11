@@ -36,6 +36,11 @@ public class StaticBlock extends BlockLike {
     }
 
     @Override
+    public float getFriction() {
+        return friction;
+    }
+
+    @Override
     public CollisionType getCollisionType() {
         return collisionType;
     }

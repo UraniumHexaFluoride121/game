@@ -82,6 +82,14 @@ public abstract class BlockLike implements RegisteredTickable, OrderedRenderable
         return bounciness;
     }
 
+    public void setFriction(float f) {
+        friction = f;
+    }
+
+    public void setBounciness(float b) {
+        bounciness = b;
+    }
+
     @Override
     public CollisionHandler.CollisionObjectData getCollisionData() {
         return collisionObjectData;
