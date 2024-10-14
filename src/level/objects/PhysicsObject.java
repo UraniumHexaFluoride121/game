@@ -6,6 +6,8 @@ import physics.*;
 import render.event.RenderEvent;
 
 public abstract class PhysicsObject extends BlockLike {
+    public static final float BOUNCE_THRESHOLD = 2;
+
     public VelocityHandler velocity = new VelocityHandler();
     public Constraints constraints = new Constraints(), previousConstraints = new Constraints();
     public ObjPos prevPos;
@@ -100,10 +102,14 @@ public abstract class PhysicsObject extends BlockLike {
         int blockCount = 0;
         for (int i = 0; i < 5; i++) {
             ObjPos samplePos = switch (d) {
-                case DOWN -> new ObjPos(MathHelper.lerp(hitBox.getLeft(), hitBox.getRight(), MathHelper.normalise(0, 4, i)), hitBox.getBottom() - 0.05f);
-                case UP -> new ObjPos(MathHelper.lerp(hitBox.getLeft(), hitBox.getRight(), MathHelper.normalise(0, 4, i)), hitBox.getTop() + 0.05f);
-                case LEFT -> new ObjPos(hitBox.getLeft() - 0.05f, MathHelper.lerp(hitBox.getBottom(), hitBox.getTop(), MathHelper.normalise(0, 4, i)));
-                case RIGHT -> new ObjPos(hitBox.getRight() + 0.05f, MathHelper.lerp(hitBox.getBottom(), hitBox.getTop(), MathHelper.normalise(0, 4, i)));
+                case DOWN ->
+                        new ObjPos(MathHelper.lerp(hitBox.getLeft(), hitBox.getRight(), MathHelper.normalise(0, 4, i)), hitBox.getBottom() - 0.05f);
+                case UP ->
+                        new ObjPos(MathHelper.lerp(hitBox.getLeft(), hitBox.getRight(), MathHelper.normalise(0, 4, i)), hitBox.getTop() + 0.05f);
+                case LEFT ->
+                        new ObjPos(hitBox.getLeft() - 0.05f, MathHelper.lerp(hitBox.getBottom(), hitBox.getTop(), MathHelper.normalise(0, 4, i)));
+                case RIGHT ->
+                        new ObjPos(hitBox.getRight() + 0.05f, MathHelper.lerp(hitBox.getBottom(), hitBox.getTop(), MathHelper.normalise(0, 4, i)));
             };
             CollisionObject object = MainPanel.level.collisionHandler.getObjectAt(samplePos);
             if (object != null) {
@@ -112,8 +118,8 @@ public abstract class PhysicsObject extends BlockLike {
             }
         }
         if (blockCount == 0)
-            return getBounciness();
-        return getBounciness() + (blockBounciness / blockCount);
+            return Math.min(1, getBounciness());
+        return Math.min(1, getBounciness() + (blockBounciness / blockCount));
     }
 
     @Override
@@ -138,15 +144,16 @@ public abstract class PhysicsObject extends BlockLike {
                 }
                 //Cancel out velocity, but only if the velocity was facing toward the colliding hit box
                 if (Math.signum(overlap.y) == Math.signum(velocity.y)) {
-                    boolean bounce = Math.abs(velocity.y) > 0.3f;
+                    boolean bounce = Math.abs(velocity.y) > BOUNCE_THRESHOLD;
                     float computedBounciness = computeBounciness(velocity.y > 0 ? Direction.UP : Direction.DOWN);
-                    velocity.y = -velocity.y * computedBounciness;
-                    if (!bounce || computedBounciness == 0) {
-                        if (overlap.y < 0) {
-                            constraints.set(Direction.DOWN, otherBox.getTop());
-                        } else {
-                            constraints.set(Direction.UP, otherBox.getBottom());
-                        }
+                    if (bounce)
+                        velocity.y = -velocity.y * computedBounciness;
+                    else
+                        velocity.y = 0;
+                    if (overlap.y < 0) {
+                        constraints.set(Direction.DOWN, otherBox.getTop());
+                    } else {
+                        constraints.set(Direction.UP, otherBox.getBottom());
                     }
                 }
                 if (overlap.y < 0) {
@@ -169,15 +176,16 @@ public abstract class PhysicsObject extends BlockLike {
                     }
                 }
                 if (Math.signum(overlap.x) == Math.signum(velocity.x)) {
-                    boolean bounce = Math.abs(velocity.x) > 0.3f;
+                    boolean bounce = Math.abs(velocity.x) > BOUNCE_THRESHOLD;
                     float computedBounciness = computeBounciness(velocity.x > 0 ? Direction.RIGHT : Direction.LEFT);
-                    velocity.x = -velocity.x * computedBounciness;
-                    if (!bounce || computedBounciness == 0) {
-                        if (overlap.x < 0) {
-                            constraints.set(Direction.LEFT, otherBox.getRight());
-                        } else {
-                            constraints.set(Direction.RIGHT, otherBox.getLeft());
-                        }
+                    if (bounce)
+                        velocity.x = -velocity.x * computedBounciness;
+                    else
+                        velocity.x = 0;
+                    if (overlap.x < 0) {
+                        constraints.set(Direction.LEFT, otherBox.getRight());
+                    } else {
+                        constraints.set(Direction.RIGHT, otherBox.getLeft());
                     }
                 }
                 if (overlap.x < 0) {
