@@ -50,12 +50,17 @@ public class Level implements Deletable {
 
     public void addBlocks(BlockLike... blockLikes) {
         for (BlockLike b : blockLikes) {
-            if (b.getLayer().addToStatic)
+            if (b.getLayer().addToStatic) {
+                BlockLike block = staticBlocks.get(b.getLayer())[((int) b.pos.x)][((int) b.pos.y)];
+                if (block != null)
+                    removeBlocks(block);
                 staticBlocks.get(b.getLayer())[((int) b.pos.x)][((int) b.pos.y)] = b;
+            }
             if (b.getLayer().addToDynamic)
                 dynamicBlocks.add(b);
         }
         collisionHandler.register(blockLikes);
+
     }
 
     public void removeBlocks(BlockLike... blockLikes) {
@@ -64,6 +69,7 @@ public class Level implements Deletable {
                 staticBlocks.get(b.getLayer())[((int) b.pos.x)][((int) b.pos.y)] = null;
             if (b.getLayer().addToDynamic)
                 dynamicBlocks.remove(b);
+            b.delete();
         }
         collisionHandler.remove(blockLikes);
     }

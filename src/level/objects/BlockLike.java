@@ -65,7 +65,6 @@ public abstract class BlockLike implements RegisteredTickable, OrderedRenderable
     @Override
     public void delete() {
         renderElement.delete();
-        renderElement = null;
         removeTickable();
         MainPanel.GAME_RENDERER.remove(this);
         if (hitBox instanceof Deletable d)

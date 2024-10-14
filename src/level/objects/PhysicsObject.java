@@ -118,8 +118,8 @@ public abstract class PhysicsObject extends BlockLike {
             }
         }
         if (blockCount == 0)
-            return Math.min(1, getBounciness());
-        return Math.min(1, getBounciness() + (blockBounciness / blockCount));
+            return MathHelper.clamp(0, 1, getBounciness());
+        return MathHelper.clamp(0, 1, getBounciness() + (blockBounciness / blockCount));
     }
 
     @Override

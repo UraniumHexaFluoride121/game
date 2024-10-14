@@ -42,23 +42,25 @@ public abstract class AssetManager {
     public static void createLevelSection(ResourceLocation resource, int heightOffset) {
         if (heightOffset < 0)
             throw new IllegalArgumentException("Level section " + resource.toString() + " was created with negative height offset");
-        JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(resource));
-        JsonArray blocksArray = obj.get("blocks", JsonType.JSON_ARRAY_TYPE);
-        JsonObject key = obj.get("key", JsonType.JSON_OBJECT_TYPE);
-        int size = blocksArray.size();
-        blocksArray.forEachI((row, i) -> {
-            char[] chars = row.toCharArray();
-            for (int j = 0; j < Math.min(30, chars.length); j++) {
-                String s = String.valueOf(chars[j]);
-                if (!s.equals(" ") && key.containsName(s)) {
-                    String name = key.get(s, JsonType.STRING_JSON_TYPE);
-                    Function<ObjPos, ? extends BlockLike> blockCreationFunction = blocks.get(name);
-                    if (blockCreationFunction == null)
-                        throw new RuntimeException("Level section was created with unrecognised block \"" + name + "\"");
-                    MainPanel.level.addBlocks(blockCreationFunction.apply(new ObjPos(j, (size - 1) - i + heightOffset)));
+        JsonArray pages = ((JsonArray) JsonLoader.readJsonResource(resource));
+        pages.forEach(obj -> {
+            JsonArray blocksArray = obj.get("blocks", JsonType.JSON_ARRAY_TYPE);
+            JsonObject key = obj.get("key", JsonType.JSON_OBJECT_TYPE);
+            int size = blocksArray.size();
+            blocksArray.forEachI((row, i) -> {
+                char[] chars = row.toCharArray();
+                for (int j = 0; j < Math.min(30, chars.length); j++) {
+                    String s = String.valueOf(chars[j]);
+                    if (!s.equals(" ") && key.containsName(s)) {
+                        String name = key.get(s, JsonType.STRING_JSON_TYPE);
+                        Function<ObjPos, ? extends BlockLike> blockCreationFunction = blocks.get(name);
+                        if (blockCreationFunction == null)
+                            throw new RuntimeException("Level section was created with unrecognised block \"" + name + "\"");
+                        MainPanel.level.addBlocks(blockCreationFunction.apply(new ObjPos(j, (size - 1) - i + heightOffset)));
+                    }
                 }
-            }
-        }, JsonType.STRING_JSON_TYPE);
+            }, JsonType.STRING_JSON_TYPE);
+        }, JsonType.JSON_OBJECT_TYPE);
     }
 
     public static void readBlocks(ResourceLocation resource) {
