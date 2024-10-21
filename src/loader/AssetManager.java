@@ -115,7 +115,10 @@ public abstract class AssetManager {
                             Function<ObjPos, ? extends BlockLike> blockCreationFunction = blocks.get(name);
                             if (blockCreationFunction == null)
                                 throw new RuntimeException("Level section was created with unrecognised block \"" + name + "\"");
-                            MainPanel.level.addBlocks(blockCreationFunction.apply(new ObjPos(j, yOffset)));
+                            BlockLike block = blockCreationFunction.apply(new ObjPos(j, yOffset));
+                            MainPanel.level.addBlocks(block);
+                            if (block instanceof Player p)
+                                MainPanel.level.cameraPlayer = p;
                         }
                         if (markerKey != null && markerKey.containsName(s)) {
                             JsonObject markerObj = markerKey.get(s, JsonType.JSON_OBJECT_TYPE);

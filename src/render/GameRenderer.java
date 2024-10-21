@@ -4,18 +4,17 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.util.HashSet;
 import java.util.TreeMap;
+import java.util.function.Supplier;
 
-public class Renderer implements Renderable {
+public class GameRenderer implements Renderable {
     public final AffineTransform transform;
+    private final Supplier<AffineTransform> cameraTransform;
     private final HashSet<OrderedRenderable> qRegister = new HashSet<>(), qRemove = new HashSet<>();
     private final TreeMap<RenderOrder, HashSet<OrderedRenderable>> renderables = new TreeMap<>();
 
-    public Renderer() {
-        this(new AffineTransform());
-    }
-
-    public Renderer(AffineTransform transform) {
+    public GameRenderer(AffineTransform transform, Supplier<AffineTransform> cameraTransform) {
         this.transform = transform;
+        this.cameraTransform = cameraTransform;
         for (RenderOrder value : RenderOrder.values()) {
             renderables.put(value, new HashSet<>());
         }
@@ -43,6 +42,7 @@ public class Renderer implements Renderable {
         processQueued();
         AffineTransform prev = g.getTransform();
         g.transform(transform);
+        g.transform(cameraTransform.get());
         renderables.forEach((order, set) -> set.forEach(r -> r.render(g)));
         g.setTransform(prev);
     }

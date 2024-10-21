@@ -4,13 +4,19 @@ import foundation.Deletable;
 import foundation.Main;
 import foundation.ObjPos;
 import foundation.input.InputHandler;
+import foundation.input.InputHandlingOrder;
+import foundation.input.InputType;
 import level.objects.BlockLike;
+import level.objects.Player;
 import level.procedural.Layout;
 import level.procedural.RegionType;
 import loader.AssetManager;
 import physics.CollisionHandler;
 import render.event.RenderEvent;
+import render.renderables.RenderBackground;
 
+import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,6 +49,9 @@ public class Level implements Deletable {
     //the height that the region starts at
     private final TreeMap<Integer, RegionType> regionLayout = new TreeMap<>();
 
+    public Player cameraPlayer = null;
+    public final RenderBackground background = new RenderBackground(Color.WHITE);
+
     public Level() {
         randomHandler = new RandomHandler(seed);
         AssetManager.readLayout(LEVEL_PATH, this);
@@ -60,6 +69,11 @@ public class Level implements Deletable {
         }
 
         inputHandler = new InputHandler();
+        inputHandler.addInput(InputType.KEY_PRESSED, e -> upCamera = true, e -> e.getKeyCode() == KeyEvent.VK_UP, InputHandlingOrder.CAMERA_UP, false);
+        inputHandler.addInput(InputType.KEY_RELEASED, e -> upCamera = false, e -> e.getKeyCode() == KeyEvent.VK_UP, InputHandlingOrder.CAMERA_UP, false);
+        inputHandler.addInput(InputType.KEY_PRESSED, e -> downCamera = true, e -> e.getKeyCode() == KeyEvent.VK_DOWN, InputHandlingOrder.CAMERA_DOWN, false);
+        inputHandler.addInput(InputType.KEY_RELEASED, e -> downCamera = false, e -> e.getKeyCode() == KeyEvent.VK_DOWN, InputHandlingOrder.CAMERA_DOWN, false);
+
         collisionHandler = new CollisionHandler(maximumHeight, SECTION_SIZE, 2);
         this.maximumHeight = maximumHeight;
 
@@ -158,6 +172,12 @@ public class Level implements Deletable {
         if (regionLayout.isEmpty())
             return 0;
         return regionLayout.lastKey();
+    }
+
+    public boolean upCamera = false, downCamera = false;
+
+    public float getCameraOffset() {
+        return 7 - (upCamera ? 4 : 0) + (downCamera ? 4 : 0);
     }
 
     @Override
