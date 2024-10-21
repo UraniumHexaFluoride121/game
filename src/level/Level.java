@@ -2,18 +2,28 @@ package level;
 
 import foundation.Deletable;
 import foundation.Main;
+import foundation.ObjPos;
 import foundation.input.InputHandler;
 import level.objects.BlockLike;
+import level.procedural.Layout;
+import level.procedural.RegionType;
+import loader.AssetManager;
 import physics.CollisionHandler;
 import render.event.RenderEvent;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+
+import static foundation.MainPanel.*;
 
 public class Level implements Deletable {
     public final int maximumHeight;
     public final InputHandler inputHandler;
     public final CollisionHandler collisionHandler;
+    private static final int SECTION_SIZE = 16;
+    public final int seed = 0;
+    public final RandomHandler randomHandler;
 
     //All BlockLikes inserted as static MUST NOT have their positions modified, otherwise
     //they risk not being able to be accessed.
@@ -21,12 +31,15 @@ public class Level implements Deletable {
     //layers. This does NOT affect the rendering layer or render order, it is just to allow
     //multiple static blocks to be placed on top of each other. It can, however, affect how
     //the renderer does connected textures
-    public HashMap<ObjectLayer, BlockLike[][]> staticBlocks = new HashMap<>();
+    public final HashMap<ObjectLayer, BlockLike[][]> staticBlocks = new HashMap<>();
 
     //A set containing all dynamic blocks. Connected textures do not work for these blocks.
-    public HashSet<BlockLike> dynamicBlocks = new HashSet<>();
+    public final HashSet<BlockLike> dynamicBlocks = new HashSet<>();
+
+    public final Layout layout;
 
     public Level(int maximumHeight) {
+        randomHandler = new RandomHandler(seed);
         for (ObjectLayer layer : ObjectLayer.values()) {
             if (!layer.addToStatic)
                 continue;
@@ -38,17 +51,31 @@ public class Level implements Deletable {
         }
 
         inputHandler = new InputHandler();
-        collisionHandler = new CollisionHandler(maximumHeight, 16, 2);
+        collisionHandler = new CollisionHandler(maximumHeight, SECTION_SIZE, 2);
         this.maximumHeight = maximumHeight;
+
+        layout = new Layout(maximumHeight, SECTION_SIZE, 1);
+    }
+
+    public RegionType getRegion(ObjPos pos) {
+        return layout.getRegion(pos);
+    }
+
+    public void init() {
+        AssetManager.readLayout(LEVEL_PATH, layout);
+        AssetManager.createAllLevelSections(LEVEL_PATH);
+        layout.generateMarkers();
+        updateBlocks(RenderEvent.ON_GAME_INIT);
     }
 
     public BlockLike getBlock(ObjectLayer layer, int x, int y) {
-        if (x < 0 || x >= 30 || y < 0 || y >= maximumHeight || !layer.addToStatic)
+        if (x < 0 || x >= Main.BLOCKS_X || y < 0 || y >= maximumHeight || !layer.addToStatic)
             return null;
         return staticBlocks.get(layer)[x][y];
     }
 
     public void addBlocks(BlockLike... blockLikes) {
+        collisionHandler.register(blockLikes);
         for (BlockLike b : blockLikes) {
             if (b.getLayer().addToStatic) {
                 BlockLike block = staticBlocks.get(b.getLayer())[((int) b.pos.x)][((int) b.pos.y)];
@@ -59,8 +86,6 @@ public class Level implements Deletable {
             if (b.getLayer().addToDynamic)
                 dynamicBlocks.add(b);
         }
-        collisionHandler.register(blockLikes);
-
     }
 
     public void removeBlocks(BlockLike... blockLikes) {
@@ -74,6 +99,25 @@ public class Level implements Deletable {
         collisionHandler.remove(blockLikes);
     }
 
+    //The procedural generator needs to know if it has overwritten a block in case the generation
+    //needs to be reverted. This does not apply if the overwritten block is a part of the current
+    //generation
+    public BlockLike addProceduralBlock(BlockLike b) {
+        collisionHandler.register(b);
+        BlockLike removed = null;
+        if (b.getLayer().addToStatic) {
+            BlockLike block = staticBlocks.get(b.getLayer())[((int) b.pos.x)][((int) b.pos.y)];
+            if (block != null) {
+                removeBlocks(block);
+                removed = block;
+            }
+            staticBlocks.get(b.getLayer())[((int) b.pos.x)][((int) b.pos.y)] = b;
+        }
+        if (b.getLayer().addToDynamic)
+            dynamicBlocks.add(b);
+        return removed;
+    }
+
     public void updateBlocks(RenderEvent type) {
         for (BlockLike[][] layer : staticBlocks.values()) {
             for (BlockLike[] column : layer) {
@@ -83,6 +127,19 @@ public class Level implements Deletable {
                 }
             }
         }
+    }
+
+    public ArrayList<BlockLike> getAllStaticBlocks() {
+        ArrayList<BlockLike> blocks = new ArrayList<>();
+        for (BlockLike[][] layer : staticBlocks.values()) {
+            for (BlockLike[] column : layer) {
+                for (BlockLike block : column) {
+                    if (block != null)
+                        blocks.add(block);
+                }
+            }
+        }
+        return blocks;
     }
 
     @Override

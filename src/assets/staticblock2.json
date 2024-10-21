@@ -1,0 +1,8 @@
+{
+  "name": "static_example2",
+  "texture": {
+    "path": "layered.json",
+    "type": "LayeredTexture",
+    "order": "block"
+  }
+}

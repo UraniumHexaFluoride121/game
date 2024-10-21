@@ -8,6 +8,25 @@
   "blocks": [
     "player.json",
     "testblock.json",
-    "staticblock.json"
-  ]
+    "staticblock.json",
+    "staticblock2.json"
+  ],
+  "regionTypes": [
+    {
+      "name": "forest"
+    }
+  ],
+  "regions": [
+    {
+      "name": "forest",
+      "min": 20,
+      "max": 50
+    }
+  ],
+  "layoutMarkerData": {
+    "platform": "platform.json",
+
+    "island_attached": "island_attached.json",
+    "island_floating": "island_floating.json"
+  }
 }

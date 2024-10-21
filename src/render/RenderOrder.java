@@ -5,7 +5,8 @@ public enum RenderOrder {
     SOLID_COLOUR_BACKGROUND("solidColourBackground"),
     BACKGROUND("background"),
     PLAYER("player"),
-    BLOCK("block");
+    BLOCK("block"),
+    DEBUG("debug"); //Debug is not accessible through json
 
     public final String s;
 
@@ -15,7 +16,7 @@ public enum RenderOrder {
 
     public static RenderOrder getRenderOrder(String s) {
         for (RenderOrder order : RenderOrder.values()) {
-            if (order.s.equals(s))
+            if (order.s.equals(s) && !order.s.equals("debug"))
                 return order;
         }
         throw new IllegalArgumentException("Unknown render order: " + s);

@@ -63,9 +63,7 @@ public class Player extends PhysicsBlock {
     public float jumpTimer = 0;
 
     @Override
-    public void tick(float deltaTime) {
-        super.tick(deltaTime);
-
+    public void processMovement(float deltaTime) {
         if (jumpTimer > 0)
             jumpTimer = Math.max(0, jumpTimer - deltaTime);
 
@@ -76,7 +74,6 @@ public class Player extends PhysicsBlock {
         }
 
         ObjPos movement = new ObjPos();
-
         if (left && !right)
             movement.addX(-1);
         if (!left && right)
@@ -85,5 +82,6 @@ public class Player extends PhysicsBlock {
             movement.normalise().multiply(20);
             applyAcceleration(movement, deltaTime);
         }
+        super.processMovement(deltaTime);
     }
 }

@@ -1,0 +1,8 @@
+{
+  "generatesAs": [
+    {
+      "name": "forest_branch",
+      "condition": "region == forest"
+    }
+  ]
+}

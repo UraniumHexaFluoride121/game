@@ -1,6 +1,8 @@
 package render.texture;
 
+import foundation.MainPanel;
 import foundation.tick.Tickable;
+import level.RandomType;
 import loader.*;
 import render.event.RenderBlockUpdate;
 import render.event.RenderEvent;
@@ -10,6 +12,8 @@ import render.Renderable;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Random;
+import java.util.function.Supplier;
 
 public class RandomTexture implements Renderable, RenderEventListener, Tickable {
     private final ArrayList<Renderable> textures = new ArrayList<>();
@@ -17,28 +21,31 @@ public class RandomTexture implements Renderable, RenderEventListener, Tickable 
     private Renderable activeTexture = null;
     private Tickable tickable = null;
     private final boolean guaranteeUnique;
+    //Used for deterministic texture randomisation. Should only be used for block updates
+    private Random textureRandom;
 
     public RandomTexture(boolean guaranteeUnique) {
+        textureRandom = MainPanel.level.randomHandler.generateRandom(RandomType.TEXTURE);
         this.guaranteeUnique = guaranteeUnique;
     }
 
     private void add(Renderable r) {
         textures.add(r);
-        switchToNewTexture();
+        switchToNewTexture(textureRandom::nextDouble);
     }
 
     private void registerEvent(RenderEvent e) {
         events.add(e);
     }
 
-    private void switchToNewTexture() {
+    private void switchToNewTexture(Supplier<Double> random) {
         if (guaranteeUnique) {
             Renderable prev = activeTexture;
             while (prev == activeTexture) {
-                activeTexture = textures.get((int) (Math.random() * textures.size()));
+                activeTexture = textures.get((int) (random.get() * textures.size()));
             }
         } else {
-            activeTexture = textures.get((int) (Math.random() * textures.size()));
+            activeTexture = textures.get((int) (random.get() * textures.size()));
         }
         if (activeTexture instanceof Tickable t) {
             tickable = t;
@@ -56,12 +63,13 @@ public class RandomTexture implements Renderable, RenderEventListener, Tickable 
     @Override
     public void onEvent(RenderEvent event) {
         //Randomise the initial texture
-        if (event instanceof RenderBlockUpdate u && u.type == RenderEvent.ON_GAME_INIT)
-            switchToNewTexture();
+        if (event instanceof RenderBlockUpdate u && u.type == RenderEvent.ON_GAME_INIT) {
+            switchToNewTexture(textureRandom::nextDouble);
+        }
 
         //Randomise the texture upon receiving an event specified in the events list
         if (events.contains(event))
-            switchToNewTexture();
+            switchToNewTexture(Math::random);
 
         if (activeTexture instanceof RenderEventListener l)
             l.onEvent(event);

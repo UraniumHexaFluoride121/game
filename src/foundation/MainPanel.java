@@ -6,7 +6,6 @@ import level.Level;
 import loader.AssetManager;
 import loader.ResourceLocation;
 import render.Renderer;
-import render.event.RenderEvent;
 import render.renderables.RenderBackground;
 
 import javax.swing.*;
@@ -29,8 +28,9 @@ public class MainPanel extends JFrame implements KeyListener {
 
     public void init() {
         AssetManager.readBlocks(LEVEL_PATH);
-        AssetManager.createAllLevelSections(LEVEL_PATH);
-        level.updateBlocks(RenderEvent.ON_GAME_INIT);
+        AssetManager.readLayoutMarkerData(LEVEL_PATH);
+        AssetManager.readRegions(LEVEL_PATH);
+        level.init();
         //Expression parser debug
         /*System.out.println(CTExpression.parser.parseExpression("block[u].hasCollision").apply(new CTExpressionData(
                 level.getBlock(ObjectLayer.FOREGROUND, 4, 1), level

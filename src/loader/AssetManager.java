@@ -1,9 +1,16 @@
 package loader;
 
+import foundation.Main;
 import foundation.MainPanel;
+import foundation.MathHelper;
 import foundation.ObjPos;
 import level.ObjectLayer;
+import level.RandomType;
 import level.objects.*;
+import level.procedural.Layout;
+import level.procedural.RegionType;
+import level.procedural.marker.LayoutMarker;
+import level.procedural.marker.LMType;
 import physics.CollisionType;
 import render.RenderOrder;
 import render.Renderable;
@@ -29,6 +36,41 @@ public abstract class AssetManager {
     private static final HashMap<ResourceLocation, BufferedImage> textures = new HashMap<>();
     public static final HashMap<String, Function<ObjPos, ? extends BlockLike>> blocks = new HashMap<>();
 
+    public static BlockLike createBlock(String s, ObjPos pos) {
+        return blocks.get(s).apply(pos);
+    }
+
+    public static void readLayoutMarkerData(ResourceLocation resource) {
+        JsonObject paths = ((JsonObject) JsonLoader.readJsonResource(resource))
+                .get("layoutMarkerData", JsonType.JSON_OBJECT_TYPE);
+        LMType.values.forEach(v -> {
+            if (!v.hasData())
+                return;
+            JsonObject data = ((JsonObject) JsonLoader.readJsonResource(new ResourceLocation(paths.get(v.s, JsonType.STRING_JSON_TYPE))));
+            v.parseDataFromJson(data);
+        });
+    }
+
+    public static void readLayout(ResourceLocation resource, Layout l) {
+        JsonArray regions = ((JsonObject) JsonLoader.readJsonResource(resource))
+                .get("regions", JsonType.JSON_ARRAY_TYPE);
+        regions.forEach(r -> {
+            int min = r.get("min", JsonType.INTEGER_JSON_TYPE), max = r.get("max", JsonType.INTEGER_JSON_TYPE);
+            l.addRegion(
+                    r.get("name", JsonType.STRING_JSON_TYPE),
+                    l.getRegionTop() + MathHelper.randIntBetween(min, max, MainPanel.level.randomHandler.getDoubleSupplier(RandomType.REGIONS))
+            );
+        }, JsonType.JSON_OBJECT_TYPE);
+    }
+
+    public static void readRegions(ResourceLocation resource) {
+        JsonArray regions = ((JsonObject) JsonLoader.readJsonResource(resource))
+                .get("regionTypes", JsonType.JSON_ARRAY_TYPE);
+        regions.forEach(r -> {
+            RegionType.add(r.get("name", JsonType.STRING_JSON_TYPE));
+        }, JsonType.JSON_OBJECT_TYPE);
+    }
+
     public static void createAllLevelSections(ResourceLocation resource) {
         JsonArray sections = ((JsonObject) JsonLoader.readJsonResource(resource))
                 .getOrDefault("insertedSections", new JsonArray(), JsonType.JSON_ARRAY_TYPE);
@@ -45,18 +87,45 @@ public abstract class AssetManager {
         JsonArray pages = ((JsonArray) JsonLoader.readJsonResource(resource));
         pages.forEach(obj -> {
             JsonArray blocksArray = obj.get("blocks", JsonType.JSON_ARRAY_TYPE);
-            JsonObject key = obj.get("key", JsonType.JSON_OBJECT_TYPE);
+            JsonObject key = obj.getOrDefault("key", null, JsonType.JSON_OBJECT_TYPE);
+            JsonObject markerKey = obj.getOrDefault("markerKey", null, JsonType.JSON_OBJECT_TYPE);
+
+            if (key == null && markerKey == null)
+                throw new RuntimeException("Level section " + resource.toString() + " contains a page with no key or markerKey object");
+
             int size = blocksArray.size();
             blocksArray.forEachI((row, i) -> {
                 char[] chars = row.toCharArray();
                 for (int j = 0; j < Math.min(30, chars.length); j++) {
                     String s = String.valueOf(chars[j]);
-                    if (!s.equals(" ") && key.containsName(s)) {
-                        String name = key.get(s, JsonType.STRING_JSON_TYPE);
-                        Function<ObjPos, ? extends BlockLike> blockCreationFunction = blocks.get(name);
-                        if (blockCreationFunction == null)
-                            throw new RuntimeException("Level section was created with unrecognised block \"" + name + "\"");
-                        MainPanel.level.addBlocks(blockCreationFunction.apply(new ObjPos(j, (size - 1) - i + heightOffset)));
+                    if (!s.equals(" ")) {
+                        int yOffset = (size - 1) - i + heightOffset;
+
+                        if (key != null && key.containsName(s)) {
+                            String name = key.get(s, JsonType.STRING_JSON_TYPE);
+                            Function<ObjPos, ? extends BlockLike> blockCreationFunction = blocks.get(name);
+                            if (blockCreationFunction == null)
+                                throw new RuntimeException("Level section was created with unrecognised block \"" + name + "\"");
+                            MainPanel.level.addBlocks(blockCreationFunction.apply(new ObjPos(j, yOffset)));
+                        }
+                        if (markerKey != null && markerKey.containsName(s)) {
+                            JsonObject markerObj = markerKey.get(s, JsonType.JSON_OBJECT_TYPE);
+                            int up = markerObj.getOrDefault("up", 0, JsonType.INTEGER_JSON_TYPE);
+                            int down = markerObj.getOrDefault("down", 0, JsonType.INTEGER_JSON_TYPE);
+                            int left = markerObj.getOrDefault("left", 0, JsonType.INTEGER_JSON_TYPE);
+                            int right = markerObj.getOrDefault("right", 0, JsonType.INTEGER_JSON_TYPE);
+
+                            int x = MathHelper.clampInt(0, Main.BLOCKS_X - 1, MathHelper.randIntBetween(j - left, j + right,
+                                    MainPanel.level.randomHandler.getRandom(RandomType.PROCEDURAL)::nextDouble));
+                            int y = MathHelper.clampInt(0, Main.BLOCKS_X - 1, MathHelper.randIntBetween(yOffset - down, yOffset + up,
+                                    MainPanel.level.randomHandler.getRandom(RandomType.PROCEDURAL)::nextDouble));
+
+                            LayoutMarker marker = new LayoutMarker(
+                                    LMType.getLayoutMarker(markerObj.get("type", JsonType.STRING_JSON_TYPE)),
+                                    new ObjPos(x, y)
+                            );
+                            MainPanel.level.layout.addMarker(marker);
+                        }
                     }
                 }
             }, JsonType.STRING_JSON_TYPE);

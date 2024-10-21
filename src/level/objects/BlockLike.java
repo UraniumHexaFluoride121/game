@@ -71,6 +71,10 @@ public abstract class BlockLike implements RegisteredTickable, OrderedRenderable
             d.delete();
     }
 
+    public void unregister() {
+        MainPanel.level.removeBlocks(this);
+    }
+
     @Override
     public float getFriction() {
         return friction;

@@ -1,0 +1,8 @@
+{
+  "resolvesTo": [
+    {
+      "name": "island_attached",
+      "condition": "true"
+    }
+  ]
+}
