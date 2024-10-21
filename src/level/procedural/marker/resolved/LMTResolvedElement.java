@@ -2,7 +2,6 @@ package level.procedural.marker.resolved;
 
 import foundation.ObjPos;
 import level.procedural.GeneratorType;
-import level.procedural.ProceduralGenerator;
 import level.procedural.marker.LMType;
 import loader.JsonObject;
 import loader.JsonType;
@@ -41,10 +40,10 @@ public class LMTResolvedElement extends LMType {
         return resolvedElement;
     }
 
-    public ProceduralGenerator getGenerator(GeneratorConditionData data) {
+    public GeneratorType getGenerator(GeneratorConditionData data) {
         for (GenerationElement generationElement : generatorConditions) {
             if (generationElement.condition.test(data)) {
-                return GeneratorType.getGeneratorType(generationElement.name()).generator.get();
+                return GeneratorType.getGeneratorType(generationElement.name());
             }
         }
         throw new IllegalArgumentException("LMTResolvedElement \"" + s + "\" was not able to be generated as none of the conditions returned true");

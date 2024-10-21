@@ -10,7 +10,6 @@ import level.procedural.marker.LayoutMarker;
 import loader.AssetManager;
 
 import java.util.HashSet;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class ProceduralGenerator implements Deletable {
@@ -21,14 +20,14 @@ public class ProceduralGenerator implements Deletable {
     //All layout markers added by the generation function must be added to this set
     private HashSet<LayoutMarker> generatedLayoutMarkers = new HashSet<>();
 
-    private final BiConsumer<ProceduralGenerator, LayoutMarker> function;
+    private final GeneratorFunction function;
 
-    public ProceduralGenerator(BiConsumer<ProceduralGenerator, LayoutMarker> function) {
+    public ProceduralGenerator(GeneratorFunction function) {
         this.function = function;
     }
 
-    public void generate(LayoutMarker marker) {
-        function.accept(this, marker);
+    public void generate(LayoutMarker marker, GeneratorType type) {
+        function.generate(this, marker, type);
     }
 
     public void revertGeneration() {

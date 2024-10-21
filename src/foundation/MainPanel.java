@@ -24,12 +24,13 @@ public class MainPanel extends JFrame implements KeyListener {
     public static ObjPos RENDER_WINDOW_SIZE; //the size of the render box, in pixels
     public static ObjPos BLOCK_DIMENSIONS; //the size of the render box, in blocks
 
-    public static Level level = new Level(300);
+    public static Level level;
 
     public void init() {
-        AssetManager.readBlocks(LEVEL_PATH);
-        AssetManager.readLayoutMarkerData(LEVEL_PATH);
         AssetManager.readRegions(LEVEL_PATH);
+        AssetManager.readBlocks(LEVEL_PATH);
+        level = new Level();
+        AssetManager.readLayoutMarkerData(LEVEL_PATH);
         level.init();
         //Expression parser debug
         /*System.out.println(CTExpression.parser.parseExpression("block[u].hasCollision").apply(new CTExpressionData(

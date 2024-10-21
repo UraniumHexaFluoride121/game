@@ -2,7 +2,7 @@
   {
     "blocks": [
       "                              ",
-      "  M                           ",
+      "   M                          ",
       "                 #            ",
       "                 #            ",
       " #               #            ",
@@ -21,7 +21,7 @@
     "markerKey": {
       "M": {
         "type": "platform",
-        "right": 10
+        "right": 5
       }
     }
   },

@@ -4,13 +4,14 @@ import foundation.Main;
 import foundation.MainPanel;
 import foundation.MathHelper;
 import foundation.ObjPos;
+import level.Level;
 import level.ObjectLayer;
 import level.RandomType;
 import level.objects.*;
-import level.procedural.Layout;
+import level.procedural.GeneratorType;
 import level.procedural.RegionType;
-import level.procedural.marker.LayoutMarker;
 import level.procedural.marker.LMType;
+import level.procedural.marker.LayoutMarker;
 import physics.CollisionType;
 import render.RenderOrder;
 import render.Renderable;
@@ -49,16 +50,24 @@ public abstract class AssetManager {
             JsonObject data = ((JsonObject) JsonLoader.readJsonResource(new ResourceLocation(paths.get(v.s, JsonType.STRING_JSON_TYPE))));
             v.parseDataFromJson(data);
         });
+        JsonObject generationPaths = ((JsonObject) JsonLoader.readJsonResource(resource))
+                .get("generationData", JsonType.JSON_OBJECT_TYPE);
+        for (GeneratorType type : GeneratorType.values()) {
+            if (!type.hasData())
+                return;
+            JsonObject data = ((JsonObject) JsonLoader.readJsonResource(new ResourceLocation(generationPaths.get(type.s, JsonType.STRING_JSON_TYPE))));
+            type.parseDataFromJson(data);
+        }
     }
 
-    public static void readLayout(ResourceLocation resource, Layout l) {
+    public static void readLayout(ResourceLocation resource, Level l) {
         JsonArray regions = ((JsonObject) JsonLoader.readJsonResource(resource))
                 .get("regions", JsonType.JSON_ARRAY_TYPE);
         regions.forEach(r -> {
             int min = r.get("min", JsonType.INTEGER_JSON_TYPE), max = r.get("max", JsonType.INTEGER_JSON_TYPE);
             l.addRegion(
                     r.get("name", JsonType.STRING_JSON_TYPE),
-                    l.getRegionTop() + MathHelper.randIntBetween(min, max, MainPanel.level.randomHandler.getDoubleSupplier(RandomType.REGIONS))
+                    l.getRegionTop() + MathHelper.randIntBetween(min, max, l.randomHandler.getDoubleSupplier(RandomType.REGIONS))
             );
         }, JsonType.JSON_OBJECT_TYPE);
     }

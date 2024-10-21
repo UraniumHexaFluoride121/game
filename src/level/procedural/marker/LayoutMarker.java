@@ -3,8 +3,8 @@ package level.procedural.marker;
 import foundation.Deletable;
 import foundation.MainPanel;
 import foundation.ObjPos;
+import level.procedural.GeneratorType;
 import level.procedural.Layout;
-import level.procedural.ProceduralGenerator;
 import level.procedural.RegionType;
 import level.procedural.marker.resolved.GeneratorConditionData;
 import level.procedural.marker.resolved.LMTResolvedElement;
@@ -35,10 +35,10 @@ public class LayoutMarker implements OrderedRenderable, Deletable {
             new LayoutMarker(resolvedElement, pos).register();
             delete();
         } else if (type instanceof LMTResolvedElement t) {
-            ProceduralGenerator generator = t.getGenerator(new GeneratorConditionData(
+            GeneratorType genType = t.getGenerator(new GeneratorConditionData(
                     MainPanel.level.getRegion(pos), t, this, MainPanel.level
             ));
-            generator.generate(this);
+            genType.generator.get().generate(this, genType);
         }
     }
 

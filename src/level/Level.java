@@ -14,6 +14,7 @@ import render.event.RenderEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.TreeMap;
 
 import static foundation.MainPanel.*;
 
@@ -38,8 +39,16 @@ public class Level implements Deletable {
 
     public final Layout layout;
 
-    public Level(int maximumHeight) {
+    //We store the order of each region, as well as when it appears in the level. The integer key is
+    //the height that the region starts at
+    private final TreeMap<Integer, RegionType> regionLayout = new TreeMap<>();
+
+    public Level() {
         randomHandler = new RandomHandler(seed);
+        AssetManager.readLayout(LEVEL_PATH, this);
+
+        int maximumHeight = getRegionTop() + 30;
+
         for (ObjectLayer layer : ObjectLayer.values()) {
             if (!layer.addToStatic)
                 continue;
@@ -57,12 +66,7 @@ public class Level implements Deletable {
         layout = new Layout(maximumHeight, SECTION_SIZE, 1);
     }
 
-    public RegionType getRegion(ObjPos pos) {
-        return layout.getRegion(pos);
-    }
-
     public void init() {
-        AssetManager.readLayout(LEVEL_PATH, layout);
         AssetManager.createAllLevelSections(LEVEL_PATH);
         layout.generateMarkers();
         updateBlocks(RenderEvent.ON_GAME_INIT);
@@ -140,6 +144,20 @@ public class Level implements Deletable {
             }
         }
         return blocks;
+    }
+
+    public void addRegion(String name, int startsAt) {
+        regionLayout.put(startsAt, RegionType.getRegionType(name));
+    }
+
+    public RegionType getRegion(ObjPos pos) {
+        return regionLayout.ceilingEntry(((int) pos.y)).getValue();
+    }
+
+    public int getRegionTop() {
+        if (regionLayout.isEmpty())
+            return 0;
+        return regionLayout.lastKey();
     }
 
     @Override
