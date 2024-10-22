@@ -16,16 +16,16 @@ public class Main {
         SwingUtilities.invokeLater(Main::init);
     }
 
-    public static final int BLOCKS_X = 30, MIN_BLOCKS_Y = 15; //The minimum number of blocks that have to be able to fit on the screen
+    public static final int BLOCKS_X = 60, MIN_BLOCKS_Y = 15; //The minimum number of blocks that have to be able to fit on the screen
 
     public static void init() {
 
         /*
          * Window set up will require a minimum of MIN_BLOCKS_Y to be displayed vertically, and exactly BLOCKS_X horizontally.
          * It will go into full-screen mode if both of these criteria can be achieved, and with each block being 16x16 pixels, this will
-         * require that the width of the screen is a multiple of 16 * 30 (480) and that the height of the screen is at minimum half of the width.
+         * require that the width of the screen is a multiple of 16 * BLOCKS_X (960) and that the height of the screen is at minimum half of the width.
          * If not, the screen is set to windowed mode, where we add a 5% margin to the sides of the screen and then pick the largest
-         * screen size that'll work. If the screen is too small to allocate each texture pixel a screen pixel 1:1 (meaning less than about 480 x 240),
+         * screen size that'll work. If the screen is too small to allocate each texture pixel a screen pixel 1:1 (meaning less than about 960 x 480),
          * we'll full-screen it again but with a non-integer scaling. This option is not preferred as the textures will no longer be properly displayed.
          */
         window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);

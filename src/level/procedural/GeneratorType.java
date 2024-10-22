@@ -31,7 +31,7 @@ public enum GeneratorType {
         } else {
             gen.lineOfBlocks(
                     (int) lm.pos.x,
-                    29,
+                    Main.BLOCKS_X - 1,
                     (int) lm.pos.y + (flipOffsets ? secondOffset : firstOffset),
                     pos -> type.getString(0)
             );

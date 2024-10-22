@@ -1,5 +1,6 @@
 package physics;
 
+import foundation.Main;
 import foundation.ObjPos;
 import foundation.tick.RegisteredTickable;
 import foundation.tick.TickOrder;
@@ -49,7 +50,7 @@ public class CollisionHandler implements RegisteredTickable {
         }
         //World floor
         worldBorderCollisionObjects.add(new WorldBorderObject(new StaticHitBox(
-                0, 30, 0, 30, new ObjPos())
+                0, 30, 0, Main.BLOCKS_X, new ObjPos())
         ));
         //Left wall
         worldBorderCollisionObjects.add(new WorldBorderObject(new StaticHitBox(
@@ -57,7 +58,7 @@ public class CollisionHandler implements RegisteredTickable {
         ));
         //Right wall
         worldBorderCollisionObjects.add(new WorldBorderObject(new StaticHitBox(
-                maxHeight + sectionSize * bufferSections, 10, 0, 10, new ObjPos(30))
+                maxHeight + sectionSize * bufferSections, 10, 0, 10, new ObjPos(Main.BLOCKS_X))
         ));
         registerTickable();
     }

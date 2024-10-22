@@ -177,7 +177,7 @@ public class Level implements Deletable {
     public boolean upCamera = false, downCamera = false;
 
     public float getCameraOffset() {
-        return 7 - (upCamera ? 4 : 0) + (downCamera ? 4 : 0);
+        return 14 - (upCamera ? 7 : 0) + (downCamera ? 7 : 0);
     }
 
     @Override
