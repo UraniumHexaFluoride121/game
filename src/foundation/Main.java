@@ -39,16 +39,18 @@ public class Main {
         //MainPanel.DEVICE_WINDOW_SIZE = new ObjPos(1000, 400);
         MainPanel.DEVICE_WINDOW_SIZE = new ObjPos(Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height);
         MainPanel.RENDER_WINDOW_SIZE = MainPanel.DEVICE_WINDOW_SIZE.copy();
-        int textureSize = (int) Math.min(MainPanel.RENDER_WINDOW_SIZE.x / (BLOCKS_X * 16), MainPanel.RENDER_WINDOW_SIZE.y / (MIN_BLOCKS_Y * 16)); //The screen-size height and width of a texture pixel
+        float textureSize =  Math.min(MainPanel.RENDER_WINDOW_SIZE.x / (BLOCKS_X * 16), MainPanel.RENDER_WINDOW_SIZE.y / (MIN_BLOCKS_Y * 16)); //The screen-size height and width of a texture pixel
 
 
+        window.setUndecorated(true);
         window.setResizable(false);
         window.pack();
 
-        if (textureSize == MainPanel.DEVICE_WINDOW_SIZE.x / (BLOCKS_X * 16) || textureSize < 1) {
+        window.requestFocus();
+        GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().setFullScreenWindow(window);
+       /* if (textureSize == MainPanel.DEVICE_WINDOW_SIZE.x / (BLOCKS_X * 16) || textureSize < 1) {
             //If we didn't round down, it must mean that we can full-screen it. Either that, or
             //we full-screen it because the screen is too small
-            GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().setFullScreenWindow(window);
         } else {
             MainPanel.RENDER_WINDOW_SIZE.multiply(0.95f, 0.95f); //If we can't full-screen it, we should add some margin to the window
             textureSize = (int) Math.min(MainPanel.RENDER_WINDOW_SIZE.x / (BLOCKS_X * 16), MainPanel.RENDER_WINDOW_SIZE.y / (MIN_BLOCKS_Y * 16)); //Recalculate texture size with the margin in mind
@@ -56,9 +58,9 @@ public class Main {
 
             Insets insets = window.getInsets();
             //set screen size plus insets. There shouldn't be a problem with adding insets since we have margin.
-            window.setSize(textureSize * 16 * BLOCKS_X + insets.left + insets.right, (int) MainPanel.RENDER_WINDOW_SIZE.y + insets.top + insets.bottom);
+           // window.setSize(textureSize * 16 * BLOCKS_X + insets.left + insets.right, (int) MainPanel.RENDER_WINDOW_SIZE.y + insets.top + insets.bottom);
             MainPanel.gameTransform.translate(insets.left, insets.top);
-        }
+        }*/
         MainPanel.BLOCK_DIMENSIONS = new ObjPos(BLOCKS_X, MainPanel.RENDER_WINDOW_SIZE.y / (textureSize * 16));
 
         //scale, flip and lower the render coordinate system.
