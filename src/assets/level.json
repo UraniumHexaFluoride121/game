@@ -9,7 +9,8 @@
     "player.json",
     "testblock.json",
     "staticblock.json",
-    "staticblock2.json"
+    "staticblock2.json",
+    "block/stone/grey/stone_grey.json"
   ],
   "regionTypes": [
     {

@@ -4,8 +4,8 @@
       "M                             ",
       "                              ",
       "                              ",
-      "                              ",
-      "   M                          ",
+      "                 tt   tttttt  ",
+      "   M             t      tt    ",
       "                 #            ",
       "                 #            ",
       " #               #            ",
@@ -19,7 +19,8 @@
     "key": {
       "-": "test",
       "p": "player",
-      "#": "static_example"
+      "#": "static_example",
+      "t": "stone_grey"
     },
     "markerKey": {
       "M": {

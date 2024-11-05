@@ -1,0 +1,15 @@
+
+{
+  "name": "stone_grey",
+  "texture": {
+    "path": "block/stone/grey/_texture/stone_grey_texture.json",
+    "type": "ConnectedTexture",
+    "order": "block"
+  },
+  "hitBox": {
+    "right": 15,
+    "left": -1,
+    "up": 15,
+    "down": -1
+  }
+}

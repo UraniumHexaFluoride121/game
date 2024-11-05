@@ -1,0 +1,48 @@
+{
+  "renderables": [
+    {
+      "type": "TextureAsset",
+      "path": "block/stone/grey/bottom_left/stone_grey_bottom_left_1.json",
+      "condition": "existsBlock[d, this.layer] and existsBlock[l, this.layer] and existsBlock[dl, this.layer]"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/stone/grey/bottom_right/stone_grey_bottom_right_1.json",
+      "condition": "existsBlock[d, this.layer] and existsBlock[r, this.layer] and existsBlock[dr, this.layer]"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/stone/grey/top_right/stone_grey_top_right_1.json",
+      "condition": "existsBlock[u, this.layer] and existsBlock[r, this.layer] and existsBlock[ur, this.layer]"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/stone/grey/top_left/stone_grey_top_left_1.json",
+      "condition": "existsBlock[u, this.layer] and existsBlock[l, this.layer] and existsBlock[ul, this.layer]"
+    },
+    {
+      "type": "RandomTexture",
+      "path": "block/stone/grey/_texture/stone_grey_top_random.json",
+      "condition": "existsBlock[u, this.layer]"
+    },
+    {
+      "type": "RandomTexture",
+      "path": "block/stone/grey/_texture/stone_grey_bottom_random.json",
+      "condition": "existsBlock[d, this.layer]"
+    },
+    {
+      "type": "RandomTexture",
+      "path": "block/stone/grey/_texture/stone_grey_right_random.json",
+      "condition": "existsBlock[r, this.layer]"
+    },
+    {
+      "type": "RandomTexture",
+      "path": "block/stone/grey/_texture/stone_grey_left_random.json",
+      "condition": "existsBlock[l, this.layer]"
+    },
+    {
+      "type": "RandomTexture",
+      "path": "block/stone/grey/_texture/stone_grey_middle_random.json"
+    }
+  ]
+}
