@@ -89,11 +89,13 @@ public class RandomTexture implements Renderable, RenderEventListener, Tickable 
             texture.add(AssetManager.deserializeRenderable(o));
         }, JsonType.JSON_OBJECT_TYPE);
 
-        JsonArray events = obj.get("randomiseEvents", JsonType.JSON_ARRAY_TYPE);
+        JsonArray events = obj.getOrDefault("randomiseEvents", null, JsonType.JSON_ARRAY_TYPE);
 
-        events.forEach(e -> {
-            texture.registerEvent(RenderEvent.getRenderEvent(e));
-        }, JsonType.STRING_JSON_TYPE);
+        if (events != null) {
+            events.forEach(e -> {
+                texture.registerEvent(RenderEvent.getRenderEvent(e));
+            }, JsonType.STRING_JSON_TYPE);
+        }
 
         if (texture.textures.isEmpty())
             throw new RuntimeException("Random list with resource " + resource.toString() + " has no items");
