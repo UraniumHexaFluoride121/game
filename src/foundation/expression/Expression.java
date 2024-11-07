@@ -1,6 +1,6 @@
 package foundation.expression;
 
-import foundation.ObjPos;
+import foundation.math.ObjPos;
 import level.objects.BlockLike;
 
 import java.util.*;

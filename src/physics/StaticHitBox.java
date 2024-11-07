@@ -1,6 +1,6 @@
 package physics;
 
-import foundation.ObjPos;
+import foundation.math.ObjPos;
 
 public class StaticHitBox implements HitBox {
     public float up, down, left, right;

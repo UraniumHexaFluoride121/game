@@ -2,8 +2,8 @@ package level.procedural;
 
 import foundation.Deletable;
 import foundation.MainPanel;
-import foundation.MathHelper;
-import foundation.ObjPos;
+import foundation.math.MathHelper;
+import foundation.math.ObjPos;
 import level.RandomType;
 import level.objects.BlockLike;
 import level.procedural.marker.LayoutMarker;
@@ -59,6 +59,10 @@ public class ProceduralGenerator implements Deletable {
 
     public int randomInt(int min, int max) {
         return MathHelper.randIntBetween(min, max, MainPanel.level.randomHandler.getDoubleSupplier(RandomType.PROCEDURAL));
+    }
+
+    public float randomFloat(float min, float max) {
+        return MathHelper.randFloatBetween(min, max, MainPanel.level.randomHandler.getDoubleSupplier(RandomType.PROCEDURAL));
     }
 
     public boolean randomBoolean(float probability) {

@@ -1,7 +1,7 @@
 package level.objects;
 
 import foundation.Direction;
-import foundation.ObjPos;
+import foundation.math.ObjPos;
 import foundation.input.InputHandler;
 import foundation.input.InputHandlingOrder;
 import foundation.input.InputType;

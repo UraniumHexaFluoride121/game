@@ -2,8 +2,8 @@ package loader;
 
 import foundation.Main;
 import foundation.MainPanel;
-import foundation.MathHelper;
-import foundation.ObjPos;
+import foundation.math.MathHelper;
+import foundation.math.ObjPos;
 import level.Level;
 import level.ObjectLayer;
 import level.RandomType;
@@ -105,7 +105,7 @@ public abstract class AssetManager {
             int size = blocksArray.size();
             blocksArray.forEachI((row, i) -> {
                 char[] chars = row.toCharArray();
-                for (int j = 0; j < Math.min(30, chars.length); j++) {
+                for (int j = 0; j < Math.min(Main.BLOCKS_X, chars.length); j++) {
                     String s = String.valueOf(chars[j]);
                     if (!s.equals(" ")) {
                         int yOffset = (size - 1) - i + heightOffset;

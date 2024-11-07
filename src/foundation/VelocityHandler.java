@@ -1,5 +1,7 @@
 package foundation;
 
+import foundation.math.ObjPos;
+
 public class VelocityHandler extends ObjPos {
     public VelocityHandler() {
 

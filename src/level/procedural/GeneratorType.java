@@ -1,6 +1,8 @@
 package level.procedural;
 
 import foundation.Main;
+import foundation.math.BezierCurve3;
+import foundation.math.MathHelper;
 import loader.JsonObject;
 import loader.JsonType;
 
@@ -11,36 +13,35 @@ import java.util.function.Supplier;
 public enum GeneratorType {
     FOREST_BRANCH("forest_branch", () -> new ProceduralGenerator((gen, lm, type) -> {
         gen.addBlock(type.getString(0), lm.pos);
-        int firstOffset = gen.randomInt(-1, 1);
-        int secondOffset = firstOffset == 0 ? gen.randomInt(-1, 1) : gen.randomInt(0, -firstOffset);
         //If this isn't done, there is a bias for the second offset being 0
         boolean flipOffsets = gen.randomBoolean(0.5f);
+        int extension = gen.randomInt(type.getInt(0), type.getInt(1));
         if (lm.pos.x < Main.BLOCKS_X / 2f) {
-            gen.lineOfBlocks(
-                    0,
-                    (int) lm.pos.x,
-                    (int) lm.pos.y + (flipOffsets ? secondOffset : firstOffset),
-                    pos -> type.getString(0)
+            float t = gen.randomFloat(0.4f, 0.6f);
+            float firstOffset = gen.randomFloat(-lm.pos.x / 3, lm.pos.x / 3);
+            float centerPointX = MathHelper.lerp(0, lm.pos.x, t);
+            BezierCurve3 curve = new BezierCurve3(
+                    0, lm.pos.y + firstOffset,
+                    centerPointX, MathHelper.lerp(lm.pos.y + firstOffset, lm.pos.y, t) + gen.randomFloat(-5, 5),
+                    lm.pos.x, lm.pos.y,
+                    0.5f
             );
-            gen.lineOfBlocks(
-                    (int) lm.pos.x,
-                    (int) lm.pos.x + gen.randomInt(type.getInt(0), type.getInt(1)),
-                    (int) lm.pos.y + (flipOffsets ? firstOffset : secondOffset),
-                    pos -> type.getString(0)
-            );
+            curve.forEachBlockNearCurve(1.3f, (point, dist) -> dist < (1 - point + 0.5f) * 1, (pos, dist) -> {
+                gen.addBlock(type.getString(0), pos);
+            });
         } else {
-            gen.lineOfBlocks(
-                    (int) lm.pos.x,
-                    Main.BLOCKS_X - 1,
-                    (int) lm.pos.y + (flipOffsets ? secondOffset : firstOffset),
-                    pos -> type.getString(0)
+            float t = gen.randomFloat(0.4f, 0.6f);
+            float firstOffset = gen.randomFloat(-(Main.BLOCKS_X - 1 - lm.pos.x) / 3, (Main.BLOCKS_X - 1 - lm.pos.x) / 3);
+            float centerPointX = MathHelper.lerp(Main.BLOCKS_X - 1, lm.pos.x, t);
+            BezierCurve3 curve = new BezierCurve3(
+                    Main.BLOCKS_X - 1, lm.pos.y + firstOffset,
+                    centerPointX, MathHelper.lerp(lm.pos.y + firstOffset, lm.pos.y, t) + gen.randomFloat(-5, 5),
+                    lm.pos.x, lm.pos.y,
+                    0.5f
             );
-            gen.lineOfBlocks(
-                    (int) lm.pos.x - gen.randomInt(type.getInt(0), type.getInt(1)),
-                    (int) lm.pos.x,
-                    (int) lm.pos.y + (flipOffsets ? firstOffset : secondOffset),
-                    pos -> type.getString(0)
-            );
+            curve.forEachBlockNearCurve(0.8f, (pos, dist) -> {
+                gen.addBlock(type.getString(0), pos);
+            });
         }
     }), storeString("woodBlock")
             .andThen(storeString("leafBlock"))

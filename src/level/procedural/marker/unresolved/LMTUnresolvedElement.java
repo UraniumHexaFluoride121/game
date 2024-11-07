@@ -1,6 +1,6 @@
 package level.procedural.marker.unresolved;
 
-import foundation.ObjPos;
+import foundation.math.ObjPos;
 import level.procedural.marker.resolved.LMTResolvedElement;
 import level.procedural.marker.LMType;
 import loader.JsonObject;

@@ -1,6 +1,6 @@
 package render.texture.ct;
 
-import foundation.ObjPos;
+import foundation.math.ObjPos;
 import foundation.expression.Expression;
 import foundation.expression.ExpressionFunction;
 import foundation.expression.ExpressionValue;

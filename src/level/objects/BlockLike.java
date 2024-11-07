@@ -2,7 +2,7 @@ package level.objects;
 
 import foundation.Deletable;
 import foundation.MainPanel;
-import foundation.ObjPos;
+import foundation.math.ObjPos;
 import foundation.tick.RegisteredTickable;
 import level.ObjectLayer;
 import physics.*;

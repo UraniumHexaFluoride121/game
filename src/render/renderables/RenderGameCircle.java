@@ -6,11 +6,11 @@ import render.RenderOrder;
 import java.awt.*;
 import java.util.function.Supplier;
 
-public class RenderGameSquare extends RenderGameElement {
+public class RenderGameCircle extends RenderGameElement {
     public Color color;
     public float up, down, left, right;
 
-    public RenderGameSquare(RenderOrder renderOrder, Color color, float up, float down, float left, float right, Supplier<ObjPos> gamePos) {
+    public RenderGameCircle(RenderOrder renderOrder, Color color, float up, float down, float left, float right, Supplier<ObjPos> gamePos) {
         super(renderOrder, gamePos);
         this.color = color;
         this.up = up;
@@ -19,7 +19,7 @@ public class RenderGameSquare extends RenderGameElement {
         this.right = right;
     }
 
-    public RenderGameSquare(RenderOrder renderOrder, Color color, float size, Supplier<ObjPos> gamePos) {
+    public RenderGameCircle(RenderOrder renderOrder, Color color, float size, Supplier<ObjPos> gamePos) {
         this(renderOrder, color, size / 2, size / 2, size / 2, size / 2, gamePos);
     }
 
@@ -27,7 +27,7 @@ public class RenderGameSquare extends RenderGameElement {
     public void render(Graphics2D g) {
         g.setColor(color);
         g.scale(1 / 1000d, 1 / 1000d);
-        g.fillRect(
+        g.fillOval(
                 (int) ((gamePos.get().x - left) * 1000),
                 (int) ((gamePos.get().y - down) * 1000),
                 (int) ((left + right) * 1000),

@@ -2,10 +2,10 @@ package level;
 
 import foundation.Deletable;
 import foundation.Main;
-import foundation.ObjPos;
 import foundation.input.InputHandler;
 import foundation.input.InputHandlingOrder;
 import foundation.input.InputType;
+import foundation.math.ObjPos;
 import level.objects.BlockLike;
 import level.objects.Player;
 import level.procedural.Layout;

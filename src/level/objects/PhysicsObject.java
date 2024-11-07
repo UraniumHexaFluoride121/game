@@ -1,6 +1,8 @@
 package level.objects;
 
 import foundation.*;
+import foundation.math.MathHelper;
+import foundation.math.ObjPos;
 import level.ObjectLayer;
 import physics.*;
 import render.event.RenderEvent;

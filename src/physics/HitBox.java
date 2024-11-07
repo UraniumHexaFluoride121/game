@@ -1,6 +1,6 @@
 package physics;
 
-import foundation.ObjPos;
+import foundation.math.ObjPos;
 
 public interface HitBox {
     //Positions are absolute game coordinates

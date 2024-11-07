@@ -1,7 +1,7 @@
 package physics;
 
 import foundation.Deletable;
-import foundation.ObjPos;
+import foundation.math.ObjPos;
 
 import java.util.function.Supplier;
 

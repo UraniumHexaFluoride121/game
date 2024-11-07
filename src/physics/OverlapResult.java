@@ -1,6 +1,6 @@
 package physics;
 
-import foundation.ObjPos;
+import foundation.math.ObjPos;
 
 public class OverlapResult {
     public final ObjPos amount; //This is a non-directional value for the overlap on the X and Y axes

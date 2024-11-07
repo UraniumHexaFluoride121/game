@@ -1,6 +1,6 @@
 package level.objects;
 
-import foundation.ObjPos;
+import foundation.math.ObjPos;
 import foundation.tick.TickOrder;
 import physics.HitBox;
 

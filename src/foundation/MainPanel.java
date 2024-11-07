@@ -2,6 +2,7 @@ package foundation;
 
 import foundation.input.InputHandler;
 import foundation.input.InputType;
+import foundation.math.ObjPos;
 import foundation.tick.RegisteredTickable;
 import foundation.tick.TickOrder;
 import level.Level;

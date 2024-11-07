@@ -1,6 +1,6 @@
 package render.renderables;
 
-import foundation.ObjPos;
+import foundation.math.ObjPos;
 import foundation.tick.Tickable;
 import render.event.RenderEvent;
 import render.event.RenderEventListener;

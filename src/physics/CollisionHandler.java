@@ -1,7 +1,7 @@
 package physics;
 
 import foundation.Main;
-import foundation.ObjPos;
+import foundation.math.ObjPos;
 import foundation.tick.RegisteredTickable;
 import foundation.tick.TickOrder;
 

@@ -1,6 +1,6 @@
 {
   "leafBlock": "static_example",
   "woodBlock": "static_example",
-  "minExtension": 3,
-  "maxExtension": 5
+  "minExtension": 5,
+  "maxExtension": 8
 }

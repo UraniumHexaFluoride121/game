@@ -2,7 +2,7 @@ package level.procedural.marker;
 
 import foundation.Deletable;
 import foundation.MainPanel;
-import foundation.ObjPos;
+import foundation.math.ObjPos;
 import level.procedural.GeneratorType;
 import level.procedural.Layout;
 import level.procedural.RegionType;

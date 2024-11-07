@@ -1,4 +1,4 @@
-package foundation;
+package foundation.math;
 
 import java.awt.*;
 
