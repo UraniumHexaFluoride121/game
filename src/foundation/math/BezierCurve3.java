@@ -116,10 +116,9 @@ public class BezierCurve3 implements OrderedRenderable, Deletable {
         int toY = Math.min(Main.BLOCKS_X - 1, Math.round(byMax + dist - 0.5f));
         for (int x = fromX; x <= toX; x++) {
             for (int y = fromY; y <= toY; y++) {
-                ObjPos pos = new ObjPos(x, y);
-                float distanceToCurve = distanceToCurve(pos);
+                float distanceToCurve = distanceToCurve(new ObjPos(x + 0.5f, y + 0.5f));
                 if (distanceToCurve <= dist)
-                    function.accept(pos, distanceToCurve);
+                    function.accept(new ObjPos(x, y), distanceToCurve);
             }
         }
     }
@@ -132,13 +131,13 @@ public class BezierCurve3 implements OrderedRenderable, Deletable {
         int toY = Math.round(byMax + dist - 0.5f);
         for (int x = fromX; x <= toX; x++) {
             for (int y = fromY; y <= toY; y++) {
-                ObjPos pos = new ObjPos(x, y);
+                ObjPos pos = new ObjPos(x + 0.5f, y + 0.5f); //We sample the middle of the block
                 float closestPoint = closestPointOnCurve(pos);
                 float distanceToCurve = pos.distance(sampleCurve(closestPoint));
                 if (!filter.test(closestPoint, distanceToCurve))
                     continue;
                 if (distanceToCurve <= dist)
-                    function.accept(pos, distanceToCurve);
+                    function.accept(new ObjPos(x, y), distanceToCurve);
             }
         }
     }

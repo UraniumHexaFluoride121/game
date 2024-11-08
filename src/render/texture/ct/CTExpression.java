@@ -43,6 +43,8 @@ public class CTExpression extends Expression<CTExpressionData> {
             if (args.size() == 1)
                 return o -> {
                     ObjPos pos = ((ObjPos) args.get(0).apply(o));
+                    if (o.l.outOfBounds(((int) pos.x), ((int) pos.y)))
+                        return true;
                     for (ObjectLayer layer : ObjectLayer.values()) {
                         if (o.l.getBlock(layer, (int) pos.x, (int) pos.y) != null)
                             return true;
@@ -51,6 +53,8 @@ public class CTExpression extends Expression<CTExpressionData> {
                 };
             else return o -> {
                 ObjPos pos = ((ObjPos) args.get(0).apply(o));
+                if (o.l.outOfBounds(((int) pos.x), ((int) pos.y)))
+                    return true;
                 HashSet<ObjectLayer> layers = new HashSet<>();
                 for (int i = 1; i < args.size(); i++) {
                     layers.add(ObjectLayer.getObjectLayer((String) args.get(i).apply(o)));
@@ -69,6 +73,8 @@ public class CTExpression extends Expression<CTExpressionData> {
             if (args.size() == 1)
                 return o -> {
                     ObjPos pos = ((ObjPos) args.get(0).apply(o));
+                    if (o.l.outOfBounds(((int) pos.x), ((int) pos.y)))
+                        return true;
                     for (ObjectLayer layer : ObjectLayer.values()) {
                         BlockLike block = o.l.getBlock(layer, (int) pos.x, (int) pos.y);
                         if (block != null && block.hasCollision())
@@ -78,6 +84,8 @@ public class CTExpression extends Expression<CTExpressionData> {
                 };
             else return o -> {
                 ObjPos pos = ((ObjPos) args.get(0).apply(o));
+                if (o.l.outOfBounds(((int) pos.x), ((int) pos.y)))
+                    return true;
                 HashSet<ObjectLayer> layers = new HashSet<>();
                 for (int i = 1; i < args.size(); i++) {
                     layers.add(ObjectLayer.getObjectLayer((String) args.get(i).apply(o)));

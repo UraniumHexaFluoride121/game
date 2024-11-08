@@ -76,7 +76,7 @@ public class Player extends PhysicsBlock {
         if (space && jumpTimer == 0 &&  constraints.is(Direction.DOWN)) {
             isLongJump = true;
             jumpTimer = 0.2f;
-            applyImpulse(new ObjPos(0, 15));
+            applyImpulse(new ObjPos(0, 20));
             renderElement.onEvent(RenderEvent.ON_PLAYER_INPUT_JUMP);
         }
         if (velocity.y < 0)
@@ -90,7 +90,7 @@ public class Player extends PhysicsBlock {
         if (!left && right)
             movement.addX(1);
         if (movement.length() > 0) {
-            movement.normalise().multiply(20);
+            movement.normalise().multiply(30);
             applyAcceleration(movement, deltaTime);
         }
         super.processMovement(deltaTime);

@@ -1,6 +1,4 @@
 {
   "leafBlock": "static_example",
-  "woodBlock": "static_example",
-  "minExtension": 5,
-  "maxExtension": 8
+  "woodBlock": "stone_grey"
 }

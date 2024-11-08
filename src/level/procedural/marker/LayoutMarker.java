@@ -5,6 +5,7 @@ import foundation.MainPanel;
 import foundation.math.ObjPos;
 import level.procedural.GeneratorType;
 import level.procedural.Layout;
+import level.procedural.ProceduralGenerator;
 import level.procedural.RegionType;
 import level.procedural.marker.resolved.GeneratorConditionData;
 import level.procedural.marker.resolved.LMTResolvedElement;
@@ -27,6 +28,10 @@ public class LayoutMarker implements OrderedRenderable, Deletable {
             MainPanel.GAME_RENDERER.register(this);
     }
 
+    public LayoutMarker(String type, ObjPos pos) {
+        this(LMType.getLayoutMarker(type), pos);
+    }
+
     public void generate() {
         if (type instanceof LMTUnresolvedElement t) {
             LMTResolvedElement resolvedElement = t.resolve(new ResolverConditionData(
@@ -38,7 +43,9 @@ public class LayoutMarker implements OrderedRenderable, Deletable {
             GeneratorType genType = t.getGenerator(new GeneratorConditionData(
                     MainPanel.level.getRegion(pos), t, this, MainPanel.level
             ));
-            genType.generator.get().generate(this, genType);
+            ProceduralGenerator gen = genType.generator.get();
+            gen.generate(this, genType);
+            gen.generateMarkers();
         }
     }
 

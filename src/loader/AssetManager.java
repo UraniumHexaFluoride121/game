@@ -133,7 +133,7 @@ public abstract class AssetManager {
                                     MainPanel.level.randomHandler.getRandom(RandomType.PROCEDURAL)::nextDouble));
 
                             LayoutMarker marker = new LayoutMarker(
-                                    LMType.getLayoutMarker(markerObj.get("type", JsonType.STRING_JSON_TYPE)),
+                                    markerObj.get("type", JsonType.STRING_JSON_TYPE),
                                     new ObjPos(x, y)
                             );
                             MainPanel.level.layout.addMarker(marker);

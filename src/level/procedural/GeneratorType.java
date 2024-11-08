@@ -1,8 +1,10 @@
 package level.procedural;
 
 import foundation.Main;
+import foundation.MainPanel;
 import foundation.math.BezierCurve3;
 import foundation.math.MathHelper;
+import foundation.math.ObjPos;
 import loader.JsonObject;
 import loader.JsonType;
 
@@ -12,43 +14,56 @@ import java.util.function.Supplier;
 
 public enum GeneratorType {
     FOREST_BRANCH("forest_branch", () -> new ProceduralGenerator((gen, lm, type) -> {
-        gen.addBlock(type.getString(0), lm.pos);
-        //If this isn't done, there is a bias for the second offset being 0
-        boolean flipOffsets = gen.randomBoolean(0.5f);
-        int extension = gen.randomInt(type.getInt(0), type.getInt(1));
         if (lm.pos.x < Main.BLOCKS_X / 2f) {
             float t = gen.randomFloat(0.4f, 0.6f);
-            float firstOffset = gen.randomFloat(-lm.pos.x / 3, lm.pos.x / 3);
+            float length = lm.pos.x;
+            float firstOffset = gen.randomFloat(-length / 5, length / 5);
             float centerPointX = MathHelper.lerp(0, lm.pos.x, t);
             BezierCurve3 curve = new BezierCurve3(
                     0, lm.pos.y + firstOffset,
-                    centerPointX, MathHelper.lerp(lm.pos.y + firstOffset, lm.pos.y, t) + gen.randomFloat(-5, 5),
+                    centerPointX, MathHelper.lerp(lm.pos.y + firstOffset, lm.pos.y, t) + gen.randomFloat(-length / 4, length / 4),
                     lm.pos.x, lm.pos.y,
                     0.5f
             );
-            curve.forEachBlockNearCurve(1.3f, (point, dist) -> dist < (1 - point + 0.5f) * 1, (pos, dist) -> {
-                gen.addBlock(type.getString(0), pos);
-            });
+            gen.addData("curve", curve);
+            curve.forEachBlockNearCurve(2f,
+                    (point, dist) -> dist < (1 - point) * length / 20 + 0.7f + (1 - length / 20),
+                    (pos, dist) -> {
+                        gen.addBlock(type.getString(0), pos);
+                    });
         } else {
             float t = gen.randomFloat(0.4f, 0.6f);
-            float firstOffset = gen.randomFloat(-(Main.BLOCKS_X - 1 - lm.pos.x) / 3, (Main.BLOCKS_X - 1 - lm.pos.x) / 3);
+            float length = Main.BLOCKS_X - 1 - lm.pos.x;
+            float firstOffset = gen.randomFloat(-length / 5, length / 5);
             float centerPointX = MathHelper.lerp(Main.BLOCKS_X - 1, lm.pos.x, t);
             BezierCurve3 curve = new BezierCurve3(
                     Main.BLOCKS_X - 1, lm.pos.y + firstOffset,
-                    centerPointX, MathHelper.lerp(lm.pos.y + firstOffset, lm.pos.y, t) + gen.randomFloat(-5, 5),
+                    centerPointX, MathHelper.lerp(lm.pos.y + firstOffset, lm.pos.y, t) + gen.randomFloat(-length / 4, length / 4),
                     lm.pos.x, lm.pos.y,
                     0.5f
             );
-            curve.forEachBlockNearCurve(0.8f, (pos, dist) -> {
-                gen.addBlock(type.getString(0), pos);
-            });
+            gen.addData("curve", curve);
+            curve.forEachBlockNearCurve(2,
+                    (point, dist) -> dist < (1 - point) * length / 20 + 0.7f + (1 - length / 20),
+                    (pos, dist) -> {
+                        gen.addBlock(type.getString(0), pos);
+                    });
         }
     }), storeString("woodBlock")
-            .andThen(storeString("leafBlock"))
-            .andThen(storeInt("minExtension"))
-            .andThen(storeInt("maxExtension")),
+            .andThen(storeString("leafBlock")),
             true
-    );
+    ),
+
+    ISLAND_TEST("island_test", () -> new ProceduralGenerator((gen, lm, type) -> {
+        int sizeLeft = gen.randomInt(3, 6);
+        int sizeRight = gen.randomInt(3, 6);
+        gen.lineOfBlocks(lm.pos.x - sizeLeft, lm.pos.x + sizeRight, lm.pos.y, pos -> "stone_grey");
+        sizeLeft -= gen.randomInt(1, 2);
+        sizeRight -= gen.randomInt(1, 2);
+        gen.lineOfBlocks(lm.pos.x - sizeLeft, lm.pos.x + sizeRight, lm.pos.y - 1, pos -> "stone_grey");
+        if (lm.pos.y < MainPanel.level.getRegionTop())
+            gen.addMarker("platform", new ObjPos(lm.pos.x + gen.randomInt(5, 7) * (gen.randomBoolean(0.5f) ? 1 : -1), lm.pos.y + gen.randomInt(6, 9)));
+    }), storeNothing(), false);
 
     public final String s;
     public final Supplier<ProceduralGenerator> generator;
@@ -87,6 +102,11 @@ public enum GeneratorType {
                 return type;
         }
         throw new IllegalArgumentException("Unknown generator type: " + s);
+    }
+
+    private static BiConsumer<GeneratorType, JsonObject> storeNothing() {
+        return (type, data) -> {
+        };
     }
 
     private static BiConsumer<GeneratorType, JsonObject> storeInt(String name) {

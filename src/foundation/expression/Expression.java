@@ -2,6 +2,7 @@ package foundation.expression;
 
 import foundation.math.ObjPos;
 import level.objects.BlockLike;
+import level.procedural.marker.LayoutMarker;
 
 import java.util.*;
 import java.util.function.Function;
@@ -275,6 +276,13 @@ public class Expression<T> {
                                 throw new RuntimeException("Incorrectly formatted expression, tried to access non-existent field \"" + field + "\" from BlockLike");
                     };
                 }
+                if (obj instanceof LayoutMarker marker) {
+                    return switch (field) {
+                        case "pos" -> marker.pos;
+                        default ->
+                                throw new RuntimeException("Incorrectly formatted expression, tried to access non-existent field \"" + field + "\" from LayoutMarker");
+                    };
+                }
                 throw new RuntimeException("Expression error: tried to access a field from an object that doesn't have fields: " + obj);
             };
 
@@ -347,6 +355,38 @@ public class Expression<T> {
                         throw new RuntimeException("Tried to apply MINUS operator on incompatible object, \"" + arg + "\"");
                     };
             }
+            case GTH -> o -> {
+                Object arg1 = ((Function<T, Object>) args[0]).apply(o);
+                Object arg2 = ((Function<T, Object>) args[1]).apply(o);
+                if (arg1 instanceof Integer int1 && arg2 instanceof Integer int2) {
+                    return int1 > int2;
+                }
+                throw new RuntimeException("Tried to apply GREATER THAN operator on incompatible objects");
+            };
+            case GTE -> o -> {
+                Object arg1 = ((Function<T, Object>) args[0]).apply(o);
+                Object arg2 = ((Function<T, Object>) args[1]).apply(o);
+                if (arg1 instanceof Integer int1 && arg2 instanceof Integer int2) {
+                    return int1 >= int2;
+                }
+                throw new RuntimeException("Tried to apply GREATER THAN operator on incompatible objects");
+            };
+            case LTH -> o -> {
+                Object arg1 = ((Function<T, Object>) args[0]).apply(o);
+                Object arg2 = ((Function<T, Object>) args[1]).apply(o);
+                if (arg1 instanceof Integer int1 && arg2 instanceof Integer int2) {
+                    return int1 < int2;
+                }
+                throw new RuntimeException("Tried to apply GREATER THAN operator on incompatible objects");
+            };
+            case LTE -> o -> {
+                Object arg1 = ((Function<T, Object>) args[0]).apply(o);
+                Object arg2 = ((Function<T, Object>) args[1]).apply(o);
+                if (arg1 instanceof Integer int1 && arg2 instanceof Integer int2) {
+                    return int1 <= int2;
+                }
+                throw new RuntimeException("Tried to apply GREATER THAN operator on incompatible objects");
+            };
 
             case NOT -> o -> !((Boolean) ((Function<T, Object>) args[0]).apply(o));
             case NOT_EQUAL -> o -> !((Function<T, Object>) args[0]).apply(o).equals(
@@ -452,6 +492,12 @@ public class Expression<T> {
                 OperatorType.NOT_EQUAL
         })));
         operatorOrder.add(new HashSet<>(List.of(new OperatorType[]{
+                OperatorType.GTH,
+                OperatorType.GTE,
+                OperatorType.LTH,
+                OperatorType.LTE
+        })));
+        operatorOrder.add(new HashSet<>(List.of(new OperatorType[]{
                 OperatorType.AND
         })));
         operatorOrder.add(new HashSet<>(List.of(new OperatorType[]{
@@ -468,6 +514,10 @@ public class Expression<T> {
         NOT(o -> true, "not", "!"),
         NOT_EQUAL(o -> false, "!="),
         EQUAL(o -> false, "=", "=="),
+        GTH(o -> false, ">"),
+        GTE(o -> false, ">="),
+        LTH(o -> false, "<"),
+        LTE(o -> false, "<="),
         AND(o -> false, "and", "&", "&&"),
         OR(o -> false, "or", "|", "||");
 

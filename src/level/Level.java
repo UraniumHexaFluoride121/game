@@ -17,10 +17,7 @@ import render.renderables.RenderBackground;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.TreeMap;
+import java.util.*;
 
 import static foundation.MainPanel.*;
 
@@ -90,6 +87,10 @@ public class Level implements Deletable {
         if (x < 0 || x >= Main.BLOCKS_X || y < 0 || y >= maximumHeight || !layer.addToStatic)
             return null;
         return staticBlocks.get(layer)[x][y];
+    }
+
+    public boolean outOfBounds(int x, int y) {
+        return x < 0 || x >= Main.BLOCKS_X || y < 0 || y >= maximumHeight;
     }
 
     public void addBlocks(BlockLike... blockLikes) {
@@ -165,7 +166,10 @@ public class Level implements Deletable {
     }
 
     public RegionType getRegion(ObjPos pos) {
-        return regionLayout.ceilingEntry(((int) pos.y)).getValue();
+        Map.Entry<Integer, RegionType> region = regionLayout.ceilingEntry(((int) pos.y));
+        if (region == null)
+            return regionLayout.lastEntry().getValue();
+        return region.getValue();
     }
 
     public int getRegionTop() {
