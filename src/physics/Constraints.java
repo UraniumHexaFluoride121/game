@@ -41,6 +41,12 @@ public class Constraints {
         constrainedToBox.put(d, box);
     }
 
+    public void remove(Direction d) {
+        isConstrained.put(d, false);
+        constrainedTo.remove(d);
+        constrainedToBox.remove(d);
+    }
+
     @Override
     public String toString() {
         return "is constrained: " + isConstrained.toString() + ", constrained to: " + constrainedTo.toString();

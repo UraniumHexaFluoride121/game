@@ -51,7 +51,8 @@ public class BezierCurve3 implements BoundedRenderable, Deletable {
                 renderPoints[i] = new RenderGameCircle(RenderOrder.BLOCK, Color.GREEN, 0.15f, () -> pos);
             }
             MainPanel.GAME_RENDERER.register(this);
-        }
+        } else
+            renderPoints = new Renderable[0];
     }
 
     public ObjPos sampleCurve(float t) {

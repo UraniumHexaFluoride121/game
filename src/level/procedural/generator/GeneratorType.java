@@ -76,14 +76,14 @@ public enum GeneratorType {
             ObjPos pos;
             int borderProximityLimit = type.getInt(0);
             do {
-                float angle = gen.randomFloat(0.2f, 1.35f);
+                float angle = gen.randomFloat(0.2f, 1.2f);
                 float length = gen.randomFloat(5, 9);
                 boolean isRight = gen.randomBoolean(0.5f);
                 if (lm.pos.x > Main.BLOCKS_X - 1 - borderProximityLimit)
                     isRight = false;
                 else if (lm.pos.x < borderProximityLimit)
                     isRight = true;
-                pos = new ObjPos(lm.pos.x + Math.cos(angle) * length * 2.7f * (isRight ? 1 : -1), lm.pos.y + Math.sin(angle) * length).toInt();
+                pos = new ObjPos(lm.pos.x + Math.cos(angle) * length * 2.5f * (isRight ? 1 : -1), lm.pos.y + Math.sin(angle) * length).toInt();
             } while (MainPanel.level.outOfBounds(pos));
             gen.addMarker("platform", pos);
         }
