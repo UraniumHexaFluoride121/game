@@ -5,7 +5,7 @@
       "condition": "this.pos.x > 20 && this.pos.x < 40"
     },
     {
-      "name": "island_attached",
+      "name": "island_floating",
       "condition": "true"
     }
   ]

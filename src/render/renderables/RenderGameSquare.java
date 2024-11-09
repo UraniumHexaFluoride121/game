@@ -8,7 +8,9 @@ import java.util.function.Supplier;
 
 public class RenderGameSquare extends RenderGameElement {
     public Color color;
-    public float up, down, left, right;
+    private final float up, down, left, right;
+    private boolean isFrame = false;
+    private static final BasicStroke stroke = new BasicStroke(100f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 
     public RenderGameSquare(RenderOrder renderOrder, Color color, float up, float down, float left, float right, Supplier<ObjPos> gamePos) {
         super(renderOrder, gamePos);
@@ -23,16 +25,30 @@ public class RenderGameSquare extends RenderGameElement {
         this(renderOrder, color, size / 2, size / 2, size / 2, size / 2, gamePos);
     }
 
+    public void setFrame() {
+        isFrame = true;
+    }
+
     @Override
     public void render(Graphics2D g) {
         g.setColor(color);
         g.scale(1 / 1000d, 1 / 1000d);
-        g.fillRect(
-                (int) ((gamePos.get().x - left) * 1000),
-                (int) ((gamePos.get().y - down) * 1000),
-                (int) ((left + right) * 1000),
-                (int) ((up + down) * 1000)
-        );
+        if (isFrame) {
+            g.setStroke(stroke);
+            g.drawRect(
+                    (int) ((gamePos.get().x - left) * 1000),
+                    (int) ((gamePos.get().y - down) * 1000),
+                    (int) ((left + right) * 1000),
+                    (int) ((up + down) * 1000)
+            );
+        } else {
+            g.fillRect(
+                    (int) ((gamePos.get().x - left) * 1000),
+                    (int) ((gamePos.get().y - down) * 1000),
+                    (int) ((left + right) * 1000),
+                    (int) ((up + down) * 1000)
+            );
+        }
         g.scale(1000, 1000);
     }
 }

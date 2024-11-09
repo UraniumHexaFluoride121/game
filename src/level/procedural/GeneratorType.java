@@ -5,8 +5,10 @@ import foundation.MainPanel;
 import foundation.math.BezierCurve3;
 import foundation.math.MathHelper;
 import foundation.math.ObjPos;
+import level.procedural.marker.LayoutMarker;
 import loader.JsonObject;
 import loader.JsonType;
+import physics.StaticHitBox;
 
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
@@ -49,21 +51,42 @@ public enum GeneratorType {
                         gen.addBlock(type.getString(0), pos);
                     });
         }
-    }), storeString("woodBlock")
-            .andThen(storeString("leafBlock")),
+    }, (gen, lm, type) -> {
+
+    }, LayoutMarker.isNotColliding(BoundType.PADDED_COLLISION)),
+            storeString("woodBlock")
+                    .andThen(storeString("leafBlock")),
             true
     ),
 
     ISLAND_TEST("island_test", () -> new ProceduralGenerator((gen, lm, type) -> {
         int sizeLeft = gen.randomInt(3, 6);
         int sizeRight = gen.randomInt(3, 6);
+        lm.addBound(new StaticHitBox(1, 1, sizeLeft, sizeRight + 1, lm.pos), BoundType.COLLISION);
+        lm.addBound(new StaticHitBox(4f, 4f, sizeLeft + 2, sizeRight + 3, lm.pos), BoundType.PADDED_COLLISION);
         gen.lineOfBlocks(lm.pos.x - sizeLeft, lm.pos.x + sizeRight, lm.pos.y, pos -> "stone_grey");
         sizeLeft -= gen.randomInt(1, 2);
         sizeRight -= gen.randomInt(1, 2);
         gen.lineOfBlocks(lm.pos.x - sizeLeft, lm.pos.x + sizeRight, lm.pos.y - 1, pos -> "stone_grey");
-        if (lm.pos.y < MainPanel.level.getRegionTop())
-            gen.addMarker("platform", new ObjPos(lm.pos.x + gen.randomInt(5, 7) * (gen.randomBoolean(0.5f) ? 1 : -1), lm.pos.y + gen.randomInt(6, 9)));
-    }), storeNothing(), false);
+    }, (gen, lm, type) -> {
+        if (lm.pos.y < MainPanel.level.getRegionTop()) {
+            ObjPos pos;
+            do {
+                float angle = gen.randomFloat(0, 1.5f);
+                float length = gen.randomFloat(5, 9);
+                boolean isRight = gen.randomBoolean(0.5f);
+                if (lm.pos.x > Main.BLOCKS_X - 1 - type.getInt(0))
+                    isRight = false;
+                else if (lm.pos.x < type.getInt(0))
+                    isRight = true;
+                pos = new ObjPos(lm.pos.x + Math.cos(angle) * length * 2.5f * (isRight ? 1 : -1), lm.pos.y + Math.sin(angle) * length).toInt();
+            } while (MainPanel.level.outOfBounds(pos));
+            gen.addMarker("platform", pos);
+        }
+    }, LayoutMarker.isNotColliding(BoundType.PADDED_COLLISION)),
+            storeInt("forceAwayFromBorderProximity"),
+            true
+    );
 
     public final String s;
     public final Supplier<ProceduralGenerator> generator;

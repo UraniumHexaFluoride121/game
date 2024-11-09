@@ -1,9 +1,11 @@
 package level.procedural;
 
 import foundation.Main;
+import foundation.MainPanel;
 import level.procedural.marker.LayoutMarker;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 public class Layout {
     public static final boolean DEBUG_LAYOUT_RENDER = true;
@@ -31,11 +33,14 @@ public class Layout {
             markers.addAll(markerSection);
         }
         markers.forEach(LayoutMarker::generate);
+        markers.forEach(LayoutMarker::generateMarkers);
     }
 
     public void addMarker(LayoutMarker marker) {
         int xPos = ((int) marker.pos.x);
         int yPos = ((int) marker.pos.y);
+        if (MainPanel.level.outOfBounds(xPos, yPos))
+            return;
         if (markers[xPos] == null)
             markers[xPos] = new ArrayList[maxHeight];
         if (markers[xPos][yPos] == null)
@@ -47,12 +52,22 @@ public class Layout {
     public void removeMarker(LayoutMarker marker) {
         int xPos = ((int) marker.pos.x);
         int yPos = ((int) marker.pos.y);
+        if (MainPanel.level.outOfBounds(xPos, yPos))
+            return;
         if (markers[xPos] == null)
             markers[xPos] = new ArrayList[maxHeight];
         if (markers[xPos][yPos] == null)
             markers[xPos][yPos] = new ArrayList<>();
         markers[xPos][yPos].remove(marker);
         markerSections[yPosToSection(yPos)].remove(marker);
+    }
+
+    public void forEachMarker(float y, int bufferSections, Consumer<LayoutMarker> action) {
+        int min = Math.max(0, yPosToSection(y) - bufferSections);
+        int max = Math.min(sectionCount - 1, yPosToSection(y) + bufferSections);
+        for (int i = min; i <= max; i++) {
+            markerSections[i].forEach(action);
+        }
     }
 
     private int yPosToSection(float y) {

@@ -1,5 +1,7 @@
 package render;
 
+import foundation.MainPanel;
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.util.HashSet;
@@ -9,8 +11,8 @@ import java.util.function.Supplier;
 public class GameRenderer implements Renderable {
     public final AffineTransform transform;
     private final Supplier<AffineTransform> cameraTransform;
-    private final HashSet<OrderedRenderable> qRegister = new HashSet<>(), qRemove = new HashSet<>();
-    private final TreeMap<RenderOrder, HashSet<OrderedRenderable>> renderables = new TreeMap<>();
+    private final HashSet<BoundedRenderable> qRegister = new HashSet<>(), qRemove = new HashSet<>();
+    private final TreeMap<RenderOrder, HashSet<BoundedRenderable>> renderables = new TreeMap<>();
 
     public GameRenderer(AffineTransform transform, Supplier<AffineTransform> cameraTransform) {
         this.transform = transform;
@@ -20,11 +22,11 @@ public class GameRenderer implements Renderable {
         }
     }
 
-    public void register(OrderedRenderable r) {
+    public void register(BoundedRenderable r) {
         qRegister.add(r);
     }
 
-    public void remove(OrderedRenderable r) {
+    public void remove(BoundedRenderable r) {
         qRemove.add(r);
     }
 
@@ -39,11 +41,16 @@ public class GameRenderer implements Renderable {
 
     @Override
     public void render(Graphics2D g) {
+        float top = -MainPanel.cameraY + MainPanel.BLOCK_DIMENSIONS.y;
+        float bottom = -MainPanel.cameraY;
         processQueued();
         AffineTransform prev = g.getTransform();
         g.transform(transform);
         g.transform(cameraTransform.get());
-        renderables.forEach((order, set) -> set.forEach(r -> r.render(g)));
+        renderables.forEach((order, set) -> set.forEach(r -> {
+            if (bottom < r.getTopBound() && top > r.getBottomBound())
+                r.render(g);
+        }));
         g.setTransform(prev);
     }
 }

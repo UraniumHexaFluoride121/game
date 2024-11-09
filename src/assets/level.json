@@ -20,8 +20,8 @@
   "regions": [
     {
       "name": "forest",
-      "min": 100,
-      "max": 150
+      "min": 1000,
+      "max": 1000
     }
   ],
   "layoutMarkerData": {
@@ -31,6 +31,7 @@
     "island_floating": "island_floating.json"
   },
   "generationData": {
-    "forest_branch": "forest_branch.json"
+    "forest_branch": "forest_branch.json",
+    "island_test": "island_test.json"
   }
 }

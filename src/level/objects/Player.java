@@ -15,14 +15,16 @@ public class Player extends PhysicsBlock {
 
     public Player(ObjPos pos, String name, float mass, float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight, InputHandler handler) {
         super(pos, name, mass, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
+        //jump
         handler.addInput(InputType.KEY_PRESSED, e -> {
             space = true;
-        }, e -> e.getKeyCode() == KeyEvent.VK_SPACE, InputHandlingOrder.MOVEMENT_UP, false);
+        }, e -> e.getKeyCode() == KeyEvent.VK_SPACE || e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_UP, InputHandlingOrder.MOVEMENT_UP, false);
         handler.addInput(InputType.KEY_RELEASED, e -> {
             space = false;
             isLongJump = false;
-        }, e -> e.getKeyCode() == KeyEvent.VK_SPACE, InputHandlingOrder.MOVEMENT_UP, false);
+        }, e -> e.getKeyCode() == KeyEvent.VK_SPACE || e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_UP, InputHandlingOrder.MOVEMENT_UP, false);
 
+        //left
         handler.addInput(InputType.KEY_PRESSED, e -> {
             if (!left) {
                 if (right)
@@ -31,18 +33,7 @@ public class Player extends PhysicsBlock {
                     renderElement.onEvent(RenderEvent.ON_PLAYER_INPUT_LEFT);
             }
             left = true;
-        }, e -> e.getKeyCode() == KeyEvent.VK_A, InputHandlingOrder.MOVEMENT_LEFT, false);
-
-        handler.addInput(InputType.KEY_PRESSED, e -> {
-            if (!right) {
-                if (left)
-                    renderElement.onEvent(RenderEvent.ON_PLAYER_INPUT_STANDING_STILL);
-                else
-                    renderElement.onEvent(RenderEvent.ON_PLAYER_INPUT_RIGHT);
-            }
-            right = true;
-        }, e -> e.getKeyCode() == KeyEvent.VK_D, InputHandlingOrder.MOVEMENT_RIGHT, false);
-
+        }, e -> e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT, InputHandlingOrder.MOVEMENT_LEFT, false);
         handler.addInput(InputType.KEY_RELEASED, e -> {
             if (left) {
                 if (right)
@@ -51,8 +42,18 @@ public class Player extends PhysicsBlock {
                     renderElement.onEvent(RenderEvent.ON_PLAYER_INPUT_STANDING_STILL);
             }
             left = false;
-        }, e -> e.getKeyCode() == KeyEvent.VK_A, InputHandlingOrder.MOVEMENT_LEFT, false);
+        }, e -> e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT, InputHandlingOrder.MOVEMENT_LEFT, false);
 
+        //right
+        handler.addInput(InputType.KEY_PRESSED, e -> {
+            if (!right) {
+                if (left)
+                    renderElement.onEvent(RenderEvent.ON_PLAYER_INPUT_STANDING_STILL);
+                else
+                    renderElement.onEvent(RenderEvent.ON_PLAYER_INPUT_RIGHT);
+            }
+            right = true;
+        }, e -> e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT, InputHandlingOrder.MOVEMENT_RIGHT, false);
         handler.addInput(InputType.KEY_RELEASED, e -> {
             if (right) {
                 if (left)
@@ -61,7 +62,7 @@ public class Player extends PhysicsBlock {
                     renderElement.onEvent(RenderEvent.ON_PLAYER_INPUT_STANDING_STILL);
             }
             right = false;
-        }, e -> e.getKeyCode() == KeyEvent.VK_D, InputHandlingOrder.MOVEMENT_RIGHT, false);
+        }, e -> e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT, InputHandlingOrder.MOVEMENT_RIGHT, false);
     }
 
 

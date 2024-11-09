@@ -66,10 +66,10 @@ public class Level implements Deletable {
         }
 
         inputHandler = new InputHandler();
-        inputHandler.addInput(InputType.KEY_PRESSED, e -> upCamera = true, e -> e.getKeyCode() == KeyEvent.VK_UP, InputHandlingOrder.CAMERA_UP, false);
-        inputHandler.addInput(InputType.KEY_RELEASED, e -> upCamera = false, e -> e.getKeyCode() == KeyEvent.VK_UP, InputHandlingOrder.CAMERA_UP, false);
-        inputHandler.addInput(InputType.KEY_PRESSED, e -> downCamera = true, e -> e.getKeyCode() == KeyEvent.VK_DOWN, InputHandlingOrder.CAMERA_DOWN, false);
-        inputHandler.addInput(InputType.KEY_RELEASED, e -> downCamera = false, e -> e.getKeyCode() == KeyEvent.VK_DOWN, InputHandlingOrder.CAMERA_DOWN, false);
+        inputHandler.addInput(InputType.KEY_PRESSED, e -> upCamera = true, e -> e.getKeyCode() == KeyEvent.VK_PAGE_UP, InputHandlingOrder.CAMERA_UP, false);
+        inputHandler.addInput(InputType.KEY_RELEASED, e -> upCamera = false, e -> e.getKeyCode() == KeyEvent.VK_PAGE_UP, InputHandlingOrder.CAMERA_UP, false);
+        inputHandler.addInput(InputType.KEY_PRESSED, e -> downCamera = true, e -> e.getKeyCode() == KeyEvent.VK_PAGE_DOWN, InputHandlingOrder.CAMERA_DOWN, false);
+        inputHandler.addInput(InputType.KEY_RELEASED, e -> downCamera = false, e -> e.getKeyCode() == KeyEvent.VK_PAGE_DOWN, InputHandlingOrder.CAMERA_DOWN, false);
 
         collisionHandler = new CollisionHandler(maximumHeight, SECTION_SIZE, 2);
         this.maximumHeight = maximumHeight;
@@ -91,6 +91,14 @@ public class Level implements Deletable {
 
     public boolean outOfBounds(int x, int y) {
         return x < 0 || x >= Main.BLOCKS_X || y < 0 || y >= maximumHeight;
+    }
+
+    public boolean outOfBounds(float x, float y) {
+        return x < 0 || x >= Main.BLOCKS_X || y < 0 || y >= maximumHeight;
+    }
+
+    public boolean outOfBounds(ObjPos pos) {
+        return outOfBounds(pos.x, pos.y);
     }
 
     public void addBlocks(BlockLike... blockLikes) {
@@ -122,6 +130,8 @@ public class Level implements Deletable {
     //needs to be reverted. This does not apply if the overwritten block is a part of the current
     //generation
     public BlockLike addProceduralBlock(BlockLike b) {
+        if (outOfBounds(b.pos))
+            return null;
         collisionHandler.register(b);
         BlockLike removed = null;
         if (b.getLayer().addToStatic) {

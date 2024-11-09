@@ -6,7 +6,7 @@ import foundation.math.ObjPos;
 import foundation.tick.RegisteredTickable;
 import level.ObjectLayer;
 import physics.*;
-import render.OrderedRenderable;
+import render.BoundedRenderable;
 import render.RenderOrder;
 import render.event.RenderBlockUpdate;
 import render.event.RenderEvent;
@@ -14,7 +14,7 @@ import render.renderables.RenderGameElement;
 
 import java.awt.*;
 
-public abstract class BlockLike implements RegisteredTickable, OrderedRenderable, CollisionObject {
+public abstract class BlockLike implements RegisteredTickable, BoundedRenderable, CollisionObject {
     public HitBox hitBox;
     public RenderGameElement renderElement;
     public ObjPos pos;
@@ -106,5 +106,15 @@ public abstract class BlockLike implements RegisteredTickable, OrderedRenderable
     @Override
     public RenderOrder getRenderOrder() {
         return renderElement.getRenderOrder();
+    }
+
+    @Override
+    public float getTopBound() {
+        return hitBox.getTop() + 1;
+    }
+
+    @Override
+    public float getBottomBound() {
+        return hitBox.getBottom() - 1;
     }
 }

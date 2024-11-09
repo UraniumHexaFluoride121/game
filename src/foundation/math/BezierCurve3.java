@@ -4,7 +4,7 @@ import foundation.Deletable;
 import foundation.Main;
 import foundation.MainPanel;
 import level.procedural.Layout;
-import render.OrderedRenderable;
+import render.BoundedRenderable;
 import render.RenderOrder;
 import render.Renderable;
 import render.renderables.RenderGameCircle;
@@ -13,9 +13,10 @@ import java.awt.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 
-public class BezierCurve3 implements OrderedRenderable, Deletable {
+public class BezierCurve3 implements BoundedRenderable, Deletable {
     private final float px1, py1, px2, py2, px3, py3;
     private final float bxMin, byMin, bxMax, byMax;
+    private final float debugBoundTop, debugBoundBottom;
     private Renderable debugRenderable = null;
     private final Renderable[] renderPoints;
 
@@ -38,6 +39,9 @@ public class BezierCurve3 implements OrderedRenderable, Deletable {
         bxMax = calculateBound(px1, px2, px3, false);
         byMin = calculateBound(py1, py2, py3, true);
         byMax = calculateBound(py1, py2, py3, false);
+
+        debugBoundTop = Math.max(Math.max(py1, py2), py3);
+        debugBoundBottom = Math.min(Math.min(py1, py2), py3);
 
         if (Layout.DEBUG_LAYOUT_RENDER) {
             renderPoints = new Renderable[40];
@@ -159,6 +163,16 @@ public class BezierCurve3 implements OrderedRenderable, Deletable {
     @Override
     public RenderOrder getRenderOrder() {
         return RenderOrder.DEBUG;
+    }
+
+    @Override
+    public float getTopBound() {
+        return debugBoundTop;
+    }
+
+    @Override
+    public float getBottomBound() {
+        return debugBoundBottom;
     }
 
     @Override

@@ -6,11 +6,13 @@ import foundation.math.MathHelper;
 import foundation.math.ObjPos;
 import level.RandomType;
 import level.objects.BlockLike;
+import level.procedural.marker.GeneratorLMFunction;
 import level.procedural.marker.LayoutMarker;
 import loader.AssetManager;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 public class ProceduralGenerator implements Deletable {
@@ -18,38 +20,73 @@ public class ProceduralGenerator implements Deletable {
     private final HashSet<BlockLike> generatedBlocks = new HashSet<>();
     //All blocks overwritten by the generation function are added to this set
     private final HashSet<BlockLike> overwrittenBlocks = new HashSet<>();
-    //All layout markers added by the generation function must be added to this set
+    //All layout markers added by the marker generation function must be added to this set
+    //The markerFunction is the only function allowed to add LayoutMarkers, not the generation function
     private final HashSet<LayoutMarker> generatedLayoutMarkers = new HashSet<>();
 
     //Data that the generator stores for use in validation
     private final HashMap<String, Object> generationData = new HashMap<>();
 
     private final GeneratorFunction function;
+    private final GeneratorLMFunction markerFunction;
+    private final GeneratorValidation validation;
 
-    public ProceduralGenerator(GeneratorFunction function) {
+
+    public ProceduralGenerator(GeneratorFunction function, GeneratorLMFunction markerFunction, GeneratorValidation validation) {
         this.function = function;
+        this.markerFunction = markerFunction;
+        this.validation = validation;
     }
 
     public void generate(LayoutMarker marker, GeneratorType type) {
         function.generate(this, marker, type);
     }
 
-    public void generateMarkers() {
-        generatedLayoutMarkers.forEach(LayoutMarker::generate);
+    public boolean validate(LayoutMarker marker, GeneratorType type) {
+        AtomicBoolean validated = new AtomicBoolean(true);
+        MainPanel.level.layout.forEachMarker(marker.pos.y, 1, lm -> {
+            if (!validation.validate(this, marker, type, lm))
+                validated.set(false);
+        });
+        return validated.get();
+    }
+
+    public void generateMarkers(LayoutMarker marker, GeneratorType type) {
+        for (int i = 0; i < 16; i++) {
+            markerFunction.generateMarkers(this, marker, type);
+            generatedLayoutMarkers.forEach(LayoutMarker::generate);
+            boolean validated = true;
+            for (LayoutMarker lm : generatedLayoutMarkers) {
+                if (lm.gen.validate(lm, lm.genType))
+                    continue;
+                validated = false;
+                break;
+            }
+            if (validated) {
+                generatedLayoutMarkers.forEach(LayoutMarker::generateMarkers);
+                break;
+            } else {
+                generatedLayoutMarkers.forEach(lm -> {
+                    lm.gen.revertGeneration();
+                    lm.delete();
+                });
+                generatedLayoutMarkers.clear();
+            }
+        }
     }
 
     public void revertGeneration() {
-        generatedLayoutMarkers.forEach(m -> MainPanel.level.layout.removeMarker(m));
         MainPanel.level.removeBlocks(generatedBlocks.toArray(new BlockLike[0]));
         overwrittenBlocks.forEach(b -> MainPanel.level.addBlocks(AssetManager.createBlock(b.name, b.pos)));
 
         overwrittenBlocks.clear();
         generatedBlocks.clear();
-        generatedLayoutMarkers.clear();
         generationData.clear();
     }
 
     public void addBlock(String blockName, ObjPos pos) {
+        if (MainPanel.level.outOfBounds(pos))
+            return;
         BlockLike block = AssetManager.createBlock(blockName, pos);
         BlockLike removed = MainPanel.level.addProceduralBlock(block);
         if (removed != null) {
@@ -60,6 +97,8 @@ public class ProceduralGenerator implements Deletable {
     }
 
     public void addMarker(String name, ObjPos pos) {
+        if (MainPanel.level.outOfBounds(pos))
+            return;
         LayoutMarker marker = new LayoutMarker(name, pos);
         generatedLayoutMarkers.add(marker);
         MainPanel.level.layout.addMarker(marker);
