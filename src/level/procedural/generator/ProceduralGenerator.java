@@ -1,4 +1,4 @@
-package level.procedural;
+package level.procedural.generator;
 
 import foundation.Deletable;
 import foundation.MainPanel;
@@ -43,16 +43,17 @@ public class ProceduralGenerator implements Deletable {
     }
 
     public boolean validate(LayoutMarker marker, GeneratorType type) {
+        ValidationData data = new ValidationData();
         AtomicBoolean validated = new AtomicBoolean(true);
         MainPanel.level.layout.forEachMarker(marker.pos.y, 1, lm -> {
-            if (!validation.validate(this, marker, type, lm))
+            if (!validation.validate(this, marker, type, lm, data))
                 validated.set(false);
         });
         return validated.get();
     }
 
     public void generateMarkers(LayoutMarker marker, GeneratorType type) {
-        for (int i = 0; i < 16; i++) {
+        for (int i = 0; i < 50; i++) {
             markerFunction.generateMarkers(this, marker, type);
             generatedLayoutMarkers.forEach(LayoutMarker::generate);
             boolean validated = true;

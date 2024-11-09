@@ -147,6 +147,7 @@ public class CollisionHandler implements RegisteredTickable {
                 throw new RuntimeException("Failed to solve collision");
         }
         clearCollidedWith();
+        movableObjectSet.forEach(o -> o.dynamicPostTick(deltaTime));
     }
 
     private AtomicBoolean testIsCollision(boolean constraintsOnly, boolean alwaysSnap) {

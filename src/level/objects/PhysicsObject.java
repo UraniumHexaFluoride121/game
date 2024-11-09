@@ -1,6 +1,8 @@
 package level.objects;
 
-import foundation.*;
+import foundation.Direction;
+import foundation.MainPanel;
+import foundation.VelocityHandler;
 import foundation.math.MathHelper;
 import foundation.math.ObjPos;
 import level.ObjectLayer;
@@ -10,7 +12,7 @@ import render.event.RenderEvent;
 public abstract class PhysicsObject extends BlockLike {
     public static final float BOUNCE_THRESHOLD = 2;
 
-    public VelocityHandler velocity = new VelocityHandler();
+    public VelocityHandler velocity = new VelocityHandler(), previousVelocity = new VelocityHandler();
     public Constraints constraints = new Constraints(), previousConstraints = new Constraints();
     public ObjPos prevPos;
     private boolean previouslyFalling = false;
@@ -84,6 +86,16 @@ public abstract class PhysicsObject extends BlockLike {
     @Override
     public void dynamicPreTick(float deltaTime) {
         constraints = new Constraints();
+        previousVelocity = velocity.copyAsVelocityHandler();
+    }
+
+    @Override
+    public void dynamicPostTick(float deltaTime) {
+        if (constraints.is(Direction.UP) || constraints.is(Direction.DOWN)) {
+
+        }
+        if (constraints.is(Direction.LEFT) || constraints.is(Direction.RIGHT)) {
+        }
     }
 
     public float computeFriction() {
@@ -136,47 +148,60 @@ public abstract class PhysicsObject extends BlockLike {
             ObjPos overlap = thisBox.collisionOverlap(otherBox);
             if (velocity.x < 0) {
                 if (previousConstraints.is(Direction.LEFT) && previousConstraints.to(Direction.LEFT) == otherBox.getRight()) {
-                    constraints.set(Direction.LEFT, otherBox.getRight());
-                    pos.x = prevPos.x;
-                    velocity.x = 0;
-                    return;
+                    if (previousConstraints.to(Direction.DOWN) != otherBox.getTop() && previousConstraints.to(Direction.UP) != otherBox.getBottom()) {
+                        constraints.set(Direction.LEFT, otherBox.getRight(), otherBox);
+                        pos.x = prevPos.x;
+                        velocity.x = 0;
+                        return;
+                    }
                 }
             } else {
                 if (previousConstraints.is(Direction.RIGHT) && previousConstraints.to(Direction.RIGHT) == otherBox.getLeft()) {
-                    constraints.set(Direction.RIGHT, otherBox.getLeft());
-                    pos.x = prevPos.x;
-                    velocity.x = 0;
-                    return;
+                    if (previousConstraints.to(Direction.DOWN) != otherBox.getTop() && previousConstraints.to(Direction.UP) != otherBox.getBottom()) {
+                        constraints.set(Direction.RIGHT, otherBox.getLeft(), otherBox);
+                        pos.x = prevPos.x;
+                        velocity.x = 0;
+                        return;
+                    }
                 }
             }
             if (velocity.y < 0) {
                 if (previousConstraints.is(Direction.DOWN) && previousConstraints.to(Direction.DOWN) == otherBox.getTop()) {
-                    constraints.set(Direction.DOWN, otherBox.getTop());
-                    pos.y = prevPos.y;
-                    velocity.y = 0;
-                    return;
+                    if (previousConstraints.to(Direction.LEFT) != otherBox.getRight() && previousConstraints.to(Direction.RIGHT) != otherBox.getLeft()) {
+                        constraints.set(Direction.DOWN, otherBox.getTop(), otherBox);
+                        pos.y = prevPos.y;
+                        velocity.y = 0;
+                        return;
+                    }
                 }
             } else {
                 if (previousConstraints.is(Direction.UP) && previousConstraints.to(Direction.UP) == otherBox.getBottom()) {
-                    constraints.set(Direction.UP, otherBox.getBottom());
-                    pos.y = prevPos.y;
-                    velocity.y = 0;
-                    return;
+                    if (previousConstraints.to(Direction.LEFT) != otherBox.getRight() && previousConstraints.to(Direction.RIGHT) != otherBox.getLeft()) {
+                        constraints.set(Direction.UP, otherBox.getBottom(), otherBox);
+                        pos.y = prevPos.y;
+                        velocity.y = 0;
+                        return;
+                    }
                 }
             }
             if (Math.abs(overlap.y * velocity.x) < Math.abs(overlap.x * velocity.y)) {
                 //Cancel out velocity, but only if the velocity was facing toward the colliding hit box
                 if (Math.signum(overlap.y) == Math.signum(velocity.y) || velocity.y == 0) {
-                    boolean bounce = Math.abs(velocity.y) > BOUNCE_THRESHOLD;
-                    float computedBounciness = computeBounciness(velocity.y > 0 ? Direction.UP : Direction.DOWN);
-                    if (bounce)
+                    if (Math.abs(velocity.y) > BOUNCE_THRESHOLD) {
+                        float computedBounciness = computeBounciness(velocity.y > 0 ? Direction.UP : Direction.DOWN);
                         velocity.y = -velocity.y * computedBounciness;
-                    else
+                    } else
                         velocity.y = 0;
                     if (overlap.y < 0) {
-                        constraints.set(Direction.DOWN, otherBox.getTop());
+                        constraints.set(Direction.DOWN, otherBox.getTop(), otherBox);
+                        if (constraints.box(Direction.LEFT, Direction.UP) == otherBox.getTop() ||
+                                constraints.box(Direction.RIGHT, Direction.UP) == otherBox.getTop())
+                            velocity.x = previousVelocity.x;
                     } else {
-                        constraints.set(Direction.UP, otherBox.getBottom());
+                        constraints.set(Direction.UP, otherBox.getBottom(), otherBox);
+                        if (constraints.box(Direction.LEFT, Direction.DOWN) == otherBox.getBottom() ||
+                                constraints.box(Direction.RIGHT, Direction.DOWN) == otherBox.getBottom())
+                            velocity.x = previousVelocity.x;
                     }
                 }
                 if (overlap.y < 0) {
@@ -186,16 +211,21 @@ public abstract class PhysicsObject extends BlockLike {
                 }
             } else {
                 if (Math.signum(overlap.x) == Math.signum(velocity.x) || velocity.x == 0) {
-                    boolean bounce = Math.abs(velocity.x) > BOUNCE_THRESHOLD;
-                    float computedBounciness = computeBounciness(velocity.x > 0 ? Direction.RIGHT : Direction.LEFT);
-                    if (bounce)
+                    if (Math.abs(velocity.x) > BOUNCE_THRESHOLD) {
+                        float computedBounciness = computeBounciness(velocity.x > 0 ? Direction.RIGHT : Direction.LEFT);
                         velocity.x = -velocity.x * computedBounciness;
-                    else
+                    } else
                         velocity.x = 0;
                     if (overlap.x < 0) {
-                        constraints.set(Direction.LEFT, otherBox.getRight());
+                        constraints.set(Direction.LEFT, otherBox.getRight(), otherBox);
+                        if (constraints.box(Direction.UP, Direction.RIGHT) == otherBox.getRight() ||
+                                constraints.box(Direction.DOWN, Direction.RIGHT) == otherBox.getRight())
+                            velocity.y = previousVelocity.y;
                     } else {
-                        constraints.set(Direction.RIGHT, otherBox.getLeft());
+                        constraints.set(Direction.RIGHT, otherBox.getLeft(), otherBox);
+                        if (constraints.box(Direction.UP, Direction.LEFT) == otherBox.getLeft() ||
+                                constraints.box(Direction.DOWN, Direction.LEFT) == otherBox.getLeft())
+                            velocity.y = previousVelocity.y;
                     }
                 }
                 if (overlap.x < 0) {

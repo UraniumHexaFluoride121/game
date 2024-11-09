@@ -7,10 +7,8 @@ import render.Renderable;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 public class TextureAsset implements Renderable {
-    private static final HashMap<ResourceLocation, TextureAsset> textureAssets = new HashMap<>();
     public ResourceLocation resource;
     public BufferedImage image;
     public AffineTransform transform;
@@ -32,9 +30,6 @@ public class TextureAsset implements Renderable {
     }
 
     public static TextureAsset getTextureAsset(ResourceLocation resource) {
-        if (textureAssets.containsKey(resource))
-            return textureAssets.get(resource);
-
         JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(resource));
         ResourceLocation imageResource = new ResourceLocation(obj.get("path", JsonType.STRING_JSON_TYPE));
         AffineTransform transform = new AffineTransform();
@@ -50,8 +45,6 @@ public class TextureAsset implements Renderable {
                     transformObject.getOrDefault("yScale", 1f, JsonType.FLOAT_JSON_TYPE)
             );
         }
-        TextureAsset textureAsset = new TextureAsset(resource, AssetManager.getImage(imageResource), transform);
-        textureAssets.put(resource, textureAsset);
-        return textureAsset;
+        return new TextureAsset(resource, AssetManager.getImage(imageResource), transform);
     }
 }

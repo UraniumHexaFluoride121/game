@@ -1,7 +1,7 @@
 package level.procedural.marker.resolved;
 
 import foundation.math.ObjPos;
-import level.procedural.GeneratorType;
+import level.procedural.generator.GeneratorType;
 import level.procedural.marker.LMType;
 import loader.JsonObject;
 import loader.JsonType;

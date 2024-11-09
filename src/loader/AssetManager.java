@@ -8,14 +8,13 @@ import level.Level;
 import level.ObjectLayer;
 import level.RandomType;
 import level.objects.*;
-import level.procedural.GeneratorType;
+import level.procedural.generator.GeneratorType;
 import level.procedural.RegionType;
 import level.procedural.marker.LMType;
 import level.procedural.marker.LayoutMarker;
 import physics.CollisionType;
 import render.RenderOrder;
 import render.Renderable;
-import render.event.RenderEvent;
 import render.renderables.RenderTexture;
 import render.texture.*;
 import render.texture.ct.ConnectedTexture;
@@ -26,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 //Utility class to store any assets needed for the game. All asset loading requests
 //must go through the AssetManager, so that already loaded assets don't get loaded
@@ -182,44 +182,56 @@ public abstract class AssetManager {
             ObjectLayer layer = ObjectLayer.getObjectLayer(texture.getOrDefault("layer", "foreground", JsonType.STRING_JSON_TYPE));
 
             switch (type) {
-                case PLAYER -> blocks.put(blockName, pos -> {
-                    Player player = new Player(pos, blockName,
-                            blockObj.getOrDefault("mass", 1f, JsonType.FLOAT_JSON_TYPE),
-                            hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, MainPanel.getInputHandler());
-                    player.setFriction(friction);
-                    player.setBounciness(bounciness);
-                    return player.init(new RenderTexture(
-                            RenderOrder.getRenderOrder(texture.getOrDefault("order", "player", JsonType.STRING_JSON_TYPE)), player::getPos,
-                            deserializeRenderable(texture)));
-                });
-                case STATIC_BLOCK -> blocks.put(blockName, pos -> {
+                case PLAYER -> {
+                    Supplier<? extends Renderable> textureSupplier = deserializeRenderable(texture);
+                    blocks.put(blockName, pos -> {
+                        Player player = new Player(pos, blockName,
+                                blockObj.getOrDefault("mass", 1f, JsonType.FLOAT_JSON_TYPE),
+                                hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, MainPanel.getInputHandler());
+                        player.setFriction(friction);
+                        player.setBounciness(bounciness);
+                        return player.init(new RenderTexture(
+                                RenderOrder.getRenderOrder(texture.getOrDefault("order", "player", JsonType.STRING_JSON_TYPE)), player::getPos,
+                                textureSupplier.get()));
+                    });
+                }
+                case STATIC_BLOCK -> {
                     if (layer.addToDynamic)
                         throw new IllegalArgumentException("staticBlocks type " + blockName + " was placed into a dynamic object layer " + layer);
-                    StaticBlock staticBlock = new StaticBlock(pos, blockName, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.STATIC, layer, hasCollision);
-                    staticBlock.setFriction(friction);
-                    staticBlock.setBounciness(bounciness);
-                    return staticBlock.init(new RenderTexture(
-                            RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), staticBlock::getPos,
-                            deserializeRenderable(texture)));
-                });
-                case MOVABLE_BLOCK -> blocks.put(blockName, pos -> {
-                    StaticBlock staticBlock = new StaticBlock(pos, blockName, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.MOVABLE, ObjectLayer.DYNAMIC, hasCollision);
-                    staticBlock.setFriction(friction);
-                    staticBlock.setBounciness(bounciness);
-                    return staticBlock.init(new RenderTexture(
-                            RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), staticBlock::getPos,
-                            deserializeRenderable(texture)));
-                });
-                case PHYSICS_BLOCK -> blocks.put(blockName, pos -> {
-                    PhysicsBlock physicsBlock = new PhysicsBlock(pos, blockName,
-                            blockObj.getOrDefault("mass", 1f, JsonType.FLOAT_JSON_TYPE),
-                            hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
-                    physicsBlock.setFriction(friction);
-                    physicsBlock.setBounciness(bounciness);
-                    return physicsBlock.init(new RenderTexture(
-                            RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), physicsBlock::getPos,
-                            deserializeRenderable(texture)));
-                });
+                    Supplier<? extends Renderable> textureSupplier = deserializeRenderable(texture);
+                    blocks.put(blockName, pos -> {
+                        StaticBlock staticBlock = new StaticBlock(pos, blockName, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.STATIC, layer, hasCollision);
+                        staticBlock.setFriction(friction);
+                        staticBlock.setBounciness(bounciness);
+                        return staticBlock.init(new RenderTexture(
+                                RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), staticBlock::getPos,
+                                textureSupplier.get()));
+                    });
+                }
+                case MOVABLE_BLOCK -> {
+                    Supplier<? extends Renderable> textureSupplier = deserializeRenderable(texture);
+                    blocks.put(blockName, pos -> {
+                        StaticBlock staticBlock = new StaticBlock(pos, blockName, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.MOVABLE, ObjectLayer.DYNAMIC, hasCollision);
+                        staticBlock.setFriction(friction);
+                        staticBlock.setBounciness(bounciness);
+                        return staticBlock.init(new RenderTexture(
+                                RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), staticBlock::getPos,
+                                textureSupplier.get()));
+                    });
+                }
+                case PHYSICS_BLOCK -> {
+                    Supplier<? extends Renderable> textureSupplier = deserializeRenderable(texture);
+                    blocks.put(blockName, pos -> {
+                        PhysicsBlock physicsBlock = new PhysicsBlock(pos, blockName,
+                                blockObj.getOrDefault("mass", 1f, JsonType.FLOAT_JSON_TYPE),
+                                hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
+                        physicsBlock.setFriction(friction);
+                        physicsBlock.setBounciness(bounciness);
+                        return physicsBlock.init(new RenderTexture(
+                                RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), physicsBlock::getPos,
+                                textureSupplier.get()));
+                    });
+                }
             }
 
         }, JsonType.STRING_JSON_TYPE);
@@ -247,23 +259,67 @@ public abstract class AssetManager {
         }
     }
 
-    public static Renderable deserializeRenderable(JsonObject object) {
+    private static final HashMap<ResourceLocation, TextureAsset> textureAssets = new HashMap<>();
+    private static final HashMap<ResourceLocation, Supplier<AnimatedTexture>> animatedTextures = new HashMap<>();
+    private static final HashMap<ResourceLocation, Supplier<LayeredTexture>> layeredTextures = new HashMap<>();
+    private static final HashMap<ResourceLocation, Supplier<EventSwitcherTexture>> eventSwitcherTextures = new HashMap<>();
+    private static final HashMap<ResourceLocation, Supplier<RandomTexture>> randomTextures = new HashMap<>();
+    private static final HashMap<ResourceLocation, Supplier<ConnectedTexture>> connectedTextures = new HashMap<>();
+
+    public static Supplier<? extends Renderable> deserializeRenderable(JsonObject object) {
         String type = object.get("type", JsonType.STRING_JSON_TYPE);
-        ResourceLocation path = new ResourceLocation(object.get("path", JsonType.STRING_JSON_TYPE));
+        ResourceLocation resource = new ResourceLocation(object.get("path", JsonType.STRING_JSON_TYPE));
         return switch (type) {
-            case "TextureAsset" -> TextureAsset.getTextureAsset(path);
-            case "AnimatedTexture" -> AnimatedTexture.getAnimatedTexture(path);
-            case "LayeredTexture" -> LayeredTexture.getLayeredTexture(path);
-            case "EventSwitcherTexture" -> EventSwitcherTexture.getEventSwitcherTexture(path);
-            case "RandomTexture" -> RandomTexture.getRandomTexture(path);
-            case "ConnectedTexture" -> ConnectedTexture.getConnectedTextures(path);
+            case "TextureAsset" -> {
+                if (textureAssets.containsKey(resource)) {
+                    TextureAsset asset = textureAssets.get(resource);
+                    yield () -> asset;
+                }
+                TextureAsset asset = TextureAsset.getTextureAsset(resource);
+                textureAssets.put(resource, asset);
+                yield () -> asset;
+            }
+            case "AnimatedTexture" -> {
+                if (animatedTextures.containsKey(resource)) {
+                    yield animatedTextures.get(resource);
+                }
+                Supplier<AnimatedTexture> t = AnimatedTexture.getAnimatedTexture(resource);
+                animatedTextures.put(resource, t);
+                yield t;
+            }
+            case "LayeredTexture" -> {
+                if (layeredTextures.containsKey(resource)) {
+                    yield layeredTextures.get(resource);
+                }
+                Supplier<LayeredTexture> t = LayeredTexture.getLayeredTexture(resource);
+                layeredTextures.put(resource, t);
+                yield t;
+            }
+            case "EventSwitcherTexture" -> {
+                if (eventSwitcherTextures.containsKey(resource)) {
+                    yield eventSwitcherTextures.get(resource);
+                }
+                Supplier<EventSwitcherTexture> t = EventSwitcherTexture.getEventSwitcherTexture(resource);
+                eventSwitcherTextures.put(resource, t);
+                yield t;
+            }
+            case "RandomTexture" -> {
+                if (randomTextures.containsKey(resource)) {
+                    yield randomTextures.get(resource);
+                }
+                Supplier<RandomTexture> t = RandomTexture.getRandomTexture(resource);
+                randomTextures.put(resource, t);
+                yield t;
+            }
+            case "ConnectedTexture" -> {
+                if (connectedTextures.containsKey(resource)) {
+                    yield connectedTextures.get(resource);
+                }
+                Supplier<ConnectedTexture> t = ConnectedTexture.getConnectedTexture(resource);
+                connectedTextures.put(resource, t);
+                yield t;
+            }
             default -> throw new IllegalArgumentException("Unknown Renderable type: " + type);
         };
-    }
-
-    public static RenderEvent deserializeRenderEvent(String event) {
-        if (!RenderEvent.ALL_EVENTS.containsKey(event))
-            throw new IllegalArgumentException("Unknown RenderEvent: " + event);
-        return RenderEvent.ALL_EVENTS.get(event);
     }
 }

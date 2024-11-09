@@ -17,7 +17,10 @@ import render.renderables.RenderBackground;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.TreeMap;
 
 import static foundation.MainPanel.*;
 
@@ -26,7 +29,7 @@ public class Level implements Deletable {
     public final InputHandler inputHandler;
     public final CollisionHandler collisionHandler;
     private static final int SECTION_SIZE = 16;
-    public final int seed = 0;
+    public final int seed = 3;
     public final RandomHandler randomHandler;
 
     //All BlockLikes inserted as static MUST NOT have their positions modified, otherwise
@@ -36,6 +39,9 @@ public class Level implements Deletable {
     //multiple static blocks to be placed on top of each other. It can, however, affect how
     //the renderer does connected textures
     public final HashMap<ObjectLayer, BlockLike[][]> staticBlocks = new HashMap<>();
+    //Set of all statics to allow for faster block updates, divided by level section to
+    //allow async loading, with the bottom sections first
+    public final HashSet<BlockLike>[] allStaticBlocks;
 
     //A set containing all dynamic blocks. Connected textures do not work for these blocks.
     public final HashSet<BlockLike> dynamicBlocks = new HashSet<>();
@@ -64,6 +70,11 @@ public class Level implements Deletable {
                 blockLayer[i] = new BlockLike[maximumHeight];
             }
         }
+        int sectionCount = ((int) Math.ceil((double) maximumHeight / SECTION_SIZE)) + 2;
+        allStaticBlocks = new HashSet[sectionCount];
+        for (int i = 0; i < sectionCount; i++) {
+            allStaticBlocks[i] = new HashSet<>();
+        }
 
         inputHandler = new InputHandler();
         inputHandler.addInput(InputType.KEY_PRESSED, e -> upCamera = true, e -> e.getKeyCode() == KeyEvent.VK_PAGE_UP, InputHandlingOrder.CAMERA_UP, false);
@@ -78,9 +89,11 @@ public class Level implements Deletable {
     }
 
     public void init() {
+        long time = System.currentTimeMillis();
         AssetManager.createAllLevelSections(LEVEL_PATH);
         layout.generateMarkers();
         updateBlocks(RenderEvent.ON_GAME_INIT);
+        System.out.println((System.currentTimeMillis() - time) / 1000f);
     }
 
     public BlockLike getBlock(ObjectLayer layer, int x, int y) {
@@ -109,6 +122,7 @@ public class Level implements Deletable {
                 if (block != null)
                     removeBlocks(block);
                 staticBlocks.get(b.getLayer())[((int) b.pos.x)][((int) b.pos.y)] = b;
+                allStaticBlocks[yPosToSection(b.pos.y)].add(b);
             }
             if (b.getLayer().addToDynamic)
                 dynamicBlocks.add(b);
@@ -117,8 +131,10 @@ public class Level implements Deletable {
 
     public void removeBlocks(BlockLike... blockLikes) {
         for (BlockLike b : blockLikes) {
-            if (b.getLayer().addToStatic)
+            if (b.getLayer().addToStatic) {
                 staticBlocks.get(b.getLayer())[((int) b.pos.x)][((int) b.pos.y)] = null;
+                allStaticBlocks[yPosToSection(b.pos.y)].remove(b);
+            }
             if (b.getLayer().addToDynamic)
                 dynamicBlocks.remove(b);
             b.delete();
@@ -141,6 +157,7 @@ public class Level implements Deletable {
                 removed = block;
             }
             staticBlocks.get(b.getLayer())[((int) b.pos.x)][((int) b.pos.y)] = b;
+            allStaticBlocks[yPosToSection(b.pos.y)].add(b);
         }
         if (b.getLayer().addToDynamic)
             dynamicBlocks.add(b);
@@ -148,27 +165,13 @@ public class Level implements Deletable {
     }
 
     public void updateBlocks(RenderEvent type) {
-        for (BlockLike[][] layer : staticBlocks.values()) {
-            for (BlockLike[] column : layer) {
-                for (BlockLike block : column) {
-                    if (block != null)
-                        block.renderUpdateBlock(type);
+        new Thread(() -> {
+            for (HashSet<BlockLike> section : allStaticBlocks) {
+                for (BlockLike b : section) {
+                    b.renderUpdateBlock(type);
                 }
             }
-        }
-    }
-
-    public ArrayList<BlockLike> getAllStaticBlocks() {
-        ArrayList<BlockLike> blocks = new ArrayList<>();
-        for (BlockLike[][] layer : staticBlocks.values()) {
-            for (BlockLike[] column : layer) {
-                for (BlockLike block : column) {
-                    if (block != null)
-                        blocks.add(block);
-                }
-            }
-        }
-        return blocks;
+        }).start();
     }
 
     public void addRegion(String name, int startsAt) {
@@ -192,6 +195,10 @@ public class Level implements Deletable {
 
     public float getCameraOffset() {
         return 14 - (upCamera ? 7 : 0) + (downCamera ? 7 : 0);
+    }
+
+    private int yPosToSection(float y) {
+        return ((int) (y / SECTION_SIZE));
     }
 
     @Override

@@ -1,3 +1,4 @@
 {
-  "forceAwayFromBorderProximity": 10
+  "forceAwayFromBorderProximity": 20,
+  "block": "stone_grey"
 }

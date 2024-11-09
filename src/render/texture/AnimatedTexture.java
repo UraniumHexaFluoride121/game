@@ -9,11 +9,13 @@ import render.Renderable;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Vector;
+import java.util.function.Supplier;
 
 public class AnimatedTexture implements Renderable, Tickable, RenderEventListener {
-    private final ArrayList<Renderable> elements = new ArrayList<>();
-    private final ArrayList<Renderable> initial = new ArrayList<>();
-    private final HashSet<RenderEvent> startInitialEvents = new HashSet<>();
+    private final Vector<Renderable> elements = new Vector<>();
+    private final Vector<Renderable> initial = new Vector<>();
+    private final HashSet<RenderEvent> startInitialEvents;
 
     private int index = 0;
     private float currentTime = 0;
@@ -21,7 +23,8 @@ public class AnimatedTexture implements Renderable, Tickable, RenderEventListene
     private final boolean pickRandomFrame;
     private boolean isOnInitial;
 
-    private AnimatedTexture(boolean pickRandomFrame, float frameDuration) {
+    private AnimatedTexture(HashSet<RenderEvent> startInitialEvents, boolean pickRandomFrame, float frameDuration) {
+        this.startInitialEvents = startInitialEvents;
         this.pickRandomFrame = pickRandomFrame;
         this.frameDuration = frameDuration;
         isOnInitial = !pickRandomFrame;
@@ -31,15 +34,11 @@ public class AnimatedTexture implements Renderable, Tickable, RenderEventListene
         elements.add(r);
     }
 
-    public void addStartInitialEvent(RenderEvent r) {
-        startInitialEvents.add(r);
-    }
-
     public void addRenderableInitial(Renderable r) {
         initial.add(r);
     }
 
-    private ArrayList<Renderable> getActiveList() {
+    private Vector<Renderable> getActiveList() {
         return isOnInitial && !initial.isEmpty() ? initial : elements;
     }
 
@@ -84,32 +83,43 @@ public class AnimatedTexture implements Renderable, Tickable, RenderEventListene
             listener.onEvent(event);
     }
 
-    public static AnimatedTexture getAnimatedTexture(ResourceLocation resource) {
+    public static Supplier<AnimatedTexture> getAnimatedTexture(ResourceLocation resource) {
         JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(resource));
         JsonArray renderables = obj.get("renderables", JsonType.JSON_ARRAY_TYPE);
         JsonArray initial = obj.getOrDefault("initial", null, JsonType.JSON_ARRAY_TYPE);
         JsonArray startInitial = obj.getOrDefault("startInitialEvents", null, JsonType.JSON_ARRAY_TYPE);
 
-        AnimatedTexture texture = new AnimatedTexture(
-                obj.getOrDefault("pickRandomFrame", false, JsonType.BOOLEAN_JSON_TYPE),
-                obj.get("frameDuration", JsonType.FLOAT_JSON_TYPE));
+        Boolean pickRandomFrame = obj.getOrDefault("pickRandomFrame", false, JsonType.BOOLEAN_JSON_TYPE);
+        Float frameDuration = obj.get("frameDuration", JsonType.FLOAT_JSON_TYPE);
 
+        ArrayList<Supplier<? extends Renderable>> elements = new ArrayList<>();
         renderables.forEach(o -> {
-            texture.addRenderable(AssetManager.deserializeRenderable(o));
+            elements.add(AssetManager.deserializeRenderable(o));
         }, JsonType.JSON_OBJECT_TYPE);
 
+        ArrayList<Supplier<? extends Renderable>> initialElements = new ArrayList<>();
         if (initial != null) {
             initial.forEach(o -> {
-                texture.addRenderableInitial(AssetManager.deserializeRenderable(o));
+                initialElements.add(AssetManager.deserializeRenderable(o));
             }, JsonType.JSON_OBJECT_TYPE);
         }
 
+        HashSet<RenderEvent> startInitialEvents = new HashSet<>();
         if (startInitial != null) {
             startInitial.forEach(event -> {
-                texture.addStartInitialEvent(AssetManager.deserializeRenderEvent(event));
+                startInitialEvents.add(RenderEvent.getRenderEvent(event));
             }, JsonType.STRING_JSON_TYPE);
         }
 
-        return texture;
+        return () -> {
+            AnimatedTexture t = new AnimatedTexture(startInitialEvents, pickRandomFrame, frameDuration);
+            for (Supplier<? extends Renderable> element : elements) {
+                t.addRenderable(element.get());
+            }
+            for (Supplier<? extends Renderable> initialElement : initialElements) {
+                t.addRenderableInitial(initialElement.get());
+            }
+            return t;
+        };
     }
 }

@@ -1,4 +1,4 @@
-package level.procedural;
+package level.procedural.generator;
 
 import foundation.Main;
 import foundation.MainPanel;
@@ -53,7 +53,7 @@ public enum GeneratorType {
         }
     }, (gen, lm, type) -> {
 
-    }, LayoutMarker.isNotColliding(BoundType.PADDED_COLLISION)),
+    }, LayoutMarker.isNotColliding(BoundType.OBSTRUCTION)),
             storeString("woodBlock")
                     .andThen(storeString("leafBlock")),
             true
@@ -62,29 +62,35 @@ public enum GeneratorType {
     ISLAND_TEST("island_test", () -> new ProceduralGenerator((gen, lm, type) -> {
         int sizeLeft = gen.randomInt(3, 6);
         int sizeRight = gen.randomInt(3, 6);
-        lm.addBound(new StaticHitBox(1, 1, sizeLeft, sizeRight + 1, lm.pos), BoundType.COLLISION);
-        lm.addBound(new StaticHitBox(4f, 4f, sizeLeft + 2, sizeRight + 3, lm.pos), BoundType.PADDED_COLLISION);
-        gen.lineOfBlocks(lm.pos.x - sizeLeft, lm.pos.x + sizeRight, lm.pos.y, pos -> "stone_grey");
+        lm.addBound(new StaticHitBox(1f, 1f, sizeLeft, sizeRight + 1, lm.pos), BoundType.COLLISION);
+        lm.addBound(new StaticHitBox(3f, 3f, sizeLeft - 2, sizeRight - 1, lm.pos), BoundType.OBSTRUCTION);
+        lm.addBound(new StaticHitBox(1f, 1f, sizeLeft + 2, sizeRight + 3, lm.pos), BoundType.OBSTRUCTION);
+        lm.addBound(new StaticHitBox(6f, 6f, sizeLeft + 4, sizeRight + 5, lm.pos), BoundType.OVER_CROWDING);
+        String blockName = type.getString(0);
+        gen.lineOfBlocks(lm.pos.x - sizeLeft, lm.pos.x + sizeRight, lm.pos.y, pos -> blockName);
         sizeLeft -= gen.randomInt(1, 2);
         sizeRight -= gen.randomInt(1, 2);
-        gen.lineOfBlocks(lm.pos.x - sizeLeft, lm.pos.x + sizeRight, lm.pos.y - 1, pos -> "stone_grey");
+        gen.lineOfBlocks(lm.pos.x - sizeLeft, lm.pos.x + sizeRight, lm.pos.y - 1, pos -> blockName);
     }, (gen, lm, type) -> {
         if (lm.pos.y < MainPanel.level.getRegionTop()) {
             ObjPos pos;
+            int borderProximityLimit = type.getInt(0);
             do {
-                float angle = gen.randomFloat(0, 1.5f);
+                float angle = gen.randomFloat(0.2f, 1.35f);
                 float length = gen.randomFloat(5, 9);
                 boolean isRight = gen.randomBoolean(0.5f);
-                if (lm.pos.x > Main.BLOCKS_X - 1 - type.getInt(0))
+                if (lm.pos.x > Main.BLOCKS_X - 1 - borderProximityLimit)
                     isRight = false;
-                else if (lm.pos.x < type.getInt(0))
+                else if (lm.pos.x < borderProximityLimit)
                     isRight = true;
-                pos = new ObjPos(lm.pos.x + Math.cos(angle) * length * 2.5f * (isRight ? 1 : -1), lm.pos.y + Math.sin(angle) * length).toInt();
+                pos = new ObjPos(lm.pos.x + Math.cos(angle) * length * 2.7f * (isRight ? 1 : -1), lm.pos.y + Math.sin(angle) * length).toInt();
             } while (MainPanel.level.outOfBounds(pos));
             gen.addMarker("platform", pos);
         }
-    }, LayoutMarker.isNotColliding(BoundType.PADDED_COLLISION)),
-            storeInt("forceAwayFromBorderProximity"),
+    }, LayoutMarker.isNotColliding(BoundType.OBSTRUCTION)
+            .and(LayoutMarker.isNotColliding(BoundType.OVER_CROWDING))),
+            storeInt("forceAwayFromBorderProximity")
+                    .andThen(storeString("block")),
             true
     );
 

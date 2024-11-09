@@ -2,6 +2,7 @@ package render.texture.ct;
 
 import foundation.MainPanel;
 import foundation.tick.Tickable;
+import level.Level;
 import level.objects.BlockLike;
 import loader.*;
 import render.Renderable;
@@ -11,14 +12,17 @@ import render.event.RenderEventListener;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Vector;
+import java.util.function.BiPredicate;
+import java.util.function.Supplier;
 
 public class ConnectedTexture implements Renderable, Tickable, RenderEventListener {
-    private final ArrayList<CTElement> textures = new ArrayList<>();
-    private final ArrayList<Renderable> activeTextures = new ArrayList<>();
-    private final ArrayList<Tickable> activeTickables = new ArrayList<>();
+    private final Vector<CTElement> textures = new Vector<>();
+    private final Vector<Renderable> activeTextures = new Vector<>();
+    private final Vector<Tickable> activeTickables = new Vector<>();
 
-    public void addTexture(Renderable r, String condition) {
-        textures.add(new CTElement((b, l) -> (boolean) CTExpression.parser.parseExpression(condition).apply(new CTExpressionData(b, l)), r));
+    public void addTexture(CTElement e) {
+        textures.add(e);
     }
 
     @Override
@@ -56,16 +60,35 @@ public class ConnectedTexture implements Renderable, Tickable, RenderEventListen
         });
     }
 
-    public static ConnectedTexture getConnectedTextures(ResourceLocation resource) {
+    public static Supplier<ConnectedTexture> getConnectedTexture(ResourceLocation resource) {
         JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(resource));
         JsonArray renderables = obj.get("renderables", JsonType.JSON_ARRAY_TYPE);
 
-        ConnectedTexture texture = new ConnectedTexture();
-
+        ArrayList<CTElementSupplier> elements = new ArrayList<>();
         renderables.forEach(o -> {
-            texture.addTexture(AssetManager.deserializeRenderable(o), o.getOrDefault("condition", "true", JsonType.STRING_JSON_TYPE));
+            elements.add(new CTElementSupplier(AssetManager.deserializeRenderable(o), o.getOrDefault("condition", "true", JsonType.STRING_JSON_TYPE)));
         }, JsonType.JSON_OBJECT_TYPE);
 
-        return texture;
+        return () -> {
+            ConnectedTexture texture = new ConnectedTexture();
+            for (CTElementSupplier element : elements) {
+                texture.addTexture(element.get());
+            }
+            return texture;
+        };
+    }
+
+    private static class CTElementSupplier {
+        public final BiPredicate<BlockLike, Level> condition;
+        public final Supplier<? extends Renderable> renderable;
+
+        private CTElementSupplier(Supplier<? extends Renderable> renderable, String string) {
+            this.condition = (b, l) -> (boolean) CTExpression.parser.parseExpression(string).apply(new CTExpressionData(b, l));
+            this.renderable = renderable;
+        }
+
+        public CTElement get() {
+            return new CTElement(condition, renderable.get());
+        }
     }
 }

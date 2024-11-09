@@ -1,4 +1,4 @@
-package level.procedural;
+package level.procedural.generator;
 
 import level.procedural.marker.LayoutMarker;
 

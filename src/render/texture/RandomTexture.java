@@ -4,27 +4,29 @@ import foundation.MainPanel;
 import foundation.tick.Tickable;
 import level.RandomType;
 import loader.*;
+import render.Renderable;
 import render.event.RenderBlockUpdate;
 import render.event.RenderEvent;
 import render.event.RenderEventListener;
-import render.Renderable;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
+import java.util.Vector;
 import java.util.function.Supplier;
 
 public class RandomTexture implements Renderable, RenderEventListener, Tickable {
-    private final ArrayList<Renderable> textures = new ArrayList<>();
-    private final HashSet<RenderEvent> events = new HashSet<>();
+    private final Vector<Renderable> textures = new Vector<>();
+    private final HashSet<RenderEvent> events;
     private Renderable activeTexture = null;
     private Tickable tickable = null;
     private final boolean guaranteeUnique;
     //Used for deterministic texture randomisation. Should only be used for block updates
     private Random textureRandom;
 
-    public RandomTexture(boolean guaranteeUnique) {
+    public RandomTexture(HashSet<RenderEvent> events, boolean guaranteeUnique) {
+        this.events = events;
         textureRandom = MainPanel.level.randomHandler.generateRandom(RandomType.TEXTURE);
         this.guaranteeUnique = guaranteeUnique;
     }
@@ -32,10 +34,6 @@ public class RandomTexture implements Renderable, RenderEventListener, Tickable 
     private void add(Renderable r) {
         textures.add(r);
         switchToNewTexture(textureRandom::nextDouble);
-    }
-
-    private void registerEvent(RenderEvent e) {
-        events.add(e);
     }
 
     private void switchToNewTexture(Supplier<Double> random) {
@@ -80,29 +78,37 @@ public class RandomTexture implements Renderable, RenderEventListener, Tickable 
         activeTexture.render(g);
     }
 
-    public static RandomTexture getRandomTexture(ResourceLocation resource) {
+    public static Supplier<RandomTexture> getRandomTexture(ResourceLocation resource) {
         JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(resource));
         JsonArray renderables = obj.get("renderables", JsonType.JSON_ARRAY_TYPE);
-        RandomTexture texture = new RandomTexture(obj.getOrDefault("guaranteeUnique", false, JsonType.BOOLEAN_JSON_TYPE));
+        Boolean guaranteeUnique = obj.getOrDefault("guaranteeUnique", false, JsonType.BOOLEAN_JSON_TYPE);
 
+        ArrayList<Supplier<? extends Renderable>> elements = new ArrayList<>();
         renderables.forEach(o -> {
-            texture.add(AssetManager.deserializeRenderable(o));
+            elements.add(AssetManager.deserializeRenderable(o));
         }, JsonType.JSON_OBJECT_TYPE);
 
         JsonArray events = obj.getOrDefault("randomiseEvents", null, JsonType.JSON_ARRAY_TYPE);
 
+        HashSet<RenderEvent> eventSet = new HashSet<>();
         if (events != null) {
             events.forEach(e -> {
-                texture.registerEvent(RenderEvent.getRenderEvent(e));
+                eventSet.add(RenderEvent.getRenderEvent(e));
             }, JsonType.STRING_JSON_TYPE);
         }
 
-        if (texture.textures.isEmpty())
+        if (elements.isEmpty())
             throw new RuntimeException("Random list with resource " + resource.toString() + " has no items");
 
-        if (texture.guaranteeUnique && texture.textures.size() == 1)
+        if (guaranteeUnique && elements.size() == 1)
             throw new RuntimeException("Random list with resource " + resource.toString() + " has only one item, and can therefore not guarantee unique");
 
-        return texture;
+        return () -> {
+            RandomTexture texture = new RandomTexture(eventSet, guaranteeUnique);
+            for (Supplier<? extends Renderable> element : elements) {
+                texture.add(element.get());
+            }
+            return texture;
+        };
     }
 }

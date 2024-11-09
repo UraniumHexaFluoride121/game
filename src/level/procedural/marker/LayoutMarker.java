@@ -4,6 +4,10 @@ import foundation.Deletable;
 import foundation.MainPanel;
 import foundation.math.ObjPos;
 import level.procedural.*;
+import level.procedural.generator.BoundType;
+import level.procedural.generator.GeneratorType;
+import level.procedural.generator.GeneratorValidation;
+import level.procedural.generator.ProceduralGenerator;
 import level.procedural.marker.resolved.GeneratorConditionData;
 import level.procedural.marker.resolved.LMTResolvedElement;
 import level.procedural.marker.unresolved.LMTUnresolvedElement;
@@ -74,21 +78,41 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
     }
 
     public static GeneratorValidation isNotColliding(BoundType boundType) {
-        return (gen, lm, type1, otherLM) -> {
-            HashSet<HitBox> hitBoxes = lm.bounds.get(boundType);
-            if (hitBoxes == null || lm == otherLM)
-                return true;
-            for (HitBox box : hitBoxes) {
+        if (boundType.collisionsAllowed == 0) {
+            return (gen, lm, type, otherLM, data) -> {
+                HashSet<HitBox> hitBoxes = lm.bounds.get(boundType);
+                if (hitBoxes == null || lm == otherLM)
+                    return true;
                 HashSet<HitBox> otherHitBoxes = otherLM.bounds.get(boundType);
                 if (otherHitBoxes == null)
                     return true;
-                for (HitBox otherBox : otherHitBoxes) {
-                    if (box.isColliding(otherBox))
-                        return false;
+                for (HitBox box : hitBoxes) {
+                    for (HitBox otherBox : otherHitBoxes) {
+                        if (box.isColliding(otherBox))
+                            return false;
+                    }
                 }
-            }
-            return true;
-        };
+                return true;
+            };
+        } else {
+            return (gen, lm, type, otherLM, data) -> {
+                HashSet<HitBox> hitBoxes = lm.bounds.get(boundType);
+                if (hitBoxes == null || lm == otherLM)
+                    return true;
+                HashSet<HitBox> otherHitBoxes = otherLM.bounds.get(boundType);
+                if (otherHitBoxes == null)
+                    return true;
+                for (HitBox box : hitBoxes) {
+                    for (HitBox otherBox : otherHitBoxes) {
+                        if (box.isColliding(otherBox)) {
+                            data.addCollision(boundType);
+                            return data.isUnderAllowed(boundType);
+                        }
+                    }
+                }
+                return true;
+            };
+        }
     }
 
     public RegionType getRegion() {

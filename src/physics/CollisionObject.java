@@ -20,6 +20,12 @@ public interface CollisionObject {
 
     }
 
+    //The collision handler invokes this method just after the collision
+    //checks are done
+    default void dynamicPostTick(float deltaTime) {
+
+    }
+
     //Only one of the objects will have this method called. It is expected that
     //that object handle the collision for both of them. constraintsOnly if for the
     //initial collision to set everything in place before allowing physics objects to

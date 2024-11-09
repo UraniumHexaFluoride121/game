@@ -8,11 +8,13 @@ import render.Renderable;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Vector;
+import java.util.function.Supplier;
 
 public class LayeredTexture implements Renderable, Tickable, RenderEventListener {
-    private final ArrayList<Renderable> textures = new ArrayList<>();
-    private final ArrayList<Tickable> tickableTextures = new ArrayList<>();
-    private final ArrayList<RenderEventListener> renderEventTextures = new ArrayList<>();
+    private final Vector<Renderable> textures = new Vector<>();
+    private final Vector<Tickable> tickableTextures = new Vector<>();
+    private final Vector<RenderEventListener> renderEventTextures = new Vector<>();
 
     private LayeredTexture() {
     }
@@ -40,15 +42,21 @@ public class LayeredTexture implements Renderable, Tickable, RenderEventListener
         textures.forEach(r -> r.render(g));
     }
 
-    public static LayeredTexture getLayeredTexture(ResourceLocation resource) {
+    public static Supplier<LayeredTexture> getLayeredTexture(ResourceLocation resource) {
         JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(resource));
         JsonArray renderables = obj.get("renderables", JsonType.JSON_ARRAY_TYPE);
-        LayeredTexture texture = new LayeredTexture();
 
+        ArrayList<Supplier<? extends Renderable>> textures = new ArrayList<>();
         renderables.forEach(o -> {
-            texture.add(AssetManager.deserializeRenderable(o));
+            textures.add(AssetManager.deserializeRenderable(o));
         }, JsonType.JSON_OBJECT_TYPE);
 
-        return texture;
+        return () -> {
+            LayeredTexture texture = new LayeredTexture();
+            for (Supplier<? extends Renderable> supplier : textures) {
+                texture.add(supplier.get());
+            }
+            return texture;
+        };
     }
 }

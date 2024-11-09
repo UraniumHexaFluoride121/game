@@ -1,5 +1,6 @@
 package physics;
 
+import foundation.Direction;
 import foundation.math.ObjPos;
 
 public interface HitBox {
@@ -8,6 +9,15 @@ public interface HitBox {
     float getBottom();
     float getLeft();
     float getRight();
+
+    default float get(Direction d) {
+        return switch (d) {
+            case DOWN -> getBottom();
+            case LEFT -> getLeft();
+            case RIGHT -> getRight();
+            case UP -> getTop();
+        };
+    }
 
     default boolean isColliding(HitBox box) {
         return (getRight() > box.getLeft() && box.getRight() > getLeft()) &&
