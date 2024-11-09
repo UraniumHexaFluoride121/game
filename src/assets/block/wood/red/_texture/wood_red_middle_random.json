@@ -1,0 +1,20 @@
+{
+  "renderables": [
+    {
+      "type": "TextureAsset",
+      "path": "block/wood/red/middle/wood_wood_middle_1.json"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/wood/red/middle/wood_wood_middle_2.json"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/wood/red/middle/wood_wood_middle_3.json"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/wood/red/middle/wood_wood_middle_4.json"
+    }
+  ]
+}

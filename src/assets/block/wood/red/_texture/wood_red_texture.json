@@ -1,0 +1,48 @@
+{
+  "renderables": [
+    {
+      "type": "TextureAsset",
+      "path": "block/wood/red/bottom_left/wood_red_bottom_left_1.json",
+      "condition": "existsBlock[d, this.layer] and existsBlock[l, this.layer] and existsBlock[dl, this.layer]"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/wood/red/bottom_right/wood_red_bottom_right_1.json",
+      "condition": "existsBlock[d, this.layer] and existsBlock[r, this.layer] and existsBlock[dr, this.layer]"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/wood/red/top_right/wood_red_top_right_1.json",
+      "condition": "existsBlock[u, this.layer] and existsBlock[r, this.layer] and existsBlock[ur, this.layer]"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/wood/red/top_left/wood_red_top_left_1.json",
+      "condition": "existsBlock[u, this.layer] and existsBlock[l, this.layer] and existsBlock[ul, this.layer]"
+    },
+    {
+      "type": "RandomTexture",
+      "path": "block/wood/red/_texture/wood_red_top_random.json",
+      "condition": "existsBlock[u, this.layer]"
+    },
+    {
+      "type": "RandomTexture",
+      "path": "block/wood/red/_texture/wood_red_bottom_random.json",
+      "condition": "existsBlock[d, this.layer]"
+    },
+    {
+      "type": "RandomTexture",
+      "path": "block/wood/red/_texture/wood_red_right_random.json",
+      "condition": "existsBlock[r, this.layer]"
+    },
+    {
+      "type": "RandomTexture",
+      "path": "block/wood/red/_texture/wood_red_left_random.json",
+      "condition": "existsBlock[l, this.layer]"
+    },
+    {
+      "type": "RandomTexture",
+      "path": "block/wood/red/_texture/wood_red_middle_random.json"
+    }
+  ]
+}

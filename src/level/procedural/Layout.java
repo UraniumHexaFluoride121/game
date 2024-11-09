@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 
 public class Layout {
-    public static final boolean DEBUG_LAYOUT_RENDER = true;
+    public static final boolean DEBUG_LAYOUT_RENDER = false;
 
     private final int sectionSize, sectionCount, maxHeight;
     //Markers stored by X and Y pos

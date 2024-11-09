@@ -1,0 +1,15 @@
+
+{
+  "name": "wood_red",
+  "texture": {
+    "path": "block/wood/red/_texture/wood_red_texture.json",
+    "type": "ConnectedTexture",
+    "order": "block"
+  },
+  "hitBox": {
+    "right": 15,
+    "left": -1,
+    "up": 15,
+    "down": -1
+  }
+}

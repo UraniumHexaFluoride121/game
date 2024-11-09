@@ -1,0 +1,12 @@
+{
+  "renderables": [
+    {
+      "type": "TextureAsset",
+      "path": "block/wood/red/right/wood_red_right_1.json"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/wood/red/right/wood_red_right_2.json"
+    }
+  ]
+}

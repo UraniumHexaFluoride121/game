@@ -194,14 +194,24 @@ public abstract class PhysicsObject extends BlockLike {
                         velocity.y = 0;
                     if (overlap.y < 0) {
                         constraints.set(Direction.DOWN, otherBox.getTop(), otherBox);
-                        if (constraints.box(Direction.LEFT, Direction.UP) == otherBox.getTop() ||
-                                constraints.box(Direction.RIGHT, Direction.UP) == otherBox.getTop())
+                        if (constraints.box(Direction.LEFT, Direction.UP) == otherBox.getTop()) {
+                            constraints.remove(Direction.LEFT);
                             velocity.x = previousVelocity.x;
+                        }
+                        if (constraints.box(Direction.RIGHT, Direction.UP) == otherBox.getTop()) {
+                            constraints.remove(Direction.RIGHT);
+                            velocity.x = previousVelocity.x;
+                        }
                     } else {
                         constraints.set(Direction.UP, otherBox.getBottom(), otherBox);
-                        if (constraints.box(Direction.LEFT, Direction.DOWN) == otherBox.getBottom() ||
-                                constraints.box(Direction.RIGHT, Direction.DOWN) == otherBox.getBottom())
+                        if (constraints.box(Direction.LEFT, Direction.DOWN) == otherBox.getBottom()) {
+                            constraints.remove(Direction.LEFT);
                             velocity.x = previousVelocity.x;
+                        }
+                        if (constraints.box(Direction.RIGHT, Direction.DOWN) == otherBox.getBottom()) {
+                            constraints.remove(Direction.RIGHT);
+                            velocity.x = previousVelocity.x;
+                        }
                     }
                 }
                 if (overlap.y < 0) {
@@ -218,14 +228,24 @@ public abstract class PhysicsObject extends BlockLike {
                         velocity.x = 0;
                     if (overlap.x < 0) {
                         constraints.set(Direction.LEFT, otherBox.getRight(), otherBox);
-                        if (constraints.box(Direction.UP, Direction.RIGHT) == otherBox.getRight() ||
-                                constraints.box(Direction.DOWN, Direction.RIGHT) == otherBox.getRight())
+                        if (constraints.box(Direction.UP, Direction.RIGHT) == otherBox.getRight()) {
+                            constraints.remove(Direction.UP);
                             velocity.y = previousVelocity.y;
+                        }
+                        if (constraints.box(Direction.DOWN, Direction.RIGHT) == otherBox.getRight()) {
+                            constraints.remove(Direction.DOWN);
+                            velocity.y = previousVelocity.y;
+                        }
                     } else {
                         constraints.set(Direction.RIGHT, otherBox.getLeft(), otherBox);
-                        if (constraints.box(Direction.UP, Direction.LEFT) == otherBox.getLeft() ||
-                                constraints.box(Direction.DOWN, Direction.LEFT) == otherBox.getLeft())
+                        if (constraints.box(Direction.UP, Direction.LEFT) == otherBox.getLeft()) {
+                            constraints.remove(Direction.UP);
                             velocity.y = previousVelocity.y;
+                        }
+                        if (constraints.box(Direction.DOWN, Direction.LEFT) == otherBox.getLeft()) {
+                            constraints.remove(Direction.DOWN);
+                            velocity.y = previousVelocity.y;
+                        }
                     }
                 }
                 if (overlap.x < 0) {
