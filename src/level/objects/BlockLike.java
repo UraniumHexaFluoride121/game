@@ -109,12 +109,12 @@ public abstract class BlockLike implements RegisteredTickable, BoundedRenderable
     }
 
     @Override
-    public float getTopBound() {
+    public float getTopRenderBound() {
         return hitBox.getTop() + 1;
     }
 
     @Override
-    public float getBottomBound() {
+    public float getBottomRenderBound() {
         return hitBox.getBottom() - 1;
     }
 }

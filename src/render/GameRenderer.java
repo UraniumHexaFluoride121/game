@@ -48,7 +48,7 @@ public class GameRenderer implements Renderable {
         g.transform(transform);
         g.transform(cameraTransform.get());
         renderables.forEach((order, set) -> set.forEach(r -> {
-            if (bottom < r.getTopBound() && top > r.getBottomBound())
+            if (bottom < r.getTopRenderBound() && top > r.getBottomRenderBound())
                 r.render(g);
         }));
         g.setTransform(prev);

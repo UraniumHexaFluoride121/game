@@ -4,7 +4,6 @@ import foundation.Main;
 import foundation.MainPanel;
 import foundation.math.BezierCurve3;
 import foundation.math.MathHelper;
-import foundation.math.ObjPos;
 import level.procedural.marker.LayoutMarker;
 import loader.JsonObject;
 import loader.JsonType;
@@ -12,48 +11,61 @@ import physics.StaticHitBox;
 
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
 
 public enum GeneratorType {
     FOREST_BRANCH("forest_branch", () -> new ProceduralGenerator((gen, lm, type) -> {
-        if (lm.pos.x < Main.BLOCKS_X / 2f) {
-            float t = gen.randomFloat(0.4f, 0.6f);
-            float length = lm.pos.x;
+        BezierCurve3 curve;
+        float length;
+        //Describes the distance at which blocks generate from the curve for a given point T, if the curve is of length L
+        BinaryOperator<Float> curveSize = (l, t) -> (1 - t) * l / 20 + 0.7f + (1 - l / 20); //(length, point) -> distance
+        float t = gen.randomFloat(0.4f, 0.6f);
+        boolean isLeftSide = lm.pos.x < Main.BLOCKS_X / 2f;
+        if (isLeftSide) {
+            length = lm.pos.x;
             float firstOffset = gen.randomFloat(-length / 5, length / 5);
             float centerPointX = MathHelper.lerp(0, lm.pos.x, t);
-            BezierCurve3 curve = new BezierCurve3(
+            curve = new BezierCurve3(
                     0, lm.pos.y + firstOffset,
                     centerPointX, MathHelper.lerp(lm.pos.y + firstOffset, lm.pos.y, t) + gen.randomFloat(-length / 4, length / 4),
                     lm.pos.x, lm.pos.y,
                     0.5f
             );
-            gen.addData("curve", curve);
             curve.forEachBlockNearCurve(2f,
-                    (point, dist) -> dist < (1 - point) * length / 20 + 0.7f + (1 - length / 20),
+                    (point, dist) -> dist < curveSize.apply(length, point),
                     (pos, dist) -> {
                         gen.addBlock(type.getString(0), pos);
                     });
         } else {
-            float t = gen.randomFloat(0.4f, 0.6f);
-            float length = Main.BLOCKS_X - 1 - lm.pos.x;
+            length = Main.BLOCKS_X - 1 - lm.pos.x;
             float firstOffset = gen.randomFloat(-length / 5, length / 5);
             float centerPointX = MathHelper.lerp(Main.BLOCKS_X - 1, lm.pos.x, t);
-            BezierCurve3 curve = new BezierCurve3(
+            curve = new BezierCurve3(
                     Main.BLOCKS_X - 1, lm.pos.y + firstOffset,
                     centerPointX, MathHelper.lerp(lm.pos.y + firstOffset, lm.pos.y, t) + gen.randomFloat(-length / 4, length / 4),
                     lm.pos.x, lm.pos.y,
                     0.5f
             );
-            gen.addData("curve", curve);
             curve.forEachBlockNearCurve(2,
-                    (point, dist) -> dist < (1 - point) * length / 20 + 0.7f + (1 - length / 20),
+                    (point, dist) -> dist < curveSize.apply(length, point),
                     (pos, dist) -> {
                         gen.addBlock(type.getString(0), pos);
                     });
         }
+        gen.addData("curve", curve);
+        StaticHitBox mainBound = curve.getBox().copy().expand(curveSize.apply(length, 0f));
+        lm.addBound(mainBound, BoundType.COLLISION);
+        lm.addBound(mainBound.copy().expand(3, 4, isLeftSide ? 0 : 5, isLeftSide ? -5 : 0), BoundType.OBSTRUCTION);
+        lm.addBound(mainBound.copy().expand(0, 1), BoundType.OBSTRUCTION);
+        lm.addBound(mainBound.copy().expand(2, 0), BoundType.OBSTRUCTION);
+        lm.addBound(mainBound.copy().expand(3, 5), BoundType.OVERCROWDING);
     }, (gen, lm, type) -> {
-
-    }, LayoutMarker.isNotColliding(BoundType.OBSTRUCTION)),
+        if (lm.pos.y < MainPanel.level.getRegionTop()) {
+            gen.addMarker("platform", gen.randomPosAbove(lm, 0.5f, 1.2f, 5, 9, 2.5f, 20));
+        }
+    }, LayoutMarker.isNotColliding(BoundType.OBSTRUCTION)
+            .and(LayoutMarker.isNotColliding(BoundType.OVERCROWDING))),
             storeString("woodBlock")
                     .andThen(storeString("leafBlock")),
             true
@@ -65,7 +77,7 @@ public enum GeneratorType {
         lm.addBound(new StaticHitBox(1f, 1f, sizeLeft, sizeRight + 1, lm.pos), BoundType.COLLISION);
         lm.addBound(new StaticHitBox(3f, 3f, sizeLeft - 2, sizeRight - 1, lm.pos), BoundType.OBSTRUCTION);
         lm.addBound(new StaticHitBox(1f, 1f, sizeLeft + 2, sizeRight + 3, lm.pos), BoundType.OBSTRUCTION);
-        lm.addBound(new StaticHitBox(6f, 6f, sizeLeft + 4, sizeRight + 5, lm.pos), BoundType.OVER_CROWDING);
+        lm.addBound(new StaticHitBox(6f, 6f, sizeLeft + 4, sizeRight + 5, lm.pos), BoundType.OVERCROWDING);
         String blockName = type.getString(0);
         gen.lineOfBlocks(lm.pos.x - sizeLeft, lm.pos.x + sizeRight, lm.pos.y, pos -> blockName);
         sizeLeft -= gen.randomInt(1, 2);
@@ -73,22 +85,11 @@ public enum GeneratorType {
         gen.lineOfBlocks(lm.pos.x - sizeLeft, lm.pos.x + sizeRight, lm.pos.y - 1, pos -> blockName);
     }, (gen, lm, type) -> {
         if (lm.pos.y < MainPanel.level.getRegionTop()) {
-            ObjPos pos;
             int borderProximityLimit = type.getInt(0);
-            do {
-                float angle = gen.randomFloat(0.2f, 1.2f);
-                float length = gen.randomFloat(5, 9);
-                boolean isRight = gen.randomBoolean(0.5f);
-                if (lm.pos.x > Main.BLOCKS_X - 1 - borderProximityLimit)
-                    isRight = false;
-                else if (lm.pos.x < borderProximityLimit)
-                    isRight = true;
-                pos = new ObjPos(lm.pos.x + Math.cos(angle) * length * 2.5f * (isRight ? 1 : -1), lm.pos.y + Math.sin(angle) * length).toInt();
-            } while (MainPanel.level.outOfBounds(pos));
-            gen.addMarker("platform", pos);
+            gen.addMarker("platform", gen.randomPosAbove(lm, 0.2f, 1.2f, 5, 9, 2.5f, borderProximityLimit));
         }
     }, LayoutMarker.isNotColliding(BoundType.OBSTRUCTION)
-            .and(LayoutMarker.isNotColliding(BoundType.OVER_CROWDING))),
+            .and(LayoutMarker.isNotColliding(BoundType.OVERCROWDING))),
             storeInt("forceAwayFromBorderProximity")
                     .andThen(storeString("block")),
             true

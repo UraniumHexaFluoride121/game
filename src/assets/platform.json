@@ -1,8 +1,8 @@
 {
   "resolvesTo": [
     {
-      "name": "island_floating",
-      "condition": "this.pos.x > 20 && this.pos.x < 40"
+      "name": "island_attached",
+      "condition": "distanceToBorder[this.pos] <= 20"
     },
     {
       "name": "island_floating",

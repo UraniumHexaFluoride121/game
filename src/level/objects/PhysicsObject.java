@@ -51,7 +51,7 @@ public abstract class PhysicsObject extends BlockLike {
         super.tick(deltaTime);
         processMovement(deltaTime);
 
-        if (constraints.is(Direction.DOWN) && !previousConstraints.is(Direction.DOWN))
+        if (constraints.is(Direction.DOWN) && !previousConstraints.onceConstrainedTo(Direction.DOWN))
             renderElement.onEvent(RenderEvent.ON_BLOCK_LAND);
         previousConstraints = constraints;
     }
@@ -91,11 +91,6 @@ public abstract class PhysicsObject extends BlockLike {
 
     @Override
     public void dynamicPostTick(float deltaTime) {
-        if (constraints.is(Direction.UP) || constraints.is(Direction.DOWN)) {
-
-        }
-        if (constraints.is(Direction.LEFT) || constraints.is(Direction.RIGHT)) {
-        }
     }
 
     public float computeFriction() {

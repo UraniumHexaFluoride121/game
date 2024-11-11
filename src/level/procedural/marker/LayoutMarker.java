@@ -3,7 +3,8 @@ package level.procedural.marker;
 import foundation.Deletable;
 import foundation.MainPanel;
 import foundation.math.ObjPos;
-import level.procedural.*;
+import level.procedural.Layout;
+import level.procedural.RegionType;
 import level.procedural.generator.BoundType;
 import level.procedural.generator.GeneratorType;
 import level.procedural.generator.GeneratorValidation;
@@ -115,6 +116,38 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
         }
     }
 
+    public static GeneratorValidation isNotColliding(HitBox box, BoundType boundType) {
+        if (boundType.collisionsAllowed == 0) {
+            return (gen, lm, type, otherLM, data) -> {
+                if (lm == otherLM)
+                    return true;
+                HashSet<HitBox> otherHitBoxes = otherLM.bounds.get(boundType);
+                if (otherHitBoxes == null)
+                    return true;
+                for (HitBox otherBox : otherHitBoxes) {
+                    if (box.isColliding(otherBox))
+                        return false;
+                }
+                return true;
+            };
+        } else {
+            return (gen, lm, type, otherLM, data) -> {
+                if (lm == otherLM)
+                    return true;
+                HashSet<HitBox> otherHitBoxes = otherLM.bounds.get(boundType);
+                if (otherHitBoxes == null)
+                    return true;
+                for (HitBox otherBox : otherHitBoxes) {
+                    if (box.isColliding(otherBox)) {
+                        data.addCollision(boundType);
+                        return data.isUnderAllowed(boundType);
+                    }
+                }
+                return true;
+            };
+        }
+    }
+
     public RegionType getRegion() {
         return MainPanel.level.getRegion(pos);
     }
@@ -151,12 +184,12 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
     }
 
     @Override
-    public float getTopBound() {
+    public float getTopRenderBound() {
         return pos.y + 30;
     }
 
     @Override
-    public float getBottomBound() {
+    public float getBottomRenderBound() {
         return pos.y - 30;
     }
 

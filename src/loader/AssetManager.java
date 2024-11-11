@@ -255,7 +255,7 @@ public abstract class AssetManager {
             textures.put(resource, image);
             return image;
         } catch (IOException e) {
-            throw new RuntimeException("Error opening image file: " + e.getMessage());
+            throw new RuntimeException("Error opening image file with path " + resource.relativePath + " : " + e.getMessage());
         }
     }
 

@@ -4,6 +4,7 @@ import foundation.Deletable;
 import foundation.Main;
 import foundation.MainPanel;
 import level.procedural.Layout;
+import physics.StaticHitBox;
 import render.BoundedRenderable;
 import render.RenderOrder;
 import render.Renderable;
@@ -16,6 +17,7 @@ import java.util.function.BiPredicate;
 public class BezierCurve3 implements BoundedRenderable, Deletable {
     private final float px1, py1, px2, py2, px3, py3;
     private final float bxMin, byMin, bxMax, byMax;
+    private final StaticHitBox box;
     private final float debugBoundTop, debugBoundBottom;
     private Renderable debugRenderable = null;
     private final Renderable[] renderPoints;
@@ -40,16 +42,21 @@ public class BezierCurve3 implements BoundedRenderable, Deletable {
         byMin = calculateBound(py1, py2, py3, true);
         byMax = calculateBound(py1, py2, py3, false);
 
+        box = new StaticHitBox(byMax, byMin, bxMin, bxMax);
+
         debugBoundTop = Math.max(Math.max(py1, py2), py3);
         debugBoundBottom = Math.min(Math.min(py1, py2), py3);
 
         if (Layout.DEBUG_LAYOUT_RENDER) {
-            renderPoints = new Renderable[40];
+            renderPoints = new Renderable[40 + 3];
             for (int i = 0; i < 40; i++) {
                 float t = i / 39f;
                 ObjPos pos = sampleCurve(t);
                 renderPoints[i] = new RenderGameCircle(RenderOrder.BLOCK, Color.GREEN, 0.15f, () -> pos);
             }
+            renderPoints[40] = new RenderGameCircle(RenderOrder.BLOCK, Color.RED, 0.3f, () -> new ObjPos(px1, py1));
+            renderPoints[41] = new RenderGameCircle(RenderOrder.BLOCK, Color.RED, 0.3f, () -> new ObjPos(px2, py2));
+            renderPoints[42] = new RenderGameCircle(RenderOrder.BLOCK, Color.RED, 0.3f, () -> new ObjPos(px3, py3));
             MainPanel.GAME_RENDERER.register(this);
         } else
             renderPoints = new Renderable[0];
@@ -62,7 +69,7 @@ public class BezierCurve3 implements BoundedRenderable, Deletable {
         );
     }
 
-    public float calculateBound(float p1, float p2, float p3, boolean isMin) {
+    private float calculateBound(float p1, float p2, float p3, boolean isMin) {
         float t = (p2 - p1) / -(p1 - 2 * p2 + p3);
         if (p1 - 2 * p2 + p3 == 0 || t < 0 || t > 1)
             return isMin ? Math.min(p1, p3) : Math.max(p1, p3);
@@ -75,16 +82,21 @@ public class BezierCurve3 implements BoundedRenderable, Deletable {
         float ex = px2 - px1, ey = py2 - py1;
         float fx = px1 - pos.x, fy = py1 - pos.y;
         float a = 4 * (dx * dx + dy * dy), b = 12 * (dx * ex + dy * ey), c = 4 * (dx * fx + 2 * ex * ex + dy * fy + 2 * ey * ey), d = 4 * (ex * fx + ey * fy);
-        float[] solutions = MathHelper.solveCubic(a, b, c, d);
-        float closestPoint = 0;
+        boolean zeroLength = a == 0 && b == 0 && c == 0 && d == 0;
         float distanceToClosest = pos.distance(sampleCurve(0));
-        for (float solution : solutions) {
-            if (solution < 0 || solution > 1)
-                break;
-            float dist = pos.distance(sampleCurve(solution));
-            if (dist < distanceToClosest) {
-                distanceToClosest = dist;
-                closestPoint = solution;
+        float closestPoint = 0;
+        if (zeroLength) {
+            return 0;
+        } else {
+            float[] solutions = MathHelper.solveCubic(a, b, c, d);
+            for (float solution : solutions) {
+                if (solution < 0 || solution > 1)
+                    continue;
+                float dist = pos.distance(sampleCurve(solution));
+                if (dist < distanceToClosest) {
+                    distanceToClosest = dist;
+                    closestPoint = solution;
+                }
             }
         }
         if (pos.distance(sampleCurve(1)) < distanceToClosest)
@@ -97,14 +109,19 @@ public class BezierCurve3 implements BoundedRenderable, Deletable {
         float ex = px2 - px1, ey = py2 - py1;
         float fx = px1 - pos.x, fy = py1 - pos.y;
         float a = 4 * (dx * dx + dy * dy), b = 12 * (dx * ex + dy * ey), c = 4 * (dx * fx + 2 * ex * ex + dy * fy + 2 * ey * ey), d = 4 * (ex * fx + ey * fy);
-        float[] solutions = MathHelper.solveCubic(a, b, c, d);
+        boolean zeroLength = a == 0 && b == 0 && c == 0 && d == 0;
         float distanceToClosest = pos.distance(sampleCurve(0));
-        for (float solution : solutions) {
-            if (solution < 0 || solution > 1)
-                break;
-            float dist = pos.distance(sampleCurve(solution));
-            if (dist < distanceToClosest) {
-                distanceToClosest = dist;
+        if (zeroLength) {
+            return pos.distance(new ObjPos(px1, py1));
+        } else {
+            float[] solutions = MathHelper.solveCubic(a, b, c, d);
+            for (float solution : solutions) {
+                if (solution < 0 || solution > 1)
+                    break;
+                float dist = pos.distance(sampleCurve(solution));
+                if (dist < distanceToClosest) {
+                    distanceToClosest = dist;
+                }
             }
         }
         return Math.min(pos.distance(sampleCurve(1)), distanceToClosest);
@@ -161,19 +178,39 @@ public class BezierCurve3 implements BoundedRenderable, Deletable {
         debugRenderable = new RenderGameCircle(RenderOrder.BLOCK, Color.RED, 0.3f, () -> pos);
     }
 
+    public StaticHitBox getBox() {
+        return box;
+    }
+
     @Override
     public RenderOrder getRenderOrder() {
         return RenderOrder.DEBUG;
     }
 
     @Override
-    public float getTopBound() {
+    public float getTopRenderBound() {
         return debugBoundTop;
     }
 
     @Override
-    public float getBottomBound() {
+    public float getBottomRenderBound() {
         return debugBoundBottom;
+    }
+
+    public float getBoundTop() {
+        return byMax;
+    }
+
+    public float getBoundBottom() {
+        return byMin;
+    }
+
+    public float getBoundLeft() {
+        return bxMin;
+    }
+
+    public float getBoundRight() {
+        return bxMax;
     }
 
     @Override

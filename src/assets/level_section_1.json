@@ -31,7 +31,8 @@
     "key": {
       "-": "test",
       "p": "player",
-      "#": "static_example"
+      "#": "static_example",
+      "w": "wood_red"
     },
     "markerKey": {
       "M": {

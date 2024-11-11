@@ -29,7 +29,7 @@ public class Level implements Deletable {
     public final InputHandler inputHandler;
     public final CollisionHandler collisionHandler;
     private static final int SECTION_SIZE = 16;
-    public final int seed = 0;
+    public final int seed = 1;
     public final RandomHandler randomHandler;
 
     //All BlockLikes inserted as static MUST NOT have their positions modified, otherwise
@@ -59,7 +59,7 @@ public class Level implements Deletable {
         randomHandler = new RandomHandler(seed);
         AssetManager.readLayout(LEVEL_PATH, this);
 
-        int maximumHeight = getRegionTop() + 30;
+        int maximumHeight = getRegionTop() + 50;
 
         for (ObjectLayer layer : ObjectLayer.values()) {
             if (!layer.addToStatic)

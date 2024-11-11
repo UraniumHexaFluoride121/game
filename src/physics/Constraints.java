@@ -7,6 +7,7 @@ import java.util.HashMap;
 public class Constraints {
     public HashMap<Direction, Boolean> isConstrained = new HashMap<>();
     public HashMap<Direction, Float> constrainedTo = new HashMap<>();
+    public HashMap<Direction, Float> onceConstrainedTo = new HashMap<>();
     public HashMap<Direction, HitBox> constrainedToBox = new HashMap<>();
 
     public Constraints() {
@@ -33,11 +34,13 @@ public class Constraints {
     public void set(Direction d, float to) {
         isConstrained.put(d, true);
         constrainedTo.put(d, to);
+        onceConstrainedTo.put(d, to);
     }
 
     public void set(Direction d, float to, HitBox box) {
         isConstrained.put(d, true);
         constrainedTo.put(d, to);
+        onceConstrainedTo.put(d, to);
         constrainedToBox.put(d, box);
     }
 
@@ -45,6 +48,10 @@ public class Constraints {
         isConstrained.put(d, false);
         constrainedTo.remove(d);
         constrainedToBox.remove(d);
+    }
+
+    public boolean onceConstrainedTo(Direction d) {
+        return onceConstrainedTo.get(d) != null;
     }
 
     @Override

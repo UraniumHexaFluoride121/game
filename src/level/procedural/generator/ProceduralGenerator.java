@@ -1,18 +1,19 @@
 package level.procedural.generator;
 
 import foundation.Deletable;
+import foundation.Main;
 import foundation.MainPanel;
 import foundation.math.MathHelper;
 import foundation.math.ObjPos;
 import level.RandomType;
 import level.objects.BlockLike;
+import level.procedural.Layout;
 import level.procedural.marker.GeneratorLMFunction;
 import level.procedural.marker.LayoutMarker;
 import loader.AssetManager;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 public class ProceduralGenerator implements Deletable {
@@ -42,23 +43,13 @@ public class ProceduralGenerator implements Deletable {
         function.generate(this, marker, type);
     }
 
-    public boolean validate(LayoutMarker marker, GeneratorType type) {
-        ValidationData data = new ValidationData();
-        AtomicBoolean validated = new AtomicBoolean(true);
-        MainPanel.level.layout.forEachMarker(marker.pos.y, 1, lm -> {
-            if (!validation.validate(this, marker, type, lm, data))
-                validated.set(false);
-        });
-        return validated.get();
-    }
-
     public void generateMarkers(LayoutMarker marker, GeneratorType type) {
         for (int i = 0; i < 50; i++) {
             markerFunction.generateMarkers(this, marker, type);
             generatedLayoutMarkers.forEach(LayoutMarker::generate);
             boolean validated = true;
             for (LayoutMarker lm : generatedLayoutMarkers) {
-                if (lm.gen.validate(lm, lm.genType))
+                if (GeneratorValidation.validate(lm, lm.genType, lm.gen.validation))
                     continue;
                 validated = false;
                 break;
@@ -82,6 +73,11 @@ public class ProceduralGenerator implements Deletable {
 
         overwrittenBlocks.clear();
         generatedBlocks.clear();
+        if (Layout.DEBUG_LAYOUT_RENDER) //Delete debug elements that were added to the renderer
+            generationData.forEach((k, v) -> {
+                if (v instanceof Deletable d)
+                    d.delete();
+            });
         generationData.clear();
     }
 
@@ -107,6 +103,21 @@ public class ProceduralGenerator implements Deletable {
 
     public void addData(String name, Object data) {
         generationData.put(name, data);
+    }
+
+    public ObjPos randomPosAbove(LayoutMarker lm, float minAngle, float maxAngle, float minLength, float maxLength, float xLengthMultiplier, int borderProximityLimit)  {
+        ObjPos pos;
+        do {
+            float angle = randomFloat(minAngle, maxAngle);
+            float length = randomFloat(minLength, maxLength);
+            boolean isRight = randomBoolean(0.5f);
+            if (lm.pos.x > Main.BLOCKS_X - 1 - borderProximityLimit)
+                isRight = false;
+            else if (lm.pos.x < borderProximityLimit)
+                isRight = true;
+            pos = new ObjPos(lm.pos.x + Math.cos(angle) * length * xLengthMultiplier * (isRight ? 1 : -1), lm.pos.y + Math.sin(angle) * length).toInt();
+        } while (MainPanel.level.outOfBounds(pos));
+        return pos;
     }
 
     @SuppressWarnings("unchecked")

@@ -28,12 +28,12 @@ public class CTExpression extends Expression<CTExpressionData> {
         addFunction(new ExpressionFunction<>("block", args -> {
             if (args.size() == 2)
                 return o -> {
-                    ObjPos pos = ((ObjPos) args.get(0).apply(o));
-                    return o.l.getBlock(ObjectLayer.getObjectLayer((String) args.get(1).apply(o)), (int) pos.x, (int) pos.y);
+                    ObjPos pos = getArg(0, args, o, ObjPos.class);
+                    return o.l.getBlock(ObjectLayer.getObjectLayer(getArg(1, args, o, String.class)), (int) pos.x, (int) pos.y);
                 };
             if (args.size() == 1)
                 return o -> {
-                    ObjPos pos = ((ObjPos) args.get(0).apply(o));
+                    ObjPos pos = getArg(0, args, o, ObjPos.class);
                     return o.l.getBlock(o.b.getLayer(), (int) pos.x, (int) pos.y);
                 };
             throw new IllegalArgumentException("Incorrectly formatted expression, the \"block\" function requires two arguments");
@@ -42,7 +42,7 @@ public class CTExpression extends Expression<CTExpressionData> {
         addFunction(new ExpressionFunction<>("existsBlock", args -> {
             if (args.size() == 1)
                 return o -> {
-                    ObjPos pos = ((ObjPos) args.get(0).apply(o));
+                    ObjPos pos = getArg(0, args, o, ObjPos.class);
                     if (o.l.outOfBounds(((int) pos.x), ((int) pos.y)))
                         return true;
                     for (ObjectLayer layer : ObjectLayer.values()) {
@@ -52,12 +52,12 @@ public class CTExpression extends Expression<CTExpressionData> {
                     return false;
                 };
             else return o -> {
-                ObjPos pos = ((ObjPos) args.get(0).apply(o));
+                ObjPos pos = getArg(0, args, o, ObjPos.class);
                 if (o.l.outOfBounds(((int) pos.x), ((int) pos.y)))
                     return true;
                 HashSet<ObjectLayer> layers = new HashSet<>();
                 for (int i = 1; i < args.size(); i++) {
-                    layers.add(ObjectLayer.getObjectLayer((String) args.get(i).apply(o)));
+                    layers.add(ObjectLayer.getObjectLayer(getArg(i, args, o, String.class)));
                 }
                 for (ObjectLayer layer : layers) {
                     if (!layer.addToStatic)
@@ -72,7 +72,7 @@ public class CTExpression extends Expression<CTExpressionData> {
         addFunction(new ExpressionFunction<>("existsBlockWithCollision", args -> {
             if (args.size() == 1)
                 return o -> {
-                    ObjPos pos = ((ObjPos) args.get(0).apply(o));
+                    ObjPos pos = getArg(0, args, o, ObjPos.class);
                     if (o.l.outOfBounds(((int) pos.x), ((int) pos.y)))
                         return true;
                     for (ObjectLayer layer : ObjectLayer.values()) {
@@ -83,12 +83,12 @@ public class CTExpression extends Expression<CTExpressionData> {
                     return false;
                 };
             else return o -> {
-                ObjPos pos = ((ObjPos) args.get(0).apply(o));
+                ObjPos pos = getArg(0, args, o, ObjPos.class);
                 if (o.l.outOfBounds(((int) pos.x), ((int) pos.y)))
                     return true;
                 HashSet<ObjectLayer> layers = new HashSet<>();
                 for (int i = 1; i < args.size(); i++) {
-                    layers.add(ObjectLayer.getObjectLayer((String) args.get(i).apply(o)));
+                    layers.add(ObjectLayer.getObjectLayer(getArg(i, args, o, String.class)));
                 }
                 for (ObjectLayer layer : layers) {
                     if (!layer.addToStatic)

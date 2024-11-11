@@ -1,5 +1,6 @@
 package foundation.expression;
 
+import foundation.Main;
 import foundation.math.ObjPos;
 import level.objects.BlockLike;
 import level.procedural.marker.LayoutMarker;
@@ -289,15 +290,15 @@ public class Expression<T> {
             case MULTIPLICATION -> o -> {
                 Object arg1 = ((Function<T, Object>) args[0]).apply(o);
                 Object arg2 = ((Function<T, Object>) args[1]).apply(o);
-                if (arg1 instanceof Integer i1) {
-                    if (arg2 instanceof Integer i2)
-                        return i1 * i2;
+                if (arg1 instanceof Number n1) {
+                    if (arg2 instanceof Number n2)
+                        return n1.floatValue() * n2.floatValue();
                     if (arg2 instanceof ObjPos p2)
-                        return p2.copy().multiply(i1);
+                        return p2.copy().multiply(n1.floatValue());
                 }
                 if (arg1 instanceof ObjPos p1) {
-                    if (arg2 instanceof Integer i2)
-                        return p1.copy().multiply(i2);
+                    if (arg2 instanceof Number n2)
+                        return p1.copy().multiply(n2.floatValue());
                     if (arg2 instanceof ObjPos p2)
                         return p1.copy().multiply(p2);
                 }
@@ -306,17 +307,17 @@ public class Expression<T> {
             case DIVISION -> o -> {
                 Object arg1 = ((Function<T, Object>) args[0]).apply(o);
                 Object arg2 = ((Function<T, Object>) args[1]).apply(o);
-                if (arg1 instanceof Integer i1) {
-                    if (arg2 instanceof Integer i2)
-                        return i1 / i2;
+                if (arg1 instanceof Number n1) {
+                    if (arg2 instanceof Number n2)
+                        return n1.floatValue() / n2.floatValue();
                     if (arg2 instanceof ObjPos p2)
-                        return p2.copy().divide(i1).toInt();
+                        return p2.copy().divide(n1.floatValue());
                 }
                 if (arg1 instanceof ObjPos p1) {
-                    if (arg2 instanceof Integer i2)
-                        return p1.copy().divide(i2).toInt();
+                    if (arg2 instanceof Number n2)
+                        return p1.copy().divide(n2.floatValue());
                     if (arg2 instanceof ObjPos p2)
-                        return p1.copy().divide(p2).toInt();
+                        return p1.copy().divide(p2);
                 }
                 throw new RuntimeException("Tried to apply DIVISION operator on incompatible objects, \"" + arg1 + "\" and \"" + arg2 + "\"");
             };
@@ -325,10 +326,10 @@ public class Expression<T> {
                     yield o -> {
                         Object arg1 = ((Function<T, Object>) args[0]).apply(o);
                         Object arg2 = ((Function<T, Object>) args[1]).apply(o);
-                        if (arg1 instanceof Integer)
-                            return ((int) arg1) + ((int) arg2);
-                        if (arg1 instanceof ObjPos)
-                            return ((ObjPos) arg1).copy().add((ObjPos) arg2);
+                        if (arg1 instanceof Number num1 && arg2 instanceof Number num2)
+                            return num1.floatValue() + num2.floatValue();
+                        if (arg1 instanceof ObjPos pos1 && arg2 instanceof ObjPos pos2)
+                            return pos1.copy().add(pos2);
                         throw new RuntimeException("Tried to apply ADD operator on incompatible objects, \"" + arg1 + "\" and \"" + arg2 + "\"");
                     };
                 else
@@ -339,17 +340,17 @@ public class Expression<T> {
                     yield o -> {
                         Object arg1 = ((Function<T, Object>) args[0]).apply(o);
                         Object arg2 = ((Function<T, Object>) args[1]).apply(o);
-                        if (arg1 instanceof Integer)
-                            return ((int) arg1) - ((int) arg2);
-                        if (arg1 instanceof ObjPos)
-                            return ((ObjPos) arg1).copy().subtract((ObjPos) arg2);
+                        if (arg1 instanceof Number num1 && arg2 instanceof Number num2)
+                            return num1.floatValue() - num2.floatValue();
+                        if (arg1 instanceof ObjPos pos1 && arg2 instanceof ObjPos pos2)
+                            return pos1.copy().subtract(pos2);
                         throw new RuntimeException("Tried to apply MINUS operator on incompatible objects, \"" + arg1 + "\" and \"" + arg2 + "\"");
                     };
                 else
                     yield o -> {
                         Object arg = ((Function<T, Object>) args[0]).apply(o);
-                        if (arg instanceof Integer)
-                            return -((int) arg);
+                        if (arg instanceof Number num)
+                            return -num.floatValue();
                         if (arg instanceof ObjPos)
                             return ((ObjPos) arg).copy().multiply(-1);
                         throw new RuntimeException("Tried to apply MINUS operator on incompatible object, \"" + arg + "\"");
@@ -358,34 +359,34 @@ public class Expression<T> {
             case GTH -> o -> {
                 Object arg1 = ((Function<T, Object>) args[0]).apply(o);
                 Object arg2 = ((Function<T, Object>) args[1]).apply(o);
-                if (arg1 instanceof Integer int1 && arg2 instanceof Integer int2) {
-                    return int1 > int2;
+                if (arg1 instanceof Number num1 && arg2 instanceof Number num2) {
+                    return num1.floatValue() > num2.floatValue();
                 }
-                throw new RuntimeException("Tried to apply GREATER THAN operator on incompatible objects");
+                throw new RuntimeException("Tried to apply GREATER THAN operator on incompatible objects\nArguments were: " + arg1 + " " + arg2);
             };
             case GTE -> o -> {
                 Object arg1 = ((Function<T, Object>) args[0]).apply(o);
                 Object arg2 = ((Function<T, Object>) args[1]).apply(o);
-                if (arg1 instanceof Integer int1 && arg2 instanceof Integer int2) {
-                    return int1 >= int2;
+                if (arg1 instanceof Number num1 && arg2 instanceof Number num2) {
+                    return num1.floatValue() >= num2.floatValue();
                 }
-                throw new RuntimeException("Tried to apply GREATER THAN operator on incompatible objects");
+                throw new RuntimeException("Tried to apply GREATER THAN OR EQUAL operator on incompatible objects\nArguments were: " + arg1 + " " + arg2);
             };
             case LTH -> o -> {
                 Object arg1 = ((Function<T, Object>) args[0]).apply(o);
                 Object arg2 = ((Function<T, Object>) args[1]).apply(o);
-                if (arg1 instanceof Integer int1 && arg2 instanceof Integer int2) {
-                    return int1 < int2;
+                if (arg1 instanceof Number num1 && arg2 instanceof Number num2) {
+                    return num1.floatValue() < num2.floatValue();
                 }
-                throw new RuntimeException("Tried to apply GREATER THAN operator on incompatible objects");
+                throw new RuntimeException("Tried to apply LESS THAN operator on incompatible objects\nArguments were: " + arg1 + " " + arg2);
             };
             case LTE -> o -> {
                 Object arg1 = ((Function<T, Object>) args[0]).apply(o);
                 Object arg2 = ((Function<T, Object>) args[1]).apply(o);
-                if (arg1 instanceof Integer int1 && arg2 instanceof Integer int2) {
-                    return int1 <= int2;
+                if (arg1 instanceof Number num1 && arg2 instanceof Number num2) {
+                    return num1.floatValue() <= num2.floatValue();
                 }
-                throw new RuntimeException("Tried to apply GREATER THAN operator on incompatible objects");
+                throw new RuntimeException("Tried to apply LESS THAN OR EQUAL operator on incompatible objects\nArguments were: " + arg1 + " " + arg2);
             };
 
             case NOT -> o -> !((Boolean) ((Function<T, Object>) args[0]).apply(o));
@@ -415,10 +416,46 @@ public class Expression<T> {
         if (functions.containsKey(s))
             return functions.get(s).definition.apply(args);
         return switch (s) {
-            case "pos" -> o -> new ObjPos((int) args.get(0).apply(o), (int) args.get(1).apply(o));
+            case "pos" -> o -> new ObjPos(getArg(0, args, o, Integer.class), getArg(0, args, o, Integer.class));
+            case "distanceToBorder" -> o -> {
+                Object arg1 = getArg(0, args, o, Object.class);
+                float x;
+                if (arg1 instanceof ObjPos p)
+                    x = p.x;
+                else if (arg1 instanceof Integer i)
+                    x = i;
+                else
+                    throw new RuntimeException(argExceptionMessage(0, args, o, Integer.class));
+                return Math.min(x, Main.BLOCKS_X - 1 - x);
+            };
             default ->
                     throw new RuntimeException("Incorrectly formatted expression, unrecognised function name \"" + s + "\"");
         };
+    }
+
+    protected <U> U getArg(int index, ArrayList<Function<T, Object>> args, T t, Class<U> clazz) {
+        Object v = args.get(index).apply(t);
+        if (!clazz.isInstance(v)) {
+            ArrayList<Object> retrievedArgs = new ArrayList<>();
+            ArrayList<String> retrievedArgsClass = new ArrayList<>();
+            args.forEach(a -> retrievedArgs.add(a.apply(t)));
+            args.forEach(a -> retrievedArgsClass.add(a.apply(t).getClass().getSimpleName()));
+            throw new RuntimeException("Argument number " + (index + 1) + " of type " + v.getClass().getSimpleName() + " was of the wrong type in a function for " +
+                    this.getClass().getSimpleName() + ". Intended type was: " + clazz.getSimpleName() + ". The values for the arguments provided for this function were: " + retrievedArgs +
+                    " of types: " + retrievedArgsClass);
+        }
+        return (U) v;
+    }
+
+    protected <U> String argExceptionMessage(int index, ArrayList<Function<T, Object>> args, T t, Class<U> clazz) {
+        Object v = args.get(index).apply(t);
+        ArrayList<Object> retrievedArgs = new ArrayList<>();
+        ArrayList<String> retrievedArgsClass = new ArrayList<>();
+        args.forEach(a -> retrievedArgs.add(a.apply(t)));
+        args.forEach(a -> retrievedArgsClass.add(a.apply(t).getClass().getSimpleName()));
+        return "Argument number " + (index + 1) + " of type " + v.getClass().getSimpleName() + " was of the wrong type in a function for " +
+                this.getClass().getSimpleName() + ". Intended type was: " + clazz.getSimpleName() + ". The values for the arguments provided for this function were: " + retrievedArgs +
+                " of types: " + retrievedArgsClass;
     }
 
     //Verify that a char is allowed to be used in names
