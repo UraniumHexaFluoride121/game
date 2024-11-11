@@ -21,10 +21,10 @@ public class LMTResolvedElement extends LMType {
 
     public static final LMTResolvedElement ISLAND_FLOATING = new LMTResolvedElement(
             "island_floating",
-            new RenderGameSquare(RenderOrder.BLOCK, Color.BLUE, 0.5f, () -> new ObjPos(0.5f, 0.5f)));
+            new RenderGameSquare(RenderOrder.DEBUG, Color.BLUE, 0.5f, () -> new ObjPos(0.5f, 0.5f)));
     public static final LMTResolvedElement ISLAND_SIDE_ATTACHED = new LMTResolvedElement(
             "island_attached",
-            new RenderGameSquare(RenderOrder.BLOCK, Color.BLUE, 0.5f, () -> new ObjPos(0.5f, 0.5f)));
+            new RenderGameSquare(RenderOrder.DEBUG, Color.BLUE, 0.5f, () -> new ObjPos(0.5f, 0.5f)));
 
     private final ArrayList<GenerationElement> generatorConditions = new ArrayList<>();
 

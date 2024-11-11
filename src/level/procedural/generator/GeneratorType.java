@@ -4,22 +4,21 @@ import foundation.Main;
 import foundation.MainPanel;
 import foundation.math.BezierCurve3;
 import foundation.math.MathHelper;
+import foundation.math.ObjPos;
 import level.procedural.marker.LayoutMarker;
 import loader.JsonObject;
 import loader.JsonType;
 import physics.StaticHitBox;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
-import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
 
 public enum GeneratorType {
     FOREST_BRANCH("forest_branch", () -> new ProceduralGenerator((gen, lm, type) -> {
         BezierCurve3 curve;
         float length;
-        //Describes the distance at which blocks generate from the curve for a given point T, if the curve is of length L
-        BinaryOperator<Float> curveSize = (l, t) -> (1 - t) * l / 20 + 0.7f + (1 - l / 20); //(length, point) -> distance
         float t = gen.randomFloat(0.4f, 0.6f);
         boolean isLeftSide = lm.pos.x < Main.BLOCKS_X / 2f;
         if (isLeftSide) {
@@ -29,14 +28,9 @@ public enum GeneratorType {
             curve = new BezierCurve3(
                     0, lm.pos.y + firstOffset,
                     centerPointX, MathHelper.lerp(lm.pos.y + firstOffset, lm.pos.y, t) + gen.randomFloat(-length / 4, length / 4),
-                    lm.pos.x, lm.pos.y,
+                    lm.pos.x + 3, lm.pos.y,
                     0.5f
             );
-            curve.forEachBlockNearCurve(2f,
-                    (point, dist) -> dist < curveSize.apply(length, point),
-                    (pos, dist) -> {
-                        gen.addBlock(type.getString(0), pos);
-                    });
         } else {
             length = Main.BLOCKS_X - 1 - lm.pos.x;
             float firstOffset = gen.randomFloat(-length / 5, length / 5);
@@ -44,25 +38,45 @@ public enum GeneratorType {
             curve = new BezierCurve3(
                     Main.BLOCKS_X - 1, lm.pos.y + firstOffset,
                     centerPointX, MathHelper.lerp(lm.pos.y + firstOffset, lm.pos.y, t) + gen.randomFloat(-length / 4, length / 4),
-                    lm.pos.x, lm.pos.y,
+                    lm.pos.x - 3, lm.pos.y,
                     0.5f
             );
-            curve.forEachBlockNearCurve(2,
-                    (point, dist) -> dist < curveSize.apply(length, point),
-                    (pos, dist) -> {
-                        gen.addBlock(type.getString(0), pos);
-                    });
         }
         gen.addData("curve", curve);
-        StaticHitBox mainBound = curve.getBox().copy().expand(curveSize.apply(length, 0f));
+        StaticHitBox mainBound = curve.getBox().copy().expand(GeneratorTypeFunctions.FOREST_BRANCH_CURVE_SIZE.apply(length, 0f));
         lm.addBound(mainBound, BoundType.COLLISION);
-        lm.addBound(mainBound.copy().expand(3, 4, isLeftSide ? 0 : 5, isLeftSide ? -5 : 0), BoundType.OBSTRUCTION);
+        lm.addBound(mainBound.copy().expand(0, 6, isLeftSide ? 0 : 7, isLeftSide ? -7 : 0), BoundType.OBSTRUCTION);
         lm.addBound(mainBound.copy().expand(0, 1), BoundType.OBSTRUCTION);
         lm.addBound(mainBound.copy().expand(2, 0), BoundType.OBSTRUCTION);
         lm.addBound(mainBound.copy().expand(3, 5), BoundType.OVERCROWDING);
     }, (gen, lm, type) -> {
+        BezierCurve3 curve = gen.getData("curve", BezierCurve3.class);
+        float length;
+        boolean isLeftSide = lm.pos.x < Main.BLOCKS_X / 2f;
+        if (isLeftSide) {
+            length = lm.pos.x;
+            curve.forEachBlockNearCurve(2f,
+                    (point, dist) -> dist < GeneratorTypeFunctions.FOREST_BRANCH_CURVE_SIZE.apply(length, point),
+                    (pos, dist) -> {
+                        gen.addBlock(type.getString(0), pos);
+                    });
+        } else {
+            length = Main.BLOCKS_X - 1 - lm.pos.x;
+            curve.forEachBlockNearCurve(2,
+                    (point, dist) -> dist < GeneratorTypeFunctions.FOREST_BRANCH_CURVE_SIZE.apply(length, point),
+                    (pos, dist) -> {
+                        gen.addBlock(type.getString(0), pos);
+                    });
+        }
+    }, (gen, lm, type) -> {
         if (lm.pos.y < MainPanel.level.getRegionTop()) {
-            gen.addMarker("platform", gen.randomPosAbove(lm, 0.5f, 1.2f, 5, 9, 2.5f, 20));
+            BezierCurve3 curve = gen.getData("curve", BezierCurve3.class);
+            AtomicReference<ObjPos> pos = new AtomicReference<>();
+            gen.addMarker("platform", gen.randomPosAbove(() -> {
+                pos.set(curve.sampleCurve(gen.randomFloat(0, 1)));
+                return pos.get();
+            }, 0.5f, 1.3f, 5, 10, 2.5f, 20));
+            gen.addMarker("debug", pos.get());
         }
     }, LayoutMarker.isNotColliding(BoundType.OBSTRUCTION)
             .and(LayoutMarker.isNotColliding(BoundType.OVERCROWDING))),
@@ -78,6 +92,11 @@ public enum GeneratorType {
         lm.addBound(new StaticHitBox(3f, 3f, sizeLeft - 2, sizeRight - 1, lm.pos), BoundType.OBSTRUCTION);
         lm.addBound(new StaticHitBox(1f, 1f, sizeLeft + 2, sizeRight + 3, lm.pos), BoundType.OBSTRUCTION);
         lm.addBound(new StaticHitBox(6f, 6f, sizeLeft + 4, sizeRight + 5, lm.pos), BoundType.OVERCROWDING);
+        gen.addData("sizeLeft", sizeLeft);
+        gen.addData("sizeRight", sizeRight);
+    }, (gen, lm, type) -> {
+        int sizeLeft = gen.getData("sizeLeft", Integer.class);
+        int sizeRight = gen.getData("sizeRight", Integer.class);
         String blockName = type.getString(0);
         gen.lineOfBlocks(lm.pos.x - sizeLeft, lm.pos.x + sizeRight, lm.pos.y, pos -> blockName);
         sizeLeft -= gen.randomInt(1, 2);

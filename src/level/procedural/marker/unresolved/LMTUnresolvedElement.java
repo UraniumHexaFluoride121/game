@@ -18,7 +18,7 @@ import java.util.function.Predicate;
 public class LMTUnresolvedElement extends LMType {
     public static final LMTUnresolvedElement PLATFORM = new LMTUnresolvedElement(
             "platform",
-            new RenderGameSquare(RenderOrder.BLOCK, Color.RED, 0.5f, () -> new ObjPos(0.5f, 0.5f))
+            new RenderGameSquare(RenderOrder.DEBUG, Color.RED, 0.5f, () -> new ObjPos(0.5f, 0.5f))
     );
 
     private final ArrayList<ResolveElement> resolveConditions = new ArrayList<>();

@@ -25,7 +25,7 @@ public class RandomHandler {
         return getRandom(type)::nextDouble;
     }
 
-    public Random generateRandom(RandomType type) {
+    public Random generateNewRandomSource(RandomType type) {
         return new Random(getRandom(type).nextInt());
     }
 }

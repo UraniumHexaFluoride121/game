@@ -4,7 +4,9 @@ import foundation.MainPanel;
 import foundation.expression.Expression;
 import foundation.expression.ExpressionFunction;
 import foundation.expression.ExpressionValue;
+import foundation.math.MathHelper;
 import foundation.math.ObjPos;
+import level.RandomType;
 import level.procedural.generator.BoundType;
 import level.procedural.generator.GeneratorValidation;
 import level.procedural.marker.LayoutMarker;
@@ -20,7 +22,7 @@ public class ResolverCondition extends Expression<ResolverConditionData> {
 
         addFunction(new ExpressionFunction<>("posOffset", args -> {
             return o -> {
-                int x = getArg(0, args, o, Integer.class), y = getArg(1, args, o, Integer.class);
+                float x = getArg(0, args, o, Number.class).floatValue(), y = getArg(1, args, o, Number.class).floatValue();
                 return o.marker.pos.copy().add(x, y);
             };
         }));
@@ -32,5 +34,6 @@ public class ResolverCondition extends Expression<ResolverConditionData> {
                 return GeneratorValidation.validate(o.marker, o.marker.genType, LayoutMarker.isNotColliding(box, type));
             };
         }));
+        addFunction(new ExpressionFunction<>("rand", args -> o -> MathHelper.randBoolean(getArg(0, args, o, Number.class).floatValue(), o.l.randomHandler.getDoubleSupplier(RandomType.PROCEDURAL))));
     }
 }

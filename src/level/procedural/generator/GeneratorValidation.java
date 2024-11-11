@@ -19,9 +19,14 @@ public interface GeneratorValidation {
         MainPanel.level.layout.forEachMarker(marker.pos.y, 1, lm -> {
             if (!validation.validate(lm.gen, marker, type, lm, data))
                 validated.set(false);
-        });
-        if (validated.get())
+        });/*
+        if (validated.get()) {
             System.out.println(marker.pos.y);
+            if (marker.genType == GeneratorType.ISLAND_TEST)
+                System.out.println("#");
+            if (marker.genType == GeneratorType.FOREST_BRANCH)
+                System.out.println("@");
+        }*/
         return validated.get();
     }
 }

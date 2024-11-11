@@ -27,7 +27,7 @@ public class RandomTexture implements Renderable, RenderEventListener, Tickable 
 
     public RandomTexture(HashSet<RenderEvent> events, boolean guaranteeUnique) {
         this.events = events;
-        textureRandom = MainPanel.level.randomHandler.generateRandom(RandomType.TEXTURE);
+        textureRandom = MainPanel.level.randomHandler.generateNewRandomSource(RandomType.TEXTURE);
         this.guaranteeUnique = guaranteeUnique;
     }
 

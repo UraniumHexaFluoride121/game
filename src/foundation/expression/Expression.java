@@ -258,6 +258,10 @@ public class Expression<T> {
                 Object obj = ((Function<T, Object>) args[0]).apply(o);
                 if (obj == null)
                     return null;
+                if (obj instanceof Number n1) {
+                    if (((Function<T, Object>) args[1]).apply(o) instanceof Number n2)
+                        return Float.parseFloat(n1 + "." + n2);
+                }
                 String field = (String) ((Function<T, Object>) args[1]).apply(o);
                 if (obj instanceof BlockLike block) {
                     return switch (field) {
@@ -271,8 +275,8 @@ public class Expression<T> {
                 }
                 if (obj instanceof ObjPos pos) {
                     return switch (field) {
-                        case "x" -> (int) pos.x;
-                        case "y" -> (int) pos.y;
+                        case "x" -> pos.x;
+                        case "y" -> pos.y;
                         default ->
                                 throw new RuntimeException("Incorrectly formatted expression, tried to access non-existent field \"" + field + "\" from BlockLike");
                     };
@@ -422,10 +426,10 @@ public class Expression<T> {
                 float x;
                 if (arg1 instanceof ObjPos p)
                     x = p.x;
-                else if (arg1 instanceof Integer i)
-                    x = i;
+                else if (arg1 instanceof Number n)
+                    x = n.floatValue();
                 else
-                    throw new RuntimeException(argExceptionMessage(0, args, o, Integer.class));
+                    throw new RuntimeException(argExceptionMessage(0, args, o, Number.class));
                 return Math.min(x, Main.BLOCKS_X - 1 - x);
             };
             default ->

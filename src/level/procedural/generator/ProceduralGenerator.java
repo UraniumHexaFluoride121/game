@@ -15,6 +15,7 @@ import loader.AssetManager;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class ProceduralGenerator implements Deletable {
     //All blocks added by the generation function must be added to this set
@@ -22,19 +23,21 @@ public class ProceduralGenerator implements Deletable {
     //All blocks overwritten by the generation function are added to this set
     private final HashSet<BlockLike> overwrittenBlocks = new HashSet<>();
     //All layout markers added by the marker generation function must be added to this set
-    //The markerFunction is the only function allowed to add LayoutMarkers, not the generation function
+    //The markerFunction is the only function allowed to add LayoutMarkers
     private final HashSet<LayoutMarker> generatedLayoutMarkers = new HashSet<>();
 
     //Data that the generator stores for use in validation
     private final HashMap<String, Object> generationData = new HashMap<>();
 
-    private final GeneratorFunction function;
+    //The function should generate everything necessary for bounds validation, the blockGenerator runs afterward
+    private final GeneratorFunction function, blockGenerator;
     private final GeneratorLMFunction markerFunction;
     private final GeneratorValidation validation;
 
 
-    public ProceduralGenerator(GeneratorFunction function, GeneratorLMFunction markerFunction, GeneratorValidation validation) {
-        this.function = function;
+    public ProceduralGenerator(GeneratorFunction boundsGenerator, GeneratorFunction blockGenerator, GeneratorLMFunction markerFunction, GeneratorValidation validation) {
+        this.function = boundsGenerator;
+        this.blockGenerator = blockGenerator;
         this.markerFunction = markerFunction;
         this.validation = validation;
     }
@@ -44,22 +47,24 @@ public class ProceduralGenerator implements Deletable {
     }
 
     public void generateMarkers(LayoutMarker marker, GeneratorType type) {
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 150; i++) {
             markerFunction.generateMarkers(this, marker, type);
             generatedLayoutMarkers.forEach(LayoutMarker::generate);
             boolean validated = true;
             for (LayoutMarker lm : generatedLayoutMarkers) {
-                if (GeneratorValidation.validate(lm, lm.genType, lm.gen.validation))
+                if (lm.gen == null || GeneratorValidation.validate(lm, lm.genType, lm.gen.validation))
                     continue;
                 validated = false;
                 break;
             }
             if (validated) {
                 generatedLayoutMarkers.forEach(LayoutMarker::generateMarkers);
+                marker.gen.blockGenerator.generate(this, marker, type);
                 break;
             } else {
                 generatedLayoutMarkers.forEach(lm -> {
-                    lm.gen.revertGeneration();
+                    if (lm.gen != null)
+                        lm.gen.revertGeneration();
                     lm.delete();
                 });
                 generatedLayoutMarkers.clear();
@@ -105,7 +110,7 @@ public class ProceduralGenerator implements Deletable {
         generationData.put(name, data);
     }
 
-    public ObjPos randomPosAbove(LayoutMarker lm, float minAngle, float maxAngle, float minLength, float maxLength, float xLengthMultiplier, int borderProximityLimit)  {
+    public ObjPos randomPosAbove(LayoutMarker lm, float minAngle, float maxAngle, float minLength, float maxLength, float xLengthMultiplier, int borderProximityLimit) {
         ObjPos pos;
         do {
             float angle = randomFloat(minAngle, maxAngle);
@@ -116,6 +121,22 @@ public class ProceduralGenerator implements Deletable {
             else if (lm.pos.x < borderProximityLimit)
                 isRight = true;
             pos = new ObjPos(lm.pos.x + Math.cos(angle) * length * xLengthMultiplier * (isRight ? 1 : -1), lm.pos.y + Math.sin(angle) * length).toInt();
+        } while (MainPanel.level.outOfBounds(pos));
+        return pos;
+    }
+
+    public ObjPos randomPosAbove(Supplier<ObjPos> originSupplier, float minAngle, float maxAngle, float minLength, float maxLength, float xLengthMultiplier, int borderProximityLimit) {
+        ObjPos pos;
+        do {
+            ObjPos origin = originSupplier.get();
+            float angle = randomFloat(minAngle, maxAngle);
+            float length = randomFloat(minLength, maxLength);
+            boolean isRight = randomBoolean(0.5f);
+            if (origin.x > Main.BLOCKS_X - 1 - borderProximityLimit)
+                isRight = false;
+            else if (origin.x < borderProximityLimit)
+                isRight = true;
+            pos = new ObjPos(origin.x + Math.cos(angle) * length * xLengthMultiplier * (isRight ? 1 : -1), origin.y + Math.sin(angle) * length).toInt();
         } while (MainPanel.level.outOfBounds(pos));
         return pos;
     }

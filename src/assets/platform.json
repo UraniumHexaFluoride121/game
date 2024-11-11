@@ -2,7 +2,7 @@
   "resolvesTo": [
     {
       "name": "island_attached",
-      "condition": "distanceToBorder[this.pos] <= 20"
+      "condition": "distanceToBorder[this.pos] <= 20 && distanceToBorder[this.pos] > 3 && rand[0.7]"
     },
     {
       "name": "island_floating",
