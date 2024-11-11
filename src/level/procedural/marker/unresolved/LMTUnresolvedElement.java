@@ -11,6 +11,7 @@ import render.renderables.RenderGameSquare;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 //General element type markers that have not been resolved to something more specific based on
@@ -39,8 +40,9 @@ public class LMTUnresolvedElement extends LMType {
     @Override
     public void parseDataFromJson(JsonObject data) {
         data.get("resolvesTo", JsonType.JSON_ARRAY_TYPE).forEach(element -> {
-                    resolveConditions.add(new ResolveElement(
-                            o -> ((boolean) ResolverCondition.parser.parseExpression(element.getOrDefault("condition", "true", JsonType.STRING_JSON_TYPE)).apply(o)),
+            Function<ResolverConditionData, ?> resolverConditionDataFunction = ResolverCondition.parser.parseExpression(element.getOrDefault("condition", "true", JsonType.STRING_JSON_TYPE));
+            resolveConditions.add(new ResolveElement(
+                            o -> ((boolean) resolverConditionDataFunction.apply(o)),
                             element.get("name", JsonType.STRING_JSON_TYPE)
                     ));
                 }, JsonType.JSON_OBJECT_TYPE

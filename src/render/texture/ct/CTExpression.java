@@ -1,9 +1,10 @@
 package render.texture.ct;
 
-import foundation.math.ObjPos;
 import foundation.expression.Expression;
 import foundation.expression.ExpressionFunction;
+import foundation.expression.ExpressionObject;
 import foundation.expression.ExpressionValue;
+import foundation.math.ObjPos;
 import level.ObjectLayer;
 import level.objects.BlockLike;
 
@@ -14,34 +15,34 @@ public class CTExpression extends Expression<CTExpressionData> {
 
     protected CTExpression() {
         super();
-        addValue(new ExpressionValue<>("ur", o -> o.b.getPos().copy().add(1, 1)));
-        addValue(new ExpressionValue<>("ul", o -> o.b.getPos().copy().add(-1, 1)));
-        addValue(new ExpressionValue<>("dr", o -> o.b.getPos().copy().add(1, -1)));
-        addValue(new ExpressionValue<>("dl", o -> o.b.getPos().copy().add(-1, -1)));
-        addValue(new ExpressionValue<>("u", o -> o.b.getPos().copy().add(0, 1)));
-        addValue(new ExpressionValue<>("d", o -> o.b.getPos().copy().add(0, -1)));
-        addValue(new ExpressionValue<>("l", o -> o.b.getPos().copy().add(-1, 0)));
-        addValue(new ExpressionValue<>("r", o -> o.b.getPos().copy().add(1, 0)));
-        addValue(new ExpressionValue<>("this", o -> o.b));
+        addValue(new ExpressionValue<>("ur", new ExpressionObject<>(ObjPos.class, o -> o.b.getPos().copy().add(1, 1))));
+        addValue(new ExpressionValue<>("ul", new ExpressionObject<>(ObjPos.class, o -> o.b.getPos().copy().add(-1, 1))));
+        addValue(new ExpressionValue<>("dr", new ExpressionObject<>(ObjPos.class, o -> o.b.getPos().copy().add(1, -1))));
+        addValue(new ExpressionValue<>("dl", new ExpressionObject<>(ObjPos.class, o -> o.b.getPos().copy().add(-1, -1))));
+        addValue(new ExpressionValue<>("u", new ExpressionObject<>(ObjPos.class, o -> o.b.getPos().copy().add(0, 1))));
+        addValue(new ExpressionValue<>("d", new ExpressionObject<>(ObjPos.class, o -> o.b.getPos().copy().add(0, -1))));
+        addValue(new ExpressionValue<>("l", new ExpressionObject<>(ObjPos.class, o -> o.b.getPos().copy().add(-1, 0))));
+        addValue(new ExpressionValue<>("r", new ExpressionObject<>(ObjPos.class, o -> o.b.getPos().copy().add(1, 0))));
+        addValue(new ExpressionValue<>("this", new ExpressionObject<>(BlockLike.class, o -> o.b)));
 
         //Get the block at the specified position on the specified layer. Returns block name
         addFunction(new ExpressionFunction<>("block", args -> {
             if (args.size() == 2)
-                return o -> {
+                return new ExpressionObject<>(BlockLike.class, o -> {
                     ObjPos pos = getArg(0, args, o, ObjPos.class);
                     return o.l.getBlock(ObjectLayer.getObjectLayer(getArg(1, args, o, String.class)), (int) pos.x, (int) pos.y);
-                };
+                });
             if (args.size() == 1)
-                return o -> {
+                return new ExpressionObject<>(BlockLike.class, o -> {
                     ObjPos pos = getArg(0, args, o, ObjPos.class);
                     return o.l.getBlock(o.b.getLayer(), (int) pos.x, (int) pos.y);
-                };
+                });
             throw new IllegalArgumentException("Incorrectly formatted expression, the \"block\" function requires two arguments");
         }));
         //Does any block exist at the specified position, on any layer, or on specific layers if specified? Returns boolean
         addFunction(new ExpressionFunction<>("existsBlock", args -> {
             if (args.size() == 1)
-                return o -> {
+                return new ExpressionObject<>(Boolean.class, o -> {
                     ObjPos pos = getArg(0, args, o, ObjPos.class);
                     if (o.l.outOfBounds(((int) pos.x), ((int) pos.y)))
                         return true;
@@ -50,8 +51,8 @@ public class CTExpression extends Expression<CTExpressionData> {
                             return true;
                     }
                     return false;
-                };
-            else return o -> {
+                });
+            else return new ExpressionObject<>(Boolean.class, o -> {
                 ObjPos pos = getArg(0, args, o, ObjPos.class);
                 if (o.l.outOfBounds(((int) pos.x), ((int) pos.y)))
                     return true;
@@ -66,12 +67,12 @@ public class CTExpression extends Expression<CTExpressionData> {
                         return true;
                 }
                 return false;
-            };
+            });
         }));
         //Same as existsBlock, but ignores non-collision blocks
         addFunction(new ExpressionFunction<>("existsBlockWithCollision", args -> {
             if (args.size() == 1)
-                return o -> {
+                return new ExpressionObject<>(Boolean.class, o -> {
                     ObjPos pos = getArg(0, args, o, ObjPos.class);
                     if (o.l.outOfBounds(((int) pos.x), ((int) pos.y)))
                         return true;
@@ -81,8 +82,8 @@ public class CTExpression extends Expression<CTExpressionData> {
                             return true;
                     }
                     return false;
-                };
-            else return o -> {
+                });
+            else return new ExpressionObject<>(Boolean.class, o -> {
                 ObjPos pos = getArg(0, args, o, ObjPos.class);
                 if (o.l.outOfBounds(((int) pos.x), ((int) pos.y)))
                     return true;
@@ -98,7 +99,7 @@ public class CTExpression extends Expression<CTExpressionData> {
                         return true;
                 }
                 return false;
-            };
+            });
         }));
     }
 }

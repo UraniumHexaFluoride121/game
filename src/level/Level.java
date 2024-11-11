@@ -93,7 +93,7 @@ public class Level implements Deletable {
         AssetManager.createAllLevelSections(LEVEL_PATH);
         layout.generateMarkers();
         updateBlocks(RenderEvent.ON_GAME_INIT);
-        System.out.println((System.currentTimeMillis() - time) / 1000f);
+        System.out.println("generation time: " + ((System.currentTimeMillis() - time) / 1000f));
     }
 
     public BlockLike getBlock(ObjectLayer layer, int x, int y) {
