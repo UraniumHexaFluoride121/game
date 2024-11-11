@@ -2,19 +2,19 @@
   "renderables": [
     {
       "type": "TextureAsset",
-      "path": "block/wood/red/middle/wood_wood_middle_1.json"
+      "path": "block/wood/red/middle/wood_red_middle_1.json"
     },
     {
       "type": "TextureAsset",
-      "path": "block/wood/red/middle/wood_wood_middle_2.json"
+      "path": "block/wood/red/middle/wood_red_middle_2.json"
     },
     {
       "type": "TextureAsset",
-      "path": "block/wood/red/middle/wood_wood_middle_3.json"
+      "path": "block/wood/red/middle/wood_red_middle_3.json"
     },
     {
       "type": "TextureAsset",
-      "path": "block/wood/red/middle/wood_wood_middle_4.json"
+      "path": "block/wood/red/middle/wood_red_middle_4.json"
     }
   ]
 }
