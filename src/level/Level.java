@@ -29,7 +29,7 @@ public class Level implements Deletable {
     public final InputHandler inputHandler;
     public final CollisionHandler collisionHandler;
     private static final int SECTION_SIZE = 16;
-    public final int seed = 1;
+    public final int seed = 0;
     public final RandomHandler randomHandler;
 
     //All BlockLikes inserted as static MUST NOT have their positions modified, otherwise
@@ -166,11 +166,13 @@ public class Level implements Deletable {
 
     public void updateBlocks(RenderEvent type) {
         new Thread(() -> {
+            long time = System.currentTimeMillis();
             for (HashSet<BlockLike> section : allStaticBlocks) {
                 for (BlockLike b : section) {
                     b.renderUpdateBlock(type);
                 }
             }
+            System.out.println("block update time: " + ((System.currentTimeMillis() - time) / 1000f));
         }).start();
     }
 

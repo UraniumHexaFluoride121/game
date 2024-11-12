@@ -2,11 +2,11 @@
   "renderables": [
     {
       "type": "TextureAsset",
-      "path": "testimage3.json"
+      "path": "testimages.json#silicon_casing.png"
     },
     {
       "type": "TextureAsset",
-      "path": "testimage1.json"
+      "path": "testimages.json#assembly_plate.png"
     }
   ],
   "randomiseEvents": [

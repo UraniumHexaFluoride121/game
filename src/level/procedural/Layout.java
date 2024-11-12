@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 
 public class Layout {
-    public static final boolean DEBUG_LAYOUT_RENDER = false;
+    public static final boolean DEBUG_LAYOUT_RENDER = true;
 
     private final int sectionSize, sectionCount, maxHeight;
     private final ArrayList<LayoutMarker>[] markerSections;

@@ -3,12 +3,12 @@
     {
       "event": "onBlockLand",
       "type": "TextureAsset",
-      "path": "testimage1.json"
+      "path": "testimages.json#silicon_casing.png"
     },
     {
       "event": "onBlockFalling",
       "type": "TextureAsset",
-      "path": "testimage3.json"
+      "path": "testimages.json#assembly_plate.png"
     }
   ]
 }

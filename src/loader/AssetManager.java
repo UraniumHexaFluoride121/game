@@ -23,6 +23,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -275,9 +276,16 @@ public abstract class AssetManager {
                     TextureAsset asset = textureAssets.get(resource);
                     yield () -> asset;
                 }
-                TextureAsset asset = TextureAsset.getTextureAsset(resource);
-                textureAssets.put(resource, asset);
-                yield () -> asset;
+                if (resource.relativePath.contains("#")) {
+                    ArrayList<TextureAsset> assets = TextureAsset.getMultiTextureAsset(resource);
+                    assets.forEach(a -> textureAssets.put(a.resource, a));
+                    TextureAsset asset = textureAssets.get(resource);
+                    yield () -> asset;
+                } else {
+                    TextureAsset asset = TextureAsset.getTextureAsset(resource);
+                    textureAssets.put(resource, asset);
+                    yield () -> asset;
+                }
             }
             case "AnimatedTexture" -> {
                 if (animatedTextures.containsKey(resource)) {

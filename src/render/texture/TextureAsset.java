@@ -7,6 +7,7 @@ import render.Renderable;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 public class TextureAsset implements Renderable {
     public ResourceLocation resource;
@@ -46,5 +47,31 @@ public class TextureAsset implements Renderable {
             );
         }
         return new TextureAsset(resource, AssetManager.getImage(imageResource), transform);
+    }
+
+    public static ArrayList<TextureAsset> getMultiTextureAsset(ResourceLocation resource) {
+        int index = resource.relativePath.lastIndexOf("#");
+        ResourceLocation multiTextureResource = new ResourceLocation(resource.relativePath.substring(0, index));
+        JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(multiTextureResource));
+        JsonArray paths = obj.get("paths", JsonType.JSON_ARRAY_TYPE);
+        AffineTransform transform = new AffineTransform();
+
+        if (obj.containsName("transform")) {
+            JsonObject transformObject = obj.get("transform", JsonType.JSON_OBJECT_TYPE);
+            transform.translate(
+                    transformObject.getOrDefault("xOffset", 0f, JsonType.FLOAT_JSON_TYPE),
+                    transformObject.getOrDefault("yOffset", 0f, JsonType.FLOAT_JSON_TYPE)
+            );
+            transform.scale(
+                    transformObject.getOrDefault("xScale", 1f, JsonType.FLOAT_JSON_TYPE),
+                    transformObject.getOrDefault("yScale", 1f, JsonType.FLOAT_JSON_TYPE)
+            );
+        }
+        ArrayList<TextureAsset> assets = new ArrayList<>();
+        paths.forEach(path -> {
+            String imageFile = path.substring(path.lastIndexOf("/") + 1);
+            assets.add(new TextureAsset(new ResourceLocation(multiTextureResource.relativePath + "#" + imageFile), AssetManager.getImage(new ResourceLocation(path)), transform));
+        }, JsonType.STRING_JSON_TYPE);
+        return assets;
     }
 }
