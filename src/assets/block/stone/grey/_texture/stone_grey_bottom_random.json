@@ -2,11 +2,11 @@
   "renderables": [
     {
       "type": "TextureAsset",
-      "path": "block/stone/grey/bottom/stone_grey_bottom_1.json"
+      "path": "block/stone/grey/_texture/stone_grey_assets.json#stone_grey_bottom_1.png"
     },
     {
       "type": "TextureAsset",
-      "path": "block/stone/grey/bottom/stone_grey_bottom_2.json"
+      "path": "block/stone/grey/_texture/stone_grey_assets.json#stone_grey_bottom_2.png"
     }
   ]
 }
