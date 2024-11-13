@@ -33,6 +33,8 @@ public class TextureAsset implements Renderable {
     public static TextureAsset getTextureAsset(ResourceLocation resource) {
         JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(resource));
         ResourceLocation imageResource = new ResourceLocation(obj.get("path", JsonType.STRING_JSON_TYPE));
+
+        BufferedImage image = AssetManager.getImage(imageResource);
         AffineTransform transform = new AffineTransform();
 
         if (obj.containsName("transform")) {
@@ -45,8 +47,15 @@ public class TextureAsset implements Renderable {
                     transformObject.getOrDefault("xScale", 1f, JsonType.FLOAT_JSON_TYPE),
                     transformObject.getOrDefault("yScale", 1f, JsonType.FLOAT_JSON_TYPE)
             );
+            if (transformObject.containsName("angle")) {
+                float xPivot = image.getWidth() / 2f;
+                float yPivot = image.getHeight() / 2f;
+                transform.translate(xPivot, yPivot);
+                transform.rotate(Math.toRadians(transformObject.get("angle", JsonType.FLOAT_JSON_TYPE)));
+                transform.translate(-xPivot, -yPivot);
+            }
         }
-        return new TextureAsset(resource, AssetManager.getImage(imageResource), transform);
+        return new TextureAsset(resource, image, transform);
     }
 
     public static ArrayList<TextureAsset> getMultiTextureAsset(ResourceLocation resource) {
@@ -56,6 +65,7 @@ public class TextureAsset implements Renderable {
         JsonArray paths = obj.get("paths", JsonType.JSON_ARRAY_TYPE);
         ArrayList<TextureAsset> assets = new ArrayList<>();
         paths.forEach(path -> {
+            BufferedImage image = AssetManager.getImage(new ResourceLocation(path));
             AffineTransform transform = new AffineTransform();
 
             if (obj.containsName("transform")) {
@@ -68,11 +78,18 @@ public class TextureAsset implements Renderable {
                         transformObject.getOrDefault("xScale", 1f, JsonType.FLOAT_JSON_TYPE),
                         transformObject.getOrDefault("yScale", 1f, JsonType.FLOAT_JSON_TYPE)
                 );
+                if (transformObject.containsName("angle")) {
+                    float xPivot = image.getWidth() / 2f;
+                    float yPivot = image.getHeight() / 2f;
+                    transform.translate(xPivot, yPivot);
+                    transform.rotate(Math.toRadians(transformObject.get("angle", JsonType.FLOAT_JSON_TYPE)));
+                    transform.translate(-xPivot, -yPivot);
+                }
             }
             String imageFile = path.substring(path.lastIndexOf("/") + 1);
             assets.add(new TextureAsset(
                     new ResourceLocation(multiTextureResource.relativePath + "#" + imageFile),
-                    AssetManager.getImage(new ResourceLocation(path)),
+                    image,
                     transform
             ));
         }, JsonType.STRING_JSON_TYPE);
