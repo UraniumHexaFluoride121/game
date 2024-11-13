@@ -25,7 +25,7 @@ public class TextureAsset implements Renderable {
     @Override
     public void render(Graphics2D g) {
         //We scale to convert blocks to texture pixels
-        g.scale(1/16f, 1/16f);
+        g.scale(1 / 16f, 1 / 16f);
         g.drawImage(image, transform, Main.window);
         g.scale(16, 16);
     }
@@ -54,24 +54,29 @@ public class TextureAsset implements Renderable {
         ResourceLocation multiTextureResource = new ResourceLocation(resource.relativePath.substring(0, index));
         JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(multiTextureResource));
         JsonArray paths = obj.get("paths", JsonType.JSON_ARRAY_TYPE);
-        AffineTransform transform = new AffineTransform();
-
-        if (obj.containsName("transform")) {
-            JsonObject transformObject = obj.get("transform", JsonType.JSON_OBJECT_TYPE);
-            transform.translate(
-                    transformObject.getOrDefault("xOffset", 0f, JsonType.FLOAT_JSON_TYPE),
-                    transformObject.getOrDefault("yOffset", 0f, JsonType.FLOAT_JSON_TYPE)
-            );
-            transform.scale(
-                    transformObject.getOrDefault("xScale", 1f, JsonType.FLOAT_JSON_TYPE),
-                    transformObject.getOrDefault("yScale", 1f, JsonType.FLOAT_JSON_TYPE)
-            );
-        }
         ArrayList<TextureAsset> assets = new ArrayList<>();
         paths.forEach(path -> {
+            AffineTransform transform = new AffineTransform();
+
+            if (obj.containsName("transform")) {
+                JsonObject transformObject = obj.get("transform", JsonType.JSON_OBJECT_TYPE);
+                transform.translate(
+                        transformObject.getOrDefault("xOffset", 0f, JsonType.FLOAT_JSON_TYPE),
+                        transformObject.getOrDefault("yOffset", 0f, JsonType.FLOAT_JSON_TYPE)
+                );
+                transform.scale(
+                        transformObject.getOrDefault("xScale", 1f, JsonType.FLOAT_JSON_TYPE),
+                        transformObject.getOrDefault("yScale", 1f, JsonType.FLOAT_JSON_TYPE)
+                );
+            }
             String imageFile = path.substring(path.lastIndexOf("/") + 1);
-            assets.add(new TextureAsset(new ResourceLocation(multiTextureResource.relativePath + "#" + imageFile), AssetManager.getImage(new ResourceLocation(path)), transform));
+            assets.add(new TextureAsset(
+                    new ResourceLocation(multiTextureResource.relativePath + "#" + imageFile),
+                    AssetManager.getImage(new ResourceLocation(path)),
+                    transform
+            ));
         }, JsonType.STRING_JSON_TYPE);
+        assets.forEach(a -> System.out.println(a.resource));
         return assets;
     }
 }
