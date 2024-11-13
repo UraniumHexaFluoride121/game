@@ -76,7 +76,6 @@ public class TextureAsset implements Renderable {
                     transform
             ));
         }, JsonType.STRING_JSON_TYPE);
-        assets.forEach(a -> System.out.println(a.resource));
         return assets;
     }
 }
