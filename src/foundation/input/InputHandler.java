@@ -1,11 +1,12 @@
 package foundation.input;
 
-import foundation.tick.TickOrder;
 import foundation.tick.RegisteredTickable;
+import foundation.tick.TickOrder;
 
 import java.awt.event.InputEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -18,7 +19,7 @@ public class InputHandler implements RegisteredTickable {
     //order can only have one event per input type. This is because each event type
     //has its own separate TreeMap, so for two events with the same order but different
     //input types, they won't be stored in the same TreeMap.
-    HashMap<InputType<?>, TreeMap<InputHandlingOrder, InputListenerEventData<?>>> eventListeners = new HashMap<>();
+    HashMap<InputType<?>, TreeMap<InputHandlingOrder, HashSet<InputListenerEventData<?>>>> eventListeners = new HashMap<>();
 
     public InputHandler() {
         for (InputType<?> type : InputType.values()) {
@@ -28,7 +29,9 @@ public class InputHandler implements RegisteredTickable {
     }
 
     synchronized public <T extends InputEvent> void addInput(InputType<T> type, Consumer<T> event, Predicate<T> condition, InputHandlingOrder order, boolean blocking) {
-        eventListeners.get(type).put(order, new InputListenerEventData<>(event, condition, blocking));
+        if (!eventListeners.get(type).containsKey(order))
+            eventListeners.get(type).put(order, new HashSet<>());
+        eventListeners.get(type).get(order).add(new InputListenerEventData<>(event, condition, blocking));
     }
 
     synchronized public <T extends InputEvent> void queueInput(InputType<T> type, T event) {
@@ -44,16 +47,18 @@ public class InputHandler implements RegisteredTickable {
     }
 
     private <T extends InputEvent> void processInput(InputData<T> inputData) {
-        for (InputListenerEventData<? extends InputEvent> listenerEventData : eventListeners.get(inputData.type).values()) {
-            //Safe cast as we know that all values inserted into the TreeMap must be of type
-            //InputListenerEventData<T> because of how they're added in the addInput method.
-            //The unchecked cast is there to hide the fact that we're storing multiple TreeMaps
-            //with different type parameters in the same HashMap
-            InputListenerEventData<T> castListenerEventData = (InputListenerEventData<T>) listenerEventData;
-            if (castListenerEventData.condition.test(inputData.event)) {
-                castListenerEventData.event.accept(inputData.event);
-                if (castListenerEventData.blocking)
-                    break;
+        for (HashSet<InputListenerEventData<?>> set : eventListeners.get(inputData.type).values()) {
+            for (InputListenerEventData<? extends InputEvent> listenerEventData : set) {
+                //Safe cast as we know that all values inserted into the TreeMap must be of type
+                //InputListenerEventData<T> because of how they're added in the addInput method.
+                //The unchecked cast is there to hide the fact that we're storing multiple TreeMaps
+                //with different type parameters in the same HashMap
+                InputListenerEventData<T> castListenerEventData = (InputListenerEventData<T>) listenerEventData;
+                if (castListenerEventData.condition.test(inputData.event)) {
+                    castListenerEventData.event.accept(inputData.event);
+                    if (castListenerEventData.blocking)
+                        break;
+                }
             }
         }
     }

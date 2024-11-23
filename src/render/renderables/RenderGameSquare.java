@@ -1,6 +1,7 @@
 package render.renderables;
 
 import foundation.math.ObjPos;
+import physics.HitBox;
 import render.RenderOrder;
 
 import java.awt.*;
@@ -23,6 +24,11 @@ public class RenderGameSquare extends RenderGameElement {
 
     public RenderGameSquare(RenderOrder renderOrder, Color color, float size, Supplier<ObjPos> gamePos) {
         this(renderOrder, color, size / 2, size / 2, size / 2, size / 2, gamePos);
+    }
+
+    public RenderGameSquare(Color color, HitBox box) {
+        this(RenderOrder.DEBUG, color, box.getTop(), -box.getBottom(), -box.getLeft(), box.getRight(), ObjPos::new);
+        setFrame();
     }
 
     public void setFrame() {

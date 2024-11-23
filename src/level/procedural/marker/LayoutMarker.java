@@ -9,7 +9,10 @@ import level.procedural.generator.BoundType;
 import level.procedural.generator.GeneratorType;
 import level.procedural.generator.GeneratorValidation;
 import level.procedural.generator.ProceduralGenerator;
+import level.procedural.marker.movement.LMDPlayerMovement;
+import level.procedural.marker.movement.LMTPlayerMovement;
 import level.procedural.marker.resolved.GeneratorConditionData;
+import level.procedural.marker.resolved.LMDResolvedElement;
 import level.procedural.marker.resolved.LMTResolvedElement;
 import level.procedural.marker.unresolved.LMTUnresolvedElement;
 import level.procedural.marker.unresolved.ResolverConditionData;
@@ -30,13 +33,15 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
     public LMType type;
     public final ObjPos pos;
 
-    public ProceduralGenerator gen = null;
-    public GeneratorType genType = null;
+    public LMData data = new LMData();
 
     public LayoutMarker(LMType type, ObjPos pos) {
         this.type = type;
         this.pos = pos;
-        if (Layout.DEBUG_LAYOUT_RENDER)
+        if (type instanceof LMTPlayerMovement) {
+            data = new LMDPlayerMovement();
+        }
+        if (Layout.DEBUG_RENDER)
             MainPanel.GAME_RENDERER.register(this);
     }
 
@@ -51,24 +56,24 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
             ));
             generate();
         } else if (type instanceof LMTResolvedElement t) {
-            genType = t.getGenerator(new GeneratorConditionData(
+            GeneratorType genType = t.getGenerator(new GeneratorConditionData(
                     MainPanel.level.getRegion(pos), t, this, MainPanel.level
             ));
-            gen = genType.generator.get();
+            ProceduralGenerator gen = genType.generator.get();
+            data = new LMDResolvedElement(gen, genType);
             gen.generate(this, genType);
         }
     }
 
     public void generateMarkers() {
-        if (gen != null)
-            gen.generateMarkers(this, genType);
+        data.generateMarkers(this);
     }
 
     public void addBound(HitBox bound, BoundType type) {
         if (!bounds.containsKey(type))
             bounds.put(type, new HashSet<>());
         bounds.get(type).add(bound);
-        if (Layout.DEBUG_LAYOUT_RENDER) {
+        if (Layout.DEBUG_RENDER) {
             if (!boundsDebugRenderer.containsKey(type))
                 boundsDebugRenderer.put(type, new HashSet<>());
             ObjPos pos = new ObjPos(bound.getLeft(), bound.getBottom());
@@ -80,7 +85,7 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
 
     public static GeneratorValidation isNotColliding(BoundType boundType) {
         if (boundType.collisionsAllowed == 0) {
-            return (gen, lm, type, otherLM, data) -> {
+            return (lm, otherLM, data) -> {
                 HashSet<HitBox> hitBoxes = lm.bounds.get(boundType);
                 if (hitBoxes == null || lm == otherLM)
                     return true;
@@ -96,7 +101,7 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
                 return true;
             };
         } else {
-            return (gen, lm, type, otherLM, data) -> {
+            return (lm, otherLM, data) -> {
                 HashSet<HitBox> hitBoxes = lm.bounds.get(boundType);
                 if (hitBoxes == null || lm == otherLM)
                     return true;
@@ -118,7 +123,7 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
 
     public static GeneratorValidation isNotColliding(HitBox box, BoundType boundType) {
         if (boundType.collisionsAllowed == 0) {
-            return (gen, lm, type, otherLM, data) -> {
+            return (lm, otherLM, data) -> {
                 if (lm == otherLM)
                     return true;
                 HashSet<HitBox> otherHitBoxes = otherLM.bounds.get(boundType);
@@ -131,7 +136,7 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
                 return true;
             };
         } else {
-            return (gen, lm, type, otherLM, data) -> {
+            return (lm, otherLM, data) -> {
                 if (lm == otherLM)
                     return true;
                 HashSet<HitBox> otherHitBoxes = otherLM.bounds.get(boundType);
@@ -146,6 +151,20 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
                 return true;
             };
         }
+    }
+
+    public boolean isBoxColliding(HitBox box, BoundType type) {
+        if (!hasBoundType(type))
+            return false;
+        for (HitBox hitBox : bounds.get(type)) {
+            if (hitBox.isColliding(box))
+                return true;
+        }
+        return false;
+    }
+
+    public boolean hasBoundType(BoundType type) {
+        return bounds.containsKey(type);
     }
 
     public RegionType getRegion() {
@@ -176,6 +195,9 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
                 r.render(g);
             }
         }
+        if (data instanceof LMDPlayerMovement pData) {
+            pData.render(g);
+        }
     }
 
     @Override
@@ -185,18 +207,18 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
 
     @Override
     public float getTopRenderBound() {
-        return pos.y + 30;
+        return pos.y + 20;
     }
 
     @Override
     public float getBottomRenderBound() {
-        return pos.y - 30;
+        return pos.y - 20;
     }
 
     @Override
     public void delete() {
         MainPanel.level.layout.removeMarker(this);
-        if (Layout.DEBUG_LAYOUT_RENDER)
+        if (Layout.DEBUG_RENDER)
             MainPanel.GAME_RENDERER.remove(this);
     }
 

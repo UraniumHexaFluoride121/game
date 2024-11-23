@@ -51,6 +51,14 @@ public class StaticHitBox implements HitBox {
         return this;
     }
 
+    public float middleX() {
+        return (right - left) / 2;
+    }
+
+    public float middleY() {
+        return (up - down) / 2;
+    }
+
     @Override
     public float getTop() {
         return up;

@@ -7,9 +7,12 @@ import foundation.math.MathHelper;
 import foundation.math.ObjPos;
 import level.RandomType;
 import level.objects.BlockLike;
+import level.procedural.JumpSimulation;
 import level.procedural.Layout;
 import level.procedural.marker.GeneratorLMFunction;
 import level.procedural.marker.LayoutMarker;
+import level.procedural.marker.movement.LMTPlayerMovement;
+import level.procedural.marker.resolved.LMDResolvedElement;
 import loader.AssetManager;
 
 import java.util.HashMap;
@@ -25,46 +28,78 @@ public class ProceduralGenerator implements Deletable {
     //All layout markers added by the marker generation function must be added to this set
     //The markerFunction is the only function allowed to add LayoutMarkers
     private final HashSet<LayoutMarker> generatedLayoutMarkers = new HashSet<>();
+    private final HashSet<LayoutMarker> playerMovementMarkers = new HashSet<>();
 
     //Data that the generator stores for use in validation
     private final HashMap<String, Object> generationData = new HashMap<>();
 
     //The function should generate everything necessary for bounds validation, the blockGenerator runs afterward
     private final GeneratorFunction function, blockGenerator;
-    private final GeneratorLMFunction markerFunction;
+    private final GeneratorLMFunction markerFunction, validatorMarkerFunction;
     private final GeneratorValidation validation;
 
 
-    public ProceduralGenerator(GeneratorFunction boundsGenerator, GeneratorFunction blockGenerator, GeneratorLMFunction markerFunction, GeneratorValidation validation) {
+    public ProceduralGenerator(GeneratorFunction boundsGenerator, GeneratorValidation validation, GeneratorFunction blockGenerator, GeneratorLMFunction validatorMarkerFunction, GeneratorLMFunction markerFunction) {
         this.function = boundsGenerator;
-        this.blockGenerator = blockGenerator;
-        this.markerFunction = markerFunction;
         this.validation = validation;
+        this.blockGenerator = blockGenerator;
+        this.validatorMarkerFunction = validatorMarkerFunction;
+        this.markerFunction = markerFunction;
     }
 
     public void generate(LayoutMarker marker, GeneratorType type) {
         function.generate(this, marker, type);
     }
 
+    public static void generateBlocks(LayoutMarker marker) {
+        if (marker.data instanceof LMDResolvedElement data)
+            data.gen.blockGenerator.generate(data.gen, marker, data.genType);
+    }
+
+    public static void generateValidationMarkers(LayoutMarker marker) {
+        if (marker.data instanceof LMDResolvedElement data) {
+            data.gen.validatorMarkerFunction.generateMarkers(data.gen, marker, data.genType);
+            data.gen.generatedLayoutMarkers.forEach(lm -> {
+                if (lm.type instanceof LMTPlayerMovement)
+                    data.gen.playerMovementMarkers.add(lm);
+            });
+        }
+    }
+
     public void generateMarkers(LayoutMarker marker, GeneratorType type) {
+        //Validation markers will have been generated on this marker's behalf by the previous loop iteration,
+        //and we don't want to revert their generation
+        generatedLayoutMarkers.clear();
+
         for (int i = 0; i < 150; i++) {
-            markerFunction.generateMarkers(this, marker, type);
-            generatedLayoutMarkers.forEach(LayoutMarker::generate);
+            markerFunction.generateMarkers(this, marker, type); //Generate new markers
+            generatedLayoutMarkers.forEach(LayoutMarker::generate); //Generate bounds for those markers
             boolean validated = true;
+            //Test bounds for new markers
             for (LayoutMarker lm : generatedLayoutMarkers) {
-                if (lm.gen == null || GeneratorValidation.validate(lm, lm.genType, lm.gen.validation))
-                    continue;
-                validated = false;
-                break;
+                if (lm.data instanceof LMDResolvedElement data && !GeneratorValidation.validate(lm, data.gen.validation)) {
+                    validated = false;
+                    break;
+                }
             }
             if (validated) {
-                generatedLayoutMarkers.forEach(LayoutMarker::generateMarkers);
-                marker.gen.blockGenerator.generate(this, marker, type);
+                //Generate blocks and validation markers in preparation for player movement sim
+                generatedLayoutMarkers.forEach(ProceduralGenerator::generateBlocks);
+                generatedLayoutMarkers.forEach(ProceduralGenerator::generateValidationMarkers);
+                for (LayoutMarker lm : generatedLayoutMarkers) {
+                    if (lm.data instanceof LMDResolvedElement data) {
+                        if (!new JumpSimulation(marker, lm, playerMovementMarkers, data.gen.playerMovementMarkers).validateJump())
+                            validated = false;
+                    }
+                }
+            }
+            if (validated) {
+                generatedLayoutMarkers.forEach(LayoutMarker::generateMarkers); //Repeat the cycle for the newly validated markers
                 break;
             } else {
                 generatedLayoutMarkers.forEach(lm -> {
-                    if (lm.gen != null)
-                        lm.gen.revertGeneration();
+                    if (lm.data instanceof LMDResolvedElement data)
+                        data.gen.revertGeneration();
                     lm.delete();
                 });
                 generatedLayoutMarkers.clear();
@@ -76,9 +111,10 @@ public class ProceduralGenerator implements Deletable {
         MainPanel.level.removeBlocks(generatedBlocks.toArray(new BlockLike[0]));
         overwrittenBlocks.forEach(b -> MainPanel.level.addBlocks(AssetManager.createBlock(b.name, b.pos)));
 
+        generatedLayoutMarkers.forEach(LayoutMarker::delete);
         overwrittenBlocks.clear();
         generatedBlocks.clear();
-        if (Layout.DEBUG_LAYOUT_RENDER) //Delete debug elements that were added to the renderer
+        if (Layout.DEBUG_RENDER) //Delete debug elements that were added to the renderer
             generationData.forEach((k, v) -> {
                 if (v instanceof Deletable d)
                     d.delete();
@@ -174,7 +210,6 @@ public class ProceduralGenerator implements Deletable {
 
     @Override
     public void delete() {
-        generatedBlocks.forEach(BlockLike::unregister);
-        generationData.clear();
+        revertGeneration();
     }
 }

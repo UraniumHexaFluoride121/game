@@ -47,7 +47,7 @@ public class BezierCurve3 implements BoundedRenderable, Deletable {
         debugBoundTop = Math.max(Math.max(py1, py2), py3);
         debugBoundBottom = Math.min(Math.min(py1, py2), py3);
 
-        if (Layout.DEBUG_LAYOUT_RENDER) {
+        if (Layout.DEBUG_RENDER) {
             renderPoints = new Renderable[40 + 3];
             for (int i = 0; i < 40; i++) {
                 float t = i / 39f;
@@ -215,7 +215,7 @@ public class BezierCurve3 implements BoundedRenderable, Deletable {
 
     @Override
     public void delete() {
-        if (Layout.DEBUG_LAYOUT_RENDER) {
+        if (Layout.DEBUG_RENDER) {
             MainPanel.GAME_RENDERER.remove(this);
         }
     }

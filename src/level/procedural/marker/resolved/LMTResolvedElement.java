@@ -12,6 +12,7 @@ import render.renderables.RenderGameSquare;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 //A more specific element resolved from LMElementType that defines exactly what is to be generated
@@ -52,8 +53,9 @@ public class LMTResolvedElement extends LMType {
     @Override
     public void parseDataFromJson(JsonObject data) {
         data.get("generatesAs", JsonType.JSON_ARRAY_TYPE).forEach(element -> {
-                    generatorConditions.add(new GenerationElement(
-                            o -> ((boolean) GeneratorCondition.parser.parseExpression(element.getOrDefault("condition", "true", JsonType.STRING_JSON_TYPE)).apply(o)),
+            Function<GeneratorConditionData, ?> condition = GeneratorCondition.parser.parseExpression(element.getOrDefault("condition", "true", JsonType.STRING_JSON_TYPE));
+            generatorConditions.add(new GenerationElement(
+                            o -> ((boolean) condition.apply(o)),
                             element.get("name", JsonType.STRING_JSON_TYPE)
                     ));
                 }, JsonType.JSON_OBJECT_TYPE

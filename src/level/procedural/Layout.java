@@ -1,13 +1,14 @@
 package level.procedural;
 
 import foundation.MainPanel;
+import level.procedural.generator.ProceduralGenerator;
 import level.procedural.marker.LayoutMarker;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
 public class Layout {
-    public static final boolean DEBUG_LAYOUT_RENDER = false;
+    public static final boolean DEBUG_RENDER = false;
 
     private final int sectionSize, sectionCount, maxHeight;
     private final ArrayList<LayoutMarker>[] markerSections;
@@ -28,6 +29,8 @@ public class Layout {
             markers.addAll(markerSection);
         }
         markers.forEach(LayoutMarker::generate);
+        markers.forEach(ProceduralGenerator::generateBlocks);
+        markers.forEach(ProceduralGenerator::generateValidationMarkers);
         markers.forEach(LayoutMarker::generateMarkers);
     }
 

@@ -6,6 +6,7 @@ import foundation.math.BezierCurve3;
 import foundation.math.MathHelper;
 import foundation.math.ObjPos;
 import level.procedural.marker.LayoutMarker;
+import loader.AssetManager;
 import loader.JsonObject;
 import loader.JsonType;
 import physics.StaticHitBox;
@@ -49,7 +50,8 @@ public enum GeneratorType {
         lm.addBound(mainBound.copy().expand(0, 1), BoundType.OBSTRUCTION);
         lm.addBound(mainBound.copy().expand(2, 0), BoundType.OBSTRUCTION);
         lm.addBound(mainBound.copy().expand(3, 5), BoundType.OVERCROWDING);
-    }, (gen, lm, type) -> {
+    }, LayoutMarker.isNotColliding(BoundType.OBSTRUCTION)
+            .and(LayoutMarker.isNotColliding(BoundType.OVERCROWDING)), (gen, lm, type) -> {
         BezierCurve3 curve = gen.getData("curve", BezierCurve3.class);
         float length;
         boolean isLeftSide = lm.pos.x < Main.BLOCKS_X / 2f;
@@ -69,6 +71,7 @@ public enum GeneratorType {
                     });
         }
     }, (gen, lm, type) -> {
+    }, (gen, lm, type) -> {
         if (lm.pos.y < MainPanel.level.getRegionTop()) {
             BezierCurve3 curve = gen.getData("curve", BezierCurve3.class);
             AtomicReference<ObjPos> pos = new AtomicReference<>();
@@ -78,11 +81,9 @@ public enum GeneratorType {
             }, 0.5f, 1.3f, 5, 10, 2.5f, 20));
             gen.addMarker("debug", pos.get());
         }
-    }, LayoutMarker.isNotColliding(BoundType.OBSTRUCTION)
-            .and(LayoutMarker.isNotColliding(BoundType.OVERCROWDING))),
+    }),
             storeString("woodBlock")
-                    .andThen(storeString("leafBlock")),
-            true
+                    .andThen(storeString("leafBlock")), true
     ),
 
     ISLAND_TEST("island_test", () -> new ProceduralGenerator((gen, lm, type) -> {
@@ -94,7 +95,8 @@ public enum GeneratorType {
         lm.addBound(new StaticHitBox(6f, 6f, sizeLeft + 4, sizeRight + 5, lm.pos), BoundType.OVERCROWDING);
         gen.addData("sizeLeft", sizeLeft);
         gen.addData("sizeRight", sizeRight);
-    }, (gen, lm, type) -> {
+    }, LayoutMarker.isNotColliding(BoundType.OBSTRUCTION)
+            .and(LayoutMarker.isNotColliding(BoundType.OVERCROWDING)), (gen, lm, type) -> {
         int sizeLeft = gen.getData("sizeLeft", Integer.class);
         int sizeRight = gen.getData("sizeRight", Integer.class);
         String blockName = type.getString(0);
@@ -103,15 +105,21 @@ public enum GeneratorType {
         sizeRight -= gen.randomInt(1, 2);
         gen.lineOfBlocks(lm.pos.x - sizeLeft, lm.pos.x + sizeRight, lm.pos.y - 1, pos -> blockName);
     }, (gen, lm, type) -> {
+        int sizeLeft = gen.getData("sizeLeft", Integer.class);
+        int sizeRight = gen.getData("sizeRight", Integer.class);
+        String blockName = type.getString(0);
+        StaticHitBox box = AssetManager.blockHitBoxes.get(blockName);
+        gen.addMarker("static_jump", lm.pos.copy().add(-sizeLeft - box.left, box.up));
+        gen.addMarker("static_jump", lm.pos.copy().add(sizeRight + box.right, box.up));
+        gen.addMarker("static_jump", lm.pos.copy().add(box.middleX(), box.up));
+    }, (gen, lm, type) -> {
         if (lm.pos.y < MainPanel.level.getRegionTop()) {
             int borderProximityLimit = type.getInt(0);
             gen.addMarker("platform", gen.randomPosAbove(lm, 0.2f, 1.2f, 5, 9, 2.5f, borderProximityLimit));
         }
-    }, LayoutMarker.isNotColliding(BoundType.OBSTRUCTION)
-            .and(LayoutMarker.isNotColliding(BoundType.OVERCROWDING))),
+    }),
             storeInt("forceAwayFromBorderProximity")
-                    .andThen(storeString("block")),
-            true
+                    .andThen(storeString("block")), true
     );
 
     public final String s;

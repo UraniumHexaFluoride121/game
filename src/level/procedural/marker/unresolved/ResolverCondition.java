@@ -60,14 +60,14 @@ public class ResolverCondition extends Expression<ResolverConditionData> {
                 return new ExpressionObject<>(Boolean.class, o -> {
                     ObjPos from = getArg(0, args, o, ObjPos.class), to = getArg(1, args, o, ObjPos.class);
                     StaticHitBox box = new StaticHitBox(from, to);
-                    return GeneratorValidation.validate(o.marker, o.marker.genType, LayoutMarker.isNotColliding(box, type));
+                    return GeneratorValidation.validate(o.marker, LayoutMarker.isNotColliding(box, type));
                 });
             } else {
                 return new ExpressionObject<>(Boolean.class, o -> {
                     ObjPos from = getArg(0, args, o, ObjPos.class), to = getArg(1, args, o, ObjPos.class);
                     BoundType type = BoundType.getBoundType(getArg(2, args, o, String.class));
                     StaticHitBox box = new StaticHitBox(from, to);
-                    return GeneratorValidation.validate(o.marker, o.marker.genType, LayoutMarker.isNotColliding(box, type));
+                    return GeneratorValidation.validate(o.marker, LayoutMarker.isNotColliding(box, type));
                 });
             }
         }));

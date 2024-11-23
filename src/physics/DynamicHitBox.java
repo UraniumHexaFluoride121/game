@@ -17,6 +17,38 @@ public class DynamicHitBox implements HitBox, Deletable {
         this.origin = origin;
     }
 
+    public DynamicHitBox centerOrigin() {
+        up = (up + down) / 2;
+        down = up;
+        left = (left + right) / 2;
+        right = left;
+        return this;
+    }
+
+    public DynamicHitBox originToRight() {
+        left = left + right;
+        right = 0;
+        return this;
+    }
+
+    public DynamicHitBox originToLeft() {
+        right = left + right;
+        left = 0;
+        return this;
+    }
+
+    public DynamicHitBox originToTop() {
+        down = down + up;
+        up = 0;
+        return this;
+    }
+
+    public DynamicHitBox originToBottom() {
+        up = up + down;
+        down = 0;
+        return this;
+    }
+
 
     @Override
     public float getTop() {

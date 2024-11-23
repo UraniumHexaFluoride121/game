@@ -1,5 +1,7 @@
 package level.procedural.marker;
 
+import level.procedural.marker.debug.LMTDebugElement;
+import level.procedural.marker.movement.LMTPlayerMovement;
 import level.procedural.marker.resolved.LMTResolvedElement;
 import level.procedural.marker.unresolved.LMTUnresolvedElement;
 import loader.JsonObject;
@@ -12,7 +14,8 @@ public abstract class LMType {
     public static final HashSet<LMType> values = new HashSet(List.of(
             LMTDebugElement.DEBUG_ELEMENT,
             LMTUnresolvedElement.PLATFORM,
-            LMTResolvedElement.ISLAND_FLOATING, LMTResolvedElement.ISLAND_SIDE_ATTACHED
+            LMTResolvedElement.ISLAND_FLOATING, LMTResolvedElement.ISLAND_SIDE_ATTACHED,
+            LMTPlayerMovement.STATIC_JUMP
     ));
 
     public final Renderable debugRenderable;

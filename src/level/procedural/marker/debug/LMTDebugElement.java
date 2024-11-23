@@ -1,6 +1,7 @@
-package level.procedural.marker;
+package level.procedural.marker.debug;
 
 import foundation.math.ObjPos;
+import level.procedural.marker.LMType;
 import render.RenderOrder;
 import render.Renderable;
 import render.renderables.RenderGameCircle;

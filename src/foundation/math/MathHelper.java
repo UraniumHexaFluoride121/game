@@ -32,6 +32,31 @@ public abstract class MathHelper {
         return random.get() < probability;
     }
 
+    public static float[] findQuadratic(float root1, float root2, float ext) {
+        float mid = (root1 + root2) / 2;
+        float d = Math.abs(mid - root1);
+        float p = -mid * 2;
+        float q = -(d * d) + (p * p / 4);
+        float a = ext / (mid * mid + p * mid + q);
+        if (Float.isNaN(a))
+            return null;
+        return new float[] {
+                a, p * a, q * a
+        };
+    }
+
+    public static float[] solveQuadratic(float a, float b, float c) {
+        float p = b / a;
+        float q = c / a;
+        float d = p * p / 4 - q;
+        if (d < 0)
+            return null;
+        return new float[]{
+                ((float) (-(p / 2) - Math.sqrt(d))),
+                ((float) (-(p / 2) + Math.sqrt(d)))
+        };
+    }
+
     public static float[] solveCubic(float a, float b, float c, float d) {
         float p = c / a, q = d / a;
         float P = p - (b * b) / (3 * a * a), Q = q - (b * c) / (3 * a * a) + (2 * b * b * b) / (27 * a * a * a);

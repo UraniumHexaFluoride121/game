@@ -13,6 +13,7 @@ import level.procedural.RegionType;
 import level.procedural.marker.LMType;
 import level.procedural.marker.LayoutMarker;
 import physics.CollisionType;
+import physics.StaticHitBox;
 import render.RenderOrder;
 import render.Renderable;
 import render.renderables.RenderTexture;
@@ -37,6 +38,7 @@ public abstract class AssetManager {
 
     private static final HashMap<ResourceLocation, BufferedImage> textures = new HashMap<>();
     public static final HashMap<String, Function<ObjPos, ? extends BlockLike>> blocks = new HashMap<>();
+    public static final HashMap<String, StaticHitBox> blockHitBoxes = new HashMap<>();
 
     public static BlockLike createBlock(String s, ObjPos pos) {
         return blocks.get(s).apply(pos);
@@ -182,6 +184,7 @@ public abstract class AssetManager {
             boolean hasCollision = blockObj.getOrDefault("hasCollision", true, JsonType.BOOLEAN_JSON_TYPE);
             ObjectLayer layer = ObjectLayer.getObjectLayer(texture.getOrDefault("layer", "foreground", JsonType.STRING_JSON_TYPE));
 
+            blockHitBoxes.put(blockName, new StaticHitBox(hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight));
             switch (type) {
                 case PLAYER -> {
                     Supplier<? extends Renderable> textureSupplier = deserializeRenderable(texture);

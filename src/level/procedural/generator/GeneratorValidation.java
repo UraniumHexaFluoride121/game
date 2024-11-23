@@ -7,24 +7,24 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @FunctionalInterface
 public interface GeneratorValidation {
-    boolean validate(ProceduralGenerator gen, LayoutMarker lm, GeneratorType type, LayoutMarker otherLM, ValidationData data);
+    boolean validate(LayoutMarker lm, LayoutMarker otherLM, ValidationData data);
 
     default GeneratorValidation and(GeneratorValidation other) {
-        return (gen, lm, type, otherLM, data) -> validate(gen, lm, type, otherLM, data) && other.validate(gen, lm, type, otherLM, data);
+        return (lm, otherLM, data) -> validate(lm, otherLM, data) && other.validate(lm, otherLM, data);
     }
 
-    static boolean validate(LayoutMarker marker, GeneratorType type, GeneratorValidation validation) {
+    static boolean validate(LayoutMarker marker, GeneratorValidation validation) {
         ValidationData data = new ValidationData();
         AtomicBoolean validated = new AtomicBoolean(true);
         MainPanel.level.layout.forEachMarker(marker.pos.y, 1, lm -> {
-            if (!validation.validate(lm.gen, marker, type, lm, data))
+            if (!validation.validate(marker, lm, data))
                 validated.set(false);
         });/*
-        if (validated.get()) {
+        if (validated.get() && marker.data instanceof LMDResolvedElement d) {
             System.out.println(marker.pos.y);
-            if (marker.genType == GeneratorType.ISLAND_TEST)
+            if (d.genType == GeneratorType.ISLAND_TEST)
                 System.out.println("#");
-            if (marker.genType == GeneratorType.FOREST_BRANCH)
+            if (d.genType == GeneratorType.FOREST_BRANCH)
                 System.out.println("@");
         }*/
         return validated.get();

@@ -29,7 +29,7 @@ public class Level implements Deletable {
     public final InputHandler inputHandler;
     public final CollisionHandler collisionHandler;
     private static final int SECTION_SIZE = 16;
-    public final int seed = 0;
+    public final int seed = 4;
     public final RandomHandler randomHandler;
 
     //All BlockLikes inserted as static MUST NOT have their positions modified, otherwise
