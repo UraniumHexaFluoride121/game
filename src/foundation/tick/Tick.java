@@ -2,8 +2,11 @@ package foundation.tick;
 
 import foundation.Main;
 
+import java.awt.*;
+import java.awt.image.BufferStrategy;
 import java.util.HashSet;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 public class Tick extends Thread {
     private final HashSet<RegisteredTickable> qRegister = new HashSet<>(), qRemove = new HashSet<>();
@@ -36,7 +39,7 @@ public class Tick extends Thread {
     //than this, we'll cap the delta time resulting in the game time running slower
     //than normal. This is to avoid physics problems that would otherwise happen,
     //for example weird snapping and blocks phasing through each other
-    public static final float MAX_DELTA_TIME = 0.03f;
+    public static final float MAX_DELTA_TIME = 0.01f;
 
     @Override
     public void run() {
@@ -52,14 +55,27 @@ public class Tick extends Thread {
             processQueued();
 
             //tick tickable objects
-            tickables.forEach((order, set) -> set.forEach(t -> t.tick(Math.min(deltaTime, MAX_DELTA_TIME))));
+            do {
+                float finalDT = deltaTime;
+                deltaTime -= MAX_DELTA_TIME;
+                tickables.forEach((order, set) -> set.forEach(t -> t.tick(Math.min(finalDT, MAX_DELTA_TIME))));
+            } while (deltaTime > 0);
 
             //render frame
-            Main.window.paintComponents(Main.window.getBufferStrategy().getDrawGraphics());
-            Main.window.getBufferStrategy().show();
+            BufferStrategy strategy = Main.window.getBufferStrategy();
+            do {
+                Graphics drawGraphics = strategy.getDrawGraphics();
+                Main.window.paintComponents(drawGraphics);
+                drawGraphics.dispose();
+                strategy.show();
+            } while (strategy.contentsRestored());
             //We make sure that a detectable amount of time has passed before processing the next tick
             //If we don't, the physics may not function properly
-            while (System.currentTimeMillis() - time < 3);
+            try {
+                TimeUnit.MILLISECONDS.sleep(3 - (System.currentTimeMillis() - time));
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

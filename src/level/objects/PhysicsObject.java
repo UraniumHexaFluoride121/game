@@ -19,6 +19,7 @@ public abstract class PhysicsObject extends BlockLike {
     public final float mass;
 
     public static final ObjPos DEFAULT_GRAVITY = new ObjPos(0, -30);
+    public static final float EXP_X_DECAY = 3f, EXP_Y_DECAY = .5f, LINEAR_X_DECAY = 1.5f;
 
     public PhysicsObject(ObjPos pos, String name, float mass) {
         super(pos, name);
@@ -58,13 +59,14 @@ public abstract class PhysicsObject extends BlockLike {
 
     public void processMovement(float deltaTime) {
         prevPos = pos.copy();
-        velocity.applyAcceleration(getGravity(), deltaTime);
         float f = computeFriction();
-        velocity.tickExponentialXDecay(deltaTime, 3f * f);
-        velocity.tickExponentialYDecay(deltaTime, .5f);
-        velocity.tickLinearXDecay(deltaTime, 1.5f * f);
+        velocity.tickExponentialXDecay(deltaTime, EXP_X_DECAY * f);
+        velocity.tickExponentialYDecay(deltaTime, EXP_Y_DECAY);
+        velocity.tickLinearXDecay(deltaTime, LINEAR_X_DECAY * f);
+        velocity.applyAcceleration(getGravity(), deltaTime);
         //All velocity processing must happen BEFORE this point so that the new velocity
         //can be applied on the same tick
+        velocity.clamp(-30, 30, -30, 30);
         pos.add(velocity.copy().multiply(deltaTime));
     }
 
