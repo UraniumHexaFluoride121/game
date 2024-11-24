@@ -11,12 +11,14 @@ import level.procedural.JumpSimulation;
 import level.procedural.Layout;
 import level.procedural.marker.GeneratorLMFunction;
 import level.procedural.marker.LayoutMarker;
+import level.procedural.marker.movement.LMDPlayerMovement;
 import level.procedural.marker.movement.LMTPlayerMovement;
 import level.procedural.marker.resolved.LMDResolvedElement;
 import loader.AssetManager;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -74,26 +76,44 @@ public class ProceduralGenerator implements Deletable {
         for (int i = 0; i < 150; i++) {
             markerFunction.generateMarkers(this, marker, type); //Generate new markers
             generatedLayoutMarkers.forEach(LayoutMarker::generate); //Generate bounds for those markers
-            boolean validated = true;
+            AtomicBoolean validated = new AtomicBoolean(true);
             //Test bounds for new markers
             for (LayoutMarker lm : generatedLayoutMarkers) {
                 if (lm.data instanceof LMDResolvedElement data && !GeneratorValidation.validate(lm, data.gen.validation)) {
-                    validated = false;
+                    validated.set(false);
                     break;
                 }
             }
-            if (validated) {
+            HashSet<JumpSimulation> revalidatedJumps = new HashSet<>();
+            if (validated.get()) {
                 //Generate blocks and validation markers in preparation for player movement sim
                 generatedLayoutMarkers.forEach(ProceduralGenerator::generateBlocks);
                 generatedLayoutMarkers.forEach(ProceduralGenerator::generateValidationMarkers);
                 for (LayoutMarker lm : generatedLayoutMarkers) {
                     if (lm.data instanceof LMDResolvedElement data) {
-                        if (!new JumpSimulation(marker, lm, playerMovementMarkers, data.gen.playerMovementMarkers).validateJump())
-                            validated = false;
+                        JumpSimulation jumpSimulation = new JumpSimulation(marker, lm, playerMovementMarkers, data.gen.playerMovementMarkers);
+                        jumpSimulation.addToLM();
+                        if (!jumpSimulation.validateJump())
+                            validated.set(false);
                     }
                 }
+
+                for (LayoutMarker lm : generatedLayoutMarkers) {
+                    MainPanel.level.layout.forEachMarker(lm.pos.y, 2, otherLM -> {
+                        if (otherLM.data instanceof LMDResolvedElement rData && !otherLM.equals(lm)) {
+                            for (JumpSimulation jump : rData.jumps) {
+                                if (jump.bound != null && lm.isBoxColliding(jump.bound, BoundType.COLLISION)) {
+                                    if (!jump.validateJump()) {
+                                        validated.set(false);
+                                    }
+                                    revalidatedJumps.add(jump);
+                                }
+                            }
+                        }
+                    });
+                }
             }
-            if (validated) {
+            if (validated.get()) {
                 generatedLayoutMarkers.forEach(LayoutMarker::generateMarkers); //Repeat the cycle for the newly validated markers
                 break;
             } else {
@@ -103,6 +123,7 @@ public class ProceduralGenerator implements Deletable {
                     lm.delete();
                 });
                 generatedLayoutMarkers.clear();
+                revalidatedJumps.forEach(JumpSimulation::validateJump);
             }
         }
     }
@@ -140,6 +161,15 @@ public class ProceduralGenerator implements Deletable {
         LayoutMarker marker = new LayoutMarker(name, pos);
         generatedLayoutMarkers.add(marker);
         MainPanel.level.layout.addMarker(marker);
+    }
+
+    public LMDPlayerMovement addJumpMarker(String name, ObjPos pos) {
+        if (MainPanel.level.outOfBounds(pos))
+            return new LMDPlayerMovement();
+        LayoutMarker marker = new LayoutMarker(name, pos);
+        generatedLayoutMarkers.add(marker);
+        MainPanel.level.layout.addMarker(marker);
+        return ((LMDPlayerMovement) marker.data);
     }
 
     public void addData(String name, Object data) {

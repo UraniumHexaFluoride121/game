@@ -39,10 +39,6 @@ public class MainPanel extends JFrame implements KeyListener, RegisteredTickable
         level = new Level();
         AssetManager.readLayoutMarkerData(LEVEL_PATH);
         level.init();
-        //Expression parser debug
-        /*System.out.println(CTExpression.parser.parseExpression("block[u].hasCollision").apply(new CTExpressionData(
-                level.getBlock(ObjectLayer.FOREGROUND, 4, 1), level
-        )));*/
     }
 
     public static InputHandler getInputHandler() {

@@ -1,5 +1,6 @@
 package level.procedural.generator;
 
+import foundation.Direction;
 import foundation.Main;
 import foundation.MainPanel;
 import foundation.math.BezierCurve3;
@@ -89,6 +90,7 @@ public enum GeneratorType {
     ISLAND_TEST("island_test", () -> new ProceduralGenerator((gen, lm, type) -> {
         int sizeLeft = gen.randomInt(3, 6);
         int sizeRight = gen.randomInt(3, 6);
+        lm.addBound(new StaticHitBox(2, -1, sizeLeft - 0.5f, sizeRight + 0.5f, lm.pos), BoundType.JUMP_VALIDATION);
         lm.addBound(new StaticHitBox(1f, 1f, sizeLeft, sizeRight + 1, lm.pos), BoundType.COLLISION);
         lm.addBound(new StaticHitBox(3f, 3f, sizeLeft - 2, sizeRight - 1, lm.pos), BoundType.OBSTRUCTION);
         lm.addBound(new StaticHitBox(1f, 1f, sizeLeft + 2, sizeRight + 3, lm.pos), BoundType.OBSTRUCTION);
@@ -105,17 +107,19 @@ public enum GeneratorType {
         sizeRight -= gen.randomInt(1, 2);
         gen.lineOfBlocks(lm.pos.x - sizeLeft, lm.pos.x + sizeRight, lm.pos.y - 1, pos -> blockName);
     }, (gen, lm, type) -> {
-        int sizeLeft = gen.getData("sizeLeft", Integer.class);
-        int sizeRight = gen.getData("sizeRight", Integer.class);
+        int sizeLeft = MathHelper.clampInt(0, ((int) lm.pos.x), gen.getData("sizeLeft", Integer.class));
+        int sizeRight = MathHelper.clampInt(0, Main.BLOCKS_X - ((int) lm.pos.x) - 1, gen.getData("sizeRight", Integer.class));
         String blockName = type.getString(0);
         StaticHitBox box = AssetManager.blockHitBoxes.get(blockName);
-        gen.addMarker("static_jump", lm.pos.copy().add(-sizeLeft - box.left, box.up));
-        gen.addMarker("static_jump", lm.pos.copy().add(sizeRight + box.right, box.up));
-        gen.addMarker("static_jump", lm.pos.copy().add(box.middleX(), box.up));
+        float friction = AssetManager.blockFriction.get(blockName);
+        float platformSize = sizeLeft + sizeRight + box.right + box.left;
+        gen.addJumpMarker("static_jump", lm.pos.copy().add(-sizeLeft - box.left, box.up)).addAcceleration(-platformSize, friction).setApproachDirection(Direction.LEFT);
+        gen.addJumpMarker("static_jump", lm.pos.copy().add(sizeRight + box.right, box.up)).addAcceleration(platformSize, friction).setApproachDirection(Direction.RIGHT);
+        gen.addJumpMarker("static_jump", lm.pos.copy().add(box.middleX(), box.up));
     }, (gen, lm, type) -> {
         if (lm.pos.y < MainPanel.level.getRegionTop()) {
             int borderProximityLimit = type.getInt(0);
-            gen.addMarker("platform", gen.randomPosAbove(lm, 0.2f, 1.2f, 5, 9, 2.5f, borderProximityLimit));
+            gen.addMarker("platform", gen.randomPosAbove(lm, 0f, 1.5f, 6, 12, 2.5f, borderProximityLimit));
         }
     }),
             storeInt("forceAwayFromBorderProximity")

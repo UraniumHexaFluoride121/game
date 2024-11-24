@@ -199,6 +199,30 @@ public class CollisionHandler implements RegisteredTickable {
         return null;
     }
 
+    public HashSet<CollisionObject> getBoxCollidingWith(HitBox box) {
+        int topSection = yPosToSection(box.getTop());
+        int bottomSection = yPosToSection(box.getBottom());
+
+        HashSet<CollisionObject> objects = new HashSet<>();
+
+        for (CollisionObject object : worldBorderCollisionObjects) {
+            if (object.hasCollision() && object.getHitBox().isColliding(box))
+                objects.add(object);
+        }
+
+        for (CollisionObject object : collisionObjects[topSection]) {
+            if (object.hasCollision() && object.getHitBox().isColliding(box))
+                objects.add(object);
+        }
+        if (bottomSection != topSection) {
+            for (CollisionObject object : collisionObjects[bottomSection]) {
+                if (object.hasCollision() && object.getHitBox().isColliding(box))
+                    objects.add(object);
+            }
+        }
+        return objects;
+    }
+
     @Override
     public TickOrder getTickOrder() {
         return TickOrder.COLLISION_CHECK;

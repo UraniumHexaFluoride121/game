@@ -75,6 +75,46 @@ public class VelocityHandler extends ObjPos {
         return ((float) (-bc * t - (a + bc) * Math.exp(-expDecay * t) / expDecay + (a + bc) / expDecay));
     }
 
+    public float getVelocityAfterTime(float expDecay, float linearDecay, boolean yAxis, float t) {
+        float a = yAxis ? y : x;
+        float bc = linearDecay / expDecay;
+        return (float) (-bc + (a + bc) * Math.exp(-expDecay * t));
+    }
+
+    private static final float DELTA_TIME = 0.01f;
+
+    public float getVelocityToDistance(float expDecay, float linearDecay, float acceleration, boolean yAxis, float distance) {
+        VelocityHandler v = new VelocityHandler(yAxis ? y : x);
+        float dist = 0;
+        int loops = 0;
+        while (Math.abs(dist) < Math.abs(distance) || Math.signum(dist) != Math.signum(distance)) {
+            v.tickExponentialXDecay(DELTA_TIME, expDecay);
+            v.tickLinearXDecay(DELTA_TIME, linearDecay);
+            v.applyAcceleration(new ObjPos(acceleration), DELTA_TIME);
+            dist += v.x * DELTA_TIME;
+            loops++;
+            if (loops > 1000)
+                return Float.NaN;
+        }
+        return v.x;
+    }
+
+    public static float getVelocityToDistance(float initialSpeed, float expDecay, float linearDecay, float acceleration, float distance) {
+        VelocityHandler v = new VelocityHandler(initialSpeed);
+        float dist = 0;
+        int loops = 0;
+        while (Math.abs(dist) < Math.abs(distance) || Math.signum(dist) != Math.signum(distance)) {
+            v.tickExponentialXDecay(DELTA_TIME, expDecay);
+            v.tickLinearXDecay(DELTA_TIME, linearDecay);
+            v.applyAcceleration(new ObjPos(acceleration), DELTA_TIME);
+            dist += v.x * DELTA_TIME;
+            loops++;
+            if (loops > 1000)
+                return Float.NaN;
+        }
+        return v.x;
+    }
+
     public VelocityHandler copyAsVelocityHandler() {
         return new VelocityHandler(x, y);
     }

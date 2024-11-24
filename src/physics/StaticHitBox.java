@@ -23,6 +23,10 @@ public class StaticHitBox implements HitBox {
         this(to.y, from.y, from.x, to.x);
     }
 
+    public StaticHitBox(HitBox box) {
+        this(box.getTop(), box.getBottom(), box.getLeft(), box.getRight());
+    }
+
     public StaticHitBox copy() {
         return new StaticHitBox(up, down, left, right);
     }
@@ -49,6 +53,17 @@ public class StaticHitBox implements HitBox {
         this.left -= left;
         this.right += right;
         return this;
+    }
+
+    public void expandToFit(HitBox box) {
+        expandToFit(box.getTop(), box.getBottom(), box.getLeft(), box.getRight());
+    }
+
+    public void expandToFit(float up, float down, float left, float right) {
+        this.up = Math.max(this.up, up);
+        this.down = Math.min(this.down, down);
+        this.right = Math.max(this.right, right);
+        this.left = Math.min(this.left, left);
     }
 
     public float middleX() {

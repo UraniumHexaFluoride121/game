@@ -3,6 +3,7 @@ package level.procedural;
 import foundation.MainPanel;
 import level.procedural.generator.ProceduralGenerator;
 import level.procedural.marker.LayoutMarker;
+import level.procedural.marker.resolved.LMDResolvedElement;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
@@ -29,6 +30,10 @@ public class Layout {
             markers.addAll(markerSection);
         }
         markers.forEach(LayoutMarker::generate);
+        markers.forEach(lm -> {
+            if (lm.data instanceof LMDResolvedElement rData)
+                rData.setRoot();
+        });
         markers.forEach(ProceduralGenerator::generateBlocks);
         markers.forEach(ProceduralGenerator::generateValidationMarkers);
         markers.forEach(LayoutMarker::generateMarkers);

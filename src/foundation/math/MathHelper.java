@@ -45,6 +45,19 @@ public abstract class MathHelper {
         };
     }
 
+    public static float[] findQuadratic(float root1, float root2, float px, float py) {
+        float mid = (root1 + root2) / 2;
+        float d = Math.abs(mid - root1);
+        float p = -mid * 2;
+        float q = -(d * d) + (p * p / 4);
+        float a = py / (px * px + p * px + q);
+        if (Float.isNaN(a))
+            return null;
+        return new float[] {
+                a, p * a, q * a
+        };
+    }
+
     public static float[] solveQuadratic(float a, float b, float c) {
         float p = b / a;
         float q = c / a;

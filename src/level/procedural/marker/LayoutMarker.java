@@ -76,8 +76,7 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
         if (Layout.DEBUG_RENDER) {
             if (!boundsDebugRenderer.containsKey(type))
                 boundsDebugRenderer.put(type, new HashSet<>());
-            ObjPos pos = new ObjPos(bound.getLeft(), bound.getBottom());
-            RenderGameSquare square = new RenderGameSquare(RenderOrder.DEBUG, type.debugColor, bound.getTop() - bound.getBottom(), 0, 0, bound.getRight() - bound.getLeft(), () -> pos);
+            RenderGameSquare square = new RenderGameSquare(type.debugColor, bound);
             square.setFrame();
             boundsDebugRenderer.get(type).add(square);
         }
@@ -195,8 +194,8 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
                 r.render(g);
             }
         }
-        if (data instanceof LMDPlayerMovement pData) {
-            pData.render(g);
+        if (data instanceof LMDResolvedElement rData) {
+            rData.render(g);
         }
     }
 

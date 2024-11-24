@@ -27,7 +27,7 @@ public class RenderGameSquare extends RenderGameElement {
     }
 
     public RenderGameSquare(Color color, HitBox box) {
-        this(RenderOrder.DEBUG, color, box.getTop(), -box.getBottom(), -box.getLeft(), box.getRight(), ObjPos::new);
+        this(RenderOrder.DEBUG, new Color(color.getRed(), color.getGreen(), color.getBlue(), 210), box.getTop(), -box.getBottom(), -box.getLeft(), box.getRight(), ObjPos::new);
         setFrame();
     }
 

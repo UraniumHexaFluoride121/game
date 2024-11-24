@@ -13,7 +13,9 @@ public enum BoundType {
     OBSTRUCTION(new Color(255, 170, 42), 0, "obstruction"),
 
     //This encompasses the actual collision as closely as possible
-    COLLISION(new Color(205, 59, 59), 0, "collision");
+    COLLISION(new Color(205, 59, 59), 0, "collision"),
+
+    JUMP_VALIDATION(new Color(209, 22, 230), 0, "jump_validation");
 
     public final Color debugColor;
     public final int collisionsAllowed;
