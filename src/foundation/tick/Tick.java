@@ -43,6 +43,10 @@ public class Tick extends Thread {
     //for example weird snapping and blocks phasing through each other
     public static final float MAX_DELTA_TIME = 0.01f;
 
+    //If the dT is too long, we cap the dT to avoid lag spikes when the game
+    //falls behind. This can happen if the player tabs out of the game, for example
+    public static final float TOTAL_DELTA_TIME_CAP = 0.1f;
+
     @Override
     public void run() {
         long time = System.currentTimeMillis();
@@ -57,11 +61,13 @@ public class Tick extends Thread {
             processQueued();
 
             //tick tickable objects
+            deltaTime = Math.min(deltaTime, TOTAL_DELTA_TIME_CAP);
             do {
                 float finalDT = deltaTime;
                 deltaTime -= MAX_DELTA_TIME;
                 tickables.forEach((order, set) -> set.forEach(t -> t.tick(Math.min(finalDT, MAX_DELTA_TIME))));
             } while (deltaTime > 0);
+
 
             //render frame
             BufferStrategy strategy = Main.window.getBufferStrategy();

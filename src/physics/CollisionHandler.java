@@ -142,7 +142,6 @@ public class CollisionHandler implements RegisteredTickable {
 
     private void clearCollidedWith() {
         for (int i = 0; i < sectionCount; i++) {
-            collisionObjects[i].forEach(o -> o.getCollisionData().collidedWith.clear());
             dynamicObjects[i].forEach(o -> o.getCollisionData().collidedWith.clear());
         }
     }
@@ -153,7 +152,9 @@ public class CollisionHandler implements RegisteredTickable {
             return;
 
         qAdd.forEach(this::register);
+        qAdd.clear();
         qRemove.forEach(this::remove);
+        qRemove.clear();
 
         movableObjectSet.forEach(o -> {
             CollisionObjectData newData = generateData(o);
@@ -211,7 +212,8 @@ public class CollisionHandler implements RegisteredTickable {
                     if (dynamicBox.isColliding(otherBox)) {
                         dynamic.onCollision(otherObj, constraintsOnly, alwaysSnap);
                         dynamic.getCollisionData().collidedWith.add(otherObj);
-                        otherObj.getCollisionData().collidedWith.add(dynamic);
+                        if (dynamics.contains(otherObj))
+                            otherObj.getCollisionData().collidedWith.add(dynamic);
                         hasHadCollision.set(true);
                     }
                 });

@@ -23,7 +23,7 @@ public class StaticBlock extends BlockLike {
 
     @Override
     public boolean blockRequiresTick() {
-        return renderElement instanceof RenderTexture texture && !texture.requiresTick();
+        return !(renderElement instanceof RenderTexture texture) || texture.requiresTick();
     }
 
     @Override
