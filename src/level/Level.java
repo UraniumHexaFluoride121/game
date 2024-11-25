@@ -34,7 +34,7 @@ public class Level implements Deletable {
     public final int maximumHeight;
     public final InputHandler inputHandler;
     public final CollisionHandler collisionHandler;
-    private static final int SECTION_SIZE = 16;
+    public static final int SECTION_SIZE = 16;
     public final int seed = 0;
     public final RandomHandler randomHandler;
 
@@ -81,6 +81,7 @@ public class Level implements Deletable {
         for (int i = 0; i < sectionCount; i++) {
             allStaticBlocks[i] = ConcurrentHashMap.newKeySet();
         }
+        GAME_RENDERER.createStaticsSet(sectionCount);
 
         inputHandler = new InputHandler();
         inputHandler.addInput(InputType.KEY_PRESSED, e -> upCamera = true, e -> e.getKeyCode() == KeyEvent.VK_PAGE_UP, InputHandlingOrder.CAMERA_UP, false);
@@ -98,6 +99,7 @@ public class Level implements Deletable {
         AssetManager.createAllLevelSections(LEVEL_PATH);
         new Thread(() -> {
             long time = System.currentTimeMillis();
+            updatePool = Executors.newCachedThreadPool();
             layout.generateMarkers();
             collisionHandler.clearProcedural();
             System.out.println("generation time: " + ((System.currentTimeMillis() - time) / 1000f));
@@ -113,6 +115,7 @@ public class Level implements Deletable {
                     break;
                 }
             }
+            updatePool.shutdown();
         }).start();
     }
 
@@ -216,7 +219,7 @@ public class Level implements Deletable {
         });
     }
 
-    private final ExecutorService updatePool = Executors.newCachedThreadPool();
+    private ExecutorService updatePool;
 
     public void addRegion(String name, int startsAt) {
         regionLayout.put(startsAt, RegionType.getRegionType(name));
