@@ -4,7 +4,6 @@ import level.procedural.JumpSimulation;
 import level.procedural.generator.GeneratorType;
 import level.procedural.generator.ProceduralGenerator;
 import level.procedural.marker.LMData;
-import level.procedural.marker.LayoutMarker;
 import render.Renderable;
 
 import java.awt.*;
@@ -24,12 +23,6 @@ public class LMDResolvedElement extends LMData implements Renderable {
 
     public void setRoot() {
         root = true;
-    }
-
-    @Override
-    public void generateMarkers(LayoutMarker lm) {
-        if (gen != null)
-            gen.generateMarkers(lm, genType);
     }
 
     @Override

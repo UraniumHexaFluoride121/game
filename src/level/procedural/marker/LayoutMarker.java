@@ -66,10 +66,6 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
         }
     }
 
-    public void generateMarkers() {
-        data.generateMarkers(this);
-    }
-
     public void addBound(HitBox bound, BoundType type) {
         if (!bounds.containsKey(type))
             bounds.put(type, new HashSet<>());

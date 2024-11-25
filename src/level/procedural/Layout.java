@@ -6,6 +6,7 @@ import level.procedural.marker.LayoutMarker;
 import level.procedural.marker.resolved.LMDResolvedElement;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.function.Consumer;
 
 public class Layout {
@@ -24,6 +25,8 @@ public class Layout {
         }
     }
 
+    public HashSet<LayoutMarker> qProceduralMarkers = new HashSet<>();
+
     public void generateMarkers() {
         ArrayList<LayoutMarker> markers = new ArrayList<>();
         for (ArrayList<LayoutMarker> markerSection : markerSections) {
@@ -36,7 +39,20 @@ public class Layout {
         });
         markers.forEach(ProceduralGenerator::generateBlocks);
         markers.forEach(ProceduralGenerator::generateValidationMarkers);
-        markers.forEach(LayoutMarker::generateMarkers);
+        markers.forEach(this::addProceduralLM);
+        while (!qProceduralMarkers.isEmpty()) {
+            HashSet<LayoutMarker> generatingMarkers = qProceduralMarkers;
+            qProceduralMarkers = new HashSet<>();
+            generatingMarkers.forEach(lm -> {
+                LMDResolvedElement data = ((LMDResolvedElement) lm.data);
+                data.gen.generateMarkers(lm, data.genType);
+            });
+        }
+    }
+
+    public void addProceduralLM(LayoutMarker lm) {
+        if (lm.data instanceof LMDResolvedElement)
+            qProceduralMarkers.add(lm);
     }
 
     public void addMarker(LayoutMarker marker) {

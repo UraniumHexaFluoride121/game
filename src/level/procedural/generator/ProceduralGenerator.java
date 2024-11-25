@@ -122,7 +122,7 @@ public class ProceduralGenerator implements Deletable {
                 MainPanel.level.updateBlocks(RenderEvent.ON_GAME_INIT, marker);
                 MainPanel.level.collisionHandler.qRemove.addAll(overwrittenBlocks);
                 MainPanel.level.collisionHandler.qAdd.addAll(generatedBlocks);
-                generatedLayoutMarkers.forEach(LayoutMarker::generateMarkers); //Repeat the cycle for the newly validated markers
+                generatedLayoutMarkers.forEach(MainPanel.level.layout::addProceduralLM); //Repeat the cycle for the newly validated markers
                 break;
             } else {
                 generatedLayoutMarkers.forEach(lm -> {

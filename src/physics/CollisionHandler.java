@@ -191,6 +191,8 @@ public class CollisionHandler implements RegisteredTickable {
     private AtomicBoolean testIsCollision(boolean constraintsOnly, boolean alwaysSnap) {
         AtomicBoolean hasHadCollision = new AtomicBoolean(false);
         for (int i = 0; i < sectionCount; i++) {
+            if (dynamicObjects[i].isEmpty())
+                continue;
             Set<CollisionObject> objects = collisionObjects[i];
             Set<CollisionObject> dynamics = dynamicObjects[i];
             dynamics.forEach(dynamic -> {
