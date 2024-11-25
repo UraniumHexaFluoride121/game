@@ -12,7 +12,7 @@ public class Layout {
     public static final boolean DEBUG_RENDER = false;
 
     private final int sectionSize, sectionCount, maxHeight;
-    private final ArrayList<LayoutMarker>[] markerSections;
+    public final ArrayList<LayoutMarker>[] markerSections;
 
     public Layout(int maxHeight, int sectionSize, int bufferSections) {
         this.maxHeight = maxHeight;

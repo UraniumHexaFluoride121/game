@@ -1,8 +1,8 @@
 {
   "name": "player",
   "texture": {
-    "path": "player-random.json",
-    "type": "RandomTexture",
+    "path": "testimages.json#silicon_casing.png",
+    "type": "TextureAsset",
     "order": "player"
   },
   "hitBox": {

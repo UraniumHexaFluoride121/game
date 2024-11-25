@@ -1,5 +1,5 @@
 package level;
 
 public enum RandomType {
-    TEXTURE, PROCEDURAL, REGIONS
+    TEXTURE, PROCEDURAL, REGIONS, Z_ORDER
 }

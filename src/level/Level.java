@@ -10,17 +10,23 @@ import level.objects.BlockLike;
 import level.objects.Player;
 import level.procedural.Layout;
 import level.procedural.RegionType;
+import level.procedural.generator.BoundType;
+import level.procedural.generator.ProceduralGenerator;
+import level.procedural.marker.LayoutMarker;
+import level.procedural.marker.resolved.LMTResolvedElement;
 import loader.AssetManager;
 import physics.CollisionHandler;
+import physics.StaticHitBox;
+import render.event.RenderBlockUpdate;
 import render.event.RenderEvent;
 import render.renderables.RenderBackground;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static foundation.MainPanel.*;
 
@@ -29,7 +35,7 @@ public class Level implements Deletable {
     public final InputHandler inputHandler;
     public final CollisionHandler collisionHandler;
     private static final int SECTION_SIZE = 16;
-    public final int seed = 4;
+    public final int seed = 0;
     public final RandomHandler randomHandler;
 
     //All BlockLikes inserted as static MUST NOT have their positions modified, otherwise
@@ -41,7 +47,7 @@ public class Level implements Deletable {
     public final HashMap<ObjectLayer, BlockLike[][]> staticBlocks = new HashMap<>();
     //Set of all statics to allow for faster block updates, divided by level section to
     //allow async loading, with the bottom sections first
-    public final HashSet<BlockLike>[] allStaticBlocks;
+    public final Set<BlockLike>[] allStaticBlocks;
 
     //A set containing all dynamic blocks. Connected textures do not work for these blocks.
     public final HashSet<BlockLike> dynamicBlocks = new HashSet<>();
@@ -71,9 +77,9 @@ public class Level implements Deletable {
             }
         }
         int sectionCount = ((int) Math.ceil((double) maximumHeight / SECTION_SIZE)) + 2;
-        allStaticBlocks = new HashSet[sectionCount];
+        allStaticBlocks = new Set[sectionCount];
         for (int i = 0; i < sectionCount; i++) {
-            allStaticBlocks[i] = new HashSet<>();
+            allStaticBlocks[i] = ConcurrentHashMap.newKeySet();
         }
 
         inputHandler = new InputHandler();
@@ -89,11 +95,25 @@ public class Level implements Deletable {
     }
 
     public void init() {
-        long time = System.currentTimeMillis();
         AssetManager.createAllLevelSections(LEVEL_PATH);
-        layout.generateMarkers();
-        updateBlocks(RenderEvent.ON_GAME_INIT);
-        System.out.println("generation time: " + ((System.currentTimeMillis() - time) / 1000f));
+        new Thread(() -> {
+            long time = System.currentTimeMillis();
+            layout.generateMarkers();
+            collisionHandler.clearProcedural();
+            System.out.println("generation time: " + ((System.currentTimeMillis() - time) / 1000f));
+            System.out.println("average generation attempts: " + ((float) ProceduralGenerator.generationAttempts) / ProceduralGenerator.generatedMarkers);
+            for (int i = layout.markerSections.length - 1; i >= 0; i--) {
+                float height = -1;
+                for (LayoutMarker lm : layout.markerSections[i]) {
+                    if (lm.type instanceof LMTResolvedElement && lm.pos.y > height)
+                        height = lm.pos.y;
+                }
+                if (height != -1) {
+                    System.out.println("max generation height: " + height);
+                    break;
+                }
+            }
+        }).start();
     }
 
     public BlockLike getBlock(ObjectLayer layer, int x, int y) {
@@ -114,13 +134,16 @@ public class Level implements Deletable {
         return outOfBounds(pos.x, pos.y);
     }
 
-    public void addBlocks(BlockLike... blockLikes) {
-        collisionHandler.register(blockLikes);
+    public void addBlocks(boolean registerCollision, boolean registerProcedural, BlockLike... blockLikes) {
+        if (registerCollision)
+            collisionHandler.register(blockLikes);
+        if (registerProcedural)
+            collisionHandler.registerProcedural(blockLikes);
         for (BlockLike b : blockLikes) {
             if (b.getLayer().addToStatic) {
                 BlockLike block = staticBlocks.get(b.getLayer())[((int) b.pos.x)][((int) b.pos.y)];
                 if (block != null)
-                    removeBlocks(block);
+                    removeBlocks(registerCollision, block);
                 staticBlocks.get(b.getLayer())[((int) b.pos.x)][((int) b.pos.y)] = b;
                 allStaticBlocks[yPosToSection(b.pos.y)].add(b);
             }
@@ -129,7 +152,7 @@ public class Level implements Deletable {
         }
     }
 
-    public void removeBlocks(BlockLike... blockLikes) {
+    public void removeBlocks(boolean registerCollision, BlockLike... blockLikes) {
         for (BlockLike b : blockLikes) {
             if (b.getLayer().addToStatic) {
                 staticBlocks.get(b.getLayer())[((int) b.pos.x)][((int) b.pos.y)] = null;
@@ -139,21 +162,26 @@ public class Level implements Deletable {
                 dynamicBlocks.remove(b);
             b.delete();
         }
-        collisionHandler.remove(blockLikes);
+        if (registerCollision)
+            collisionHandler.remove(blockLikes);
+        collisionHandler.removeProcedural(blockLikes);
     }
 
     //The procedural generator needs to know if it has overwritten a block in case the generation
     //needs to be reverted. This does not apply if the overwritten block is a part of the current
     //generation
-    public BlockLike addProceduralBlock(BlockLike b) {
+    public BlockLike addProceduralBlock(boolean registerCollision, boolean registerProcedural, BlockLike b) {
         if (outOfBounds(b.pos))
             return null;
-        collisionHandler.register(b);
+        if (registerCollision)
+            collisionHandler.register(b);
+        if (registerProcedural)
+            collisionHandler.registerProcedural(b);
         BlockLike removed = null;
         if (b.getLayer().addToStatic) {
             BlockLike block = staticBlocks.get(b.getLayer())[((int) b.pos.x)][((int) b.pos.y)];
             if (block != null) {
-                removeBlocks(block);
+                removeBlocks(registerCollision, block);
                 removed = block;
             }
             staticBlocks.get(b.getLayer())[((int) b.pos.x)][((int) b.pos.y)] = b;
@@ -167,7 +195,7 @@ public class Level implements Deletable {
     public void updateBlocks(RenderEvent type) {
         new Thread(() -> {
             long time = System.currentTimeMillis();
-            for (HashSet<BlockLike> section : allStaticBlocks) {
+            for (Set<BlockLike> section : allStaticBlocks) {
                 for (BlockLike b : section) {
                     b.renderUpdateBlock(type);
                 }
@@ -175,6 +203,20 @@ public class Level implements Deletable {
             System.out.println("block update time: " + ((System.currentTimeMillis() - time) / 1000f));
         }).start();
     }
+
+    public void updateBlocks(RenderEvent type, LayoutMarker lm) {
+        updatePool.submit(() -> {
+            StaticHitBox updateBounds = lm.boundForBounds(BoundType.BLOCKS).expand(2);
+            for (int i = yPosToSection(updateBounds.getBottom()); i <= yPosToSection(updateBounds.getTop()); i++) {
+                Set<BlockLike> sectionSet = allStaticBlocks[i];
+                for (BlockLike b : sectionSet) {
+                    b.renderUpdateBlock(new RenderBlockUpdate(type, b));
+                }
+            }
+        });
+    }
+
+    private final ExecutorService updatePool = Executors.newCachedThreadPool();
 
     public void addRegion(String name, int startsAt) {
         regionLayout.put(startsAt, RegionType.getRegionType(name));
@@ -199,7 +241,7 @@ public class Level implements Deletable {
         return 14 - (upCamera ? 7 : 0) + (downCamera ? 7 : 0);
     }
 
-    private int yPosToSection(float y) {
+    public int yPosToSection(float y) {
         return ((int) (y / SECTION_SIZE));
     }
 

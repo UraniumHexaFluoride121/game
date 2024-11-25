@@ -120,7 +120,7 @@ public abstract class AssetManager {
                             if (blockCreationFunction == null)
                                 throw new RuntimeException("Level section was created with unrecognised block \"" + name + "\"");
                             BlockLike block = blockCreationFunction.apply(new ObjPos(j, yOffset));
-                            MainPanel.level.addBlocks(block);
+                            MainPanel.level.addBlocks(true, true, block);
                             if (block instanceof Player p)
                                 MainPanel.level.cameraPlayer = p;
                         }

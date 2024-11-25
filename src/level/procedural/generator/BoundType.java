@@ -15,6 +15,9 @@ public enum BoundType {
     //This encompasses the actual collision as closely as possible
     COLLISION(new Color(205, 59, 59), 0, "collision"),
 
+    //This encompasses all blocks, even those without collision, as closely as possible
+    BLOCKS(new Color(64, 59, 205), 0, "blocks"),
+
     JUMP_VALIDATION(new Color(209, 22, 230), 0, "jump_validation");
 
     public final Color debugColor;

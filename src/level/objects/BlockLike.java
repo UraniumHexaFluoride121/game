@@ -21,6 +21,8 @@ public abstract class BlockLike implements RegisteredTickable, BoundedRenderable
     public float friction = 1, bounciness = 0;
     public CollisionHandler.CollisionObjectData collisionObjectData;
     public final String name;
+    public boolean receivedInit = false;
+    public int zOrder;
 
     public BlockLike(ObjPos pos, String name) {
         this.pos = pos;
@@ -31,6 +33,7 @@ public abstract class BlockLike implements RegisteredTickable, BoundedRenderable
     public BlockLike init(RenderGameElement renderElement) {
         this.renderElement = renderElement;
         registerTickable();
+        zOrder = MainPanel.GAME_RENDERER.getNextZOrder();
         MainPanel.GAME_RENDERER.register(this);
         return this;
     }
@@ -48,7 +51,13 @@ public abstract class BlockLike implements RegisteredTickable, BoundedRenderable
 
     public abstract ObjectLayer getLayer();
 
-    public void renderUpdateBlock(RenderEvent type) {
+    public synchronized void renderUpdateBlock(RenderEvent type) {
+        if (type instanceof RenderBlockUpdate u && u.type == RenderEvent.ON_GAME_INIT) {
+            if (receivedInit) {
+                return;
+            } else
+                receivedInit = true;
+        }
         renderElement.onEvent(new RenderBlockUpdate(type, this));
     }
 
@@ -69,10 +78,6 @@ public abstract class BlockLike implements RegisteredTickable, BoundedRenderable
         MainPanel.GAME_RENDERER.remove(this);
         if (hitBox instanceof Deletable d)
             d.delete();
-    }
-
-    public void unregister() {
-        MainPanel.level.removeBlocks(this);
     }
 
     @Override
@@ -116,5 +121,10 @@ public abstract class BlockLike implements RegisteredTickable, BoundedRenderable
     @Override
     public float getBottomRenderBound() {
         return hitBox.getBottom() - 1;
+    }
+
+    @Override
+    public int getZOrder() {
+        return zOrder;
     }
 }

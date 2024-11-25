@@ -197,6 +197,11 @@ public class BezierCurve3 implements BoundedRenderable, Deletable {
         return debugBoundBottom;
     }
 
+    @Override
+    public int getZOrder() {
+        return 0;
+    }
+
     public float getBoundTop() {
         return byMax;
     }

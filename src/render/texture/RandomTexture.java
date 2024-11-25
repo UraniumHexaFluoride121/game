@@ -26,6 +26,7 @@ public class RandomTexture implements Renderable, RenderEventListener, Tickable 
     private final boolean guaranteeUnique;
     //Used for deterministic texture randomisation. Should only be used for block updates
     private Random textureRandom;
+    private final int randomSeed;
 
     private final boolean isRandomlyRotated;
     private final RotationType rotationType;
@@ -38,7 +39,8 @@ public class RandomTexture implements Renderable, RenderEventListener, Tickable 
         this.rotationType = rotationType;
         this.xPivot = xPivot;
         this.yPivot = yPivot;
-        textureRandom = MainPanel.level.randomHandler.generateNewRandomSource(RandomType.TEXTURE);
+        randomSeed = MainPanel.level.randomHandler.generateNewRandomSeed(RandomType.TEXTURE);
+        textureRandom = new Random(randomSeed);
         this.guaranteeUnique = guaranteeUnique;
     }
 
@@ -85,12 +87,13 @@ public class RandomTexture implements Renderable, RenderEventListener, Tickable 
     public void onEvent(RenderEvent event) {
         //Randomise the initial texture
         if (event instanceof RenderBlockUpdate u && u.type == RenderEvent.ON_GAME_INIT) {
+            textureRandom = new Random(randomSeed);
             switchToNewTexture(textureRandom::nextDouble);
         }
 
         //Randomise the texture upon receiving an event specified in the events list
         if (events.contains(event))
-            switchToNewTexture(Math::random);
+            switchToNewTexture(textureRandom::nextDouble);
 
         if (activeTexture instanceof RenderEventListener l)
             l.onEvent(event);

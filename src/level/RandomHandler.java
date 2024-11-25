@@ -28,4 +28,8 @@ public class RandomHandler {
     public Random generateNewRandomSource(RandomType type) {
         return new Random(getRandom(type).nextInt());
     }
+
+    public int generateNewRandomSeed(RandomType type) {
+        return getRandom(type).nextInt();
+    }
 }

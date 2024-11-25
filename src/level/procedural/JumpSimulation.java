@@ -24,6 +24,8 @@ import render.renderables.RenderGameSquare;
 
 import java.awt.*;
 import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static level.objects.PhysicsObject.*;
 import static level.objects.Player.*;
@@ -40,8 +42,8 @@ public class JumpSimulation implements Deletable, Renderable {
     public static final boolean DEBUG_RENDER_SIM = true;
     public LayoutMarker from, to;
     public HashSet<LayoutMarker> fromLMs, toLMS;
-    public HashSet<RenderGameCircle> debugRenderCircles = new HashSet<>();
-    public HashSet<RenderGameSquare> debugRenderSquares = new HashSet<>();
+    public Set<RenderGameCircle> debugRenderCircles = ConcurrentHashMap.newKeySet();
+    public Set<RenderGameSquare> debugRenderSquares = ConcurrentHashMap.newKeySet();
     public StaticHitBox bound;
     public boolean hasValidJump = false;
 
@@ -92,7 +94,7 @@ public class JumpSimulation implements Deletable, Renderable {
                 }
             }
         }
-        if (validatedCount > 0/* && validatedCount < 12*/)
+        if (validatedCount > 0/* && validatedCount < 15*/)
             return true;
         clearDebugRender();
         return false;
@@ -145,11 +147,11 @@ public class JumpSimulation implements Deletable, Renderable {
                 }
             }
             if (stopForward) {
-                if (playerBox.getBottom() > toLM.pos.y && !forwardEnabled) {
+                if (playerBox.getTop() > toLM.pos.y && !forwardEnabled) {
                     forwardEnabled = true;
                     stopForward = false;
                 }
-                if (profile.type == ProfileType.AWAY_UNTIL_ABOVE && playerBox.getBottom() < toLM.pos.y) {
+                if (profile.type == ProfileType.AWAY_UNTIL_ABOVE && playerBox.getTop() < toLM.pos.y) {
                     if (data.approachDirection == Direction.LEFT) {
                         if (playerBox.getRight() > toLM.pos.x)
                             direction = Direction.LEFT;
@@ -190,7 +192,7 @@ public class JumpSimulation implements Deletable, Renderable {
         return FAIL;
     }
 
-    private static final float DELTA_TIME = 0.03f;
+    private static final float DELTA_TIME = 0.01f;
 
     private HashSet<Direction> simCollision(DynamicHitBox playerBox, HashSet<LayoutMarker> collisionMarkers) {
         boolean lmColliding = false;

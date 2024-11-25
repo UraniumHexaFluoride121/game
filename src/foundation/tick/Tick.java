@@ -5,11 +5,13 @@ import foundation.Main;
 import java.awt.*;
 import java.awt.image.BufferStrategy;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class Tick extends Thread {
-    private final HashSet<RegisteredTickable> qRegister = new HashSet<>(), qRemove = new HashSet<>();
+    private final Set<RegisteredTickable> qRegister = ConcurrentHashMap.newKeySet(), qRemove = ConcurrentHashMap.newKeySet();
     private final TreeMap<TickOrder, HashSet<RegisteredTickable>> tickables = new TreeMap<>();
 
     public Tick() {
@@ -18,16 +20,16 @@ public class Tick extends Thread {
         }
     }
 
-    public void register(RegisteredTickable t) {
+    public synchronized void register(RegisteredTickable t) {
         qRegister.add(t);
     }
 
-    public void remove(RegisteredTickable t) {
+    public synchronized void remove(RegisteredTickable t) {
         qRemove.add(t);
     }
 
     //we queue tickables when removing and adding to avoid ConcurrentModificationException
-    private void processQueued() {
+    private synchronized void processQueued() {
         qRegister.forEach(t -> tickables.get(t.getTickOrder()).add(t));
         qRegister.clear();
 

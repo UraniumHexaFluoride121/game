@@ -17,6 +17,7 @@ import level.procedural.marker.resolved.LMTResolvedElement;
 import level.procedural.marker.unresolved.LMTUnresolvedElement;
 import level.procedural.marker.unresolved.ResolverConditionData;
 import physics.HitBox;
+import physics.StaticHitBox;
 import render.BoundedRenderable;
 import render.RenderOrder;
 import render.Renderable;
@@ -162,6 +163,20 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
         return false;
     }
 
+    //creates a single, large bound that encompasses all bounds of a given type
+    public StaticHitBox boundForBounds(BoundType type) {
+        if (!hasBoundType(type))
+            return null;
+        StaticHitBox bound = null;
+        for (HitBox box : bounds.get(type)) {
+            if (bound == null)
+                bound = new StaticHitBox(box);
+            else
+                bound.expandToFit(box);
+        }
+        return bound;
+    }
+
     public boolean hasBoundType(BoundType type) {
         return bounds.containsKey(type);
     }
@@ -212,6 +227,11 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
     @Override
     public float getBottomRenderBound() {
         return pos.y - 20;
+    }
+
+    @Override
+    public int getZOrder() {
+        return 0;
     }
 
     @Override

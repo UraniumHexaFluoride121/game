@@ -15,6 +15,7 @@ import level.procedural.marker.movement.LMDPlayerMovement;
 import level.procedural.marker.movement.LMTPlayerMovement;
 import level.procedural.marker.resolved.LMDResolvedElement;
 import loader.AssetManager;
+import render.event.RenderEvent;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -68,12 +69,16 @@ public class ProceduralGenerator implements Deletable {
         }
     }
 
+    public static int generationAttempts = 0, generatedMarkers = 0;
+
     public void generateMarkers(LayoutMarker marker, GeneratorType type) {
+        generatedMarkers++;
         //Validation markers will have been generated on this marker's behalf by the previous loop iteration,
         //and we don't want to revert their generation
         generatedLayoutMarkers.clear();
 
-        for (int i = 0; i < 150; i++) {
+        for (int i = 0; i < 500; i++) {
+            generationAttempts++;
             markerFunction.generateMarkers(this, marker, type); //Generate new markers
             generatedLayoutMarkers.forEach(LayoutMarker::generate); //Generate bounds for those markers
             AtomicBoolean validated = new AtomicBoolean(true);
@@ -114,6 +119,9 @@ public class ProceduralGenerator implements Deletable {
                 }
             }
             if (validated.get()) {
+                MainPanel.level.updateBlocks(RenderEvent.ON_GAME_INIT, marker);
+                MainPanel.level.collisionHandler.qRemove.addAll(overwrittenBlocks);
+                MainPanel.level.collisionHandler.qAdd.addAll(generatedBlocks);
                 generatedLayoutMarkers.forEach(LayoutMarker::generateMarkers); //Repeat the cycle for the newly validated markers
                 break;
             } else {
@@ -129,8 +137,8 @@ public class ProceduralGenerator implements Deletable {
     }
 
     public void revertGeneration() {
-        MainPanel.level.removeBlocks(generatedBlocks.toArray(new BlockLike[0]));
-        overwrittenBlocks.forEach(b -> MainPanel.level.addBlocks(AssetManager.createBlock(b.name, b.pos)));
+        MainPanel.level.removeBlocks(false, generatedBlocks.toArray(new BlockLike[0]));
+        overwrittenBlocks.forEach(b -> MainPanel.level.addBlocks(false, true, AssetManager.createBlock(b.name, b.pos)));
 
         generatedLayoutMarkers.forEach(LayoutMarker::delete);
         overwrittenBlocks.clear();
@@ -147,7 +155,7 @@ public class ProceduralGenerator implements Deletable {
         if (MainPanel.level.outOfBounds(pos))
             return;
         BlockLike block = AssetManager.createBlock(blockName, pos);
-        BlockLike removed = MainPanel.level.addProceduralBlock(block);
+        BlockLike removed = MainPanel.level.addProceduralBlock(false, true, block);
         if (removed != null) {
             if (!generatedBlocks.remove(removed))
                 overwrittenBlocks.add(removed);

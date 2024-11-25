@@ -5,7 +5,10 @@ import foundation.math.ObjPos;
 import foundation.tick.RegisteredTickable;
 import foundation.tick.TickOrder;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CollisionHandler implements RegisteredTickable {
@@ -23,15 +26,20 @@ public class CollisionHandler implements RegisteredTickable {
      * all other objects. We know that the vast majority of objects are going to be static, and there's
      * no need to test them against each other.
      */
-    private final HashSet<CollisionObject>[] collisionObjects, dynamicObjects;
+    private final Set<CollisionObject>[] collisionObjects, dynamicObjects;
+    private Set<CollisionObject>[] proceduralObjects;
+    private final HashMap<CollisionObject, CollisionObjectData> proceduralObjectData = new HashMap<>();
 
     //World border collision objects are always tested against each dynamic object,
     //no matter which section it happens to be in
-    private final HashSet<CollisionObject> worldBorderCollisionObjects = new HashSet<>();
+    private final Set<CollisionObject> worldBorderCollisionObjects = ConcurrentHashMap.newKeySet();
 
     //A set containing all movable objects. Used to iterate through all movable objects when
     //refreshing their position in the sectioned set to avoid ConcurrentModificationException
-    private final HashSet<CollisionObject> movableObjectSet = new HashSet<>();
+    private final Set<CollisionObject> movableObjectSet = ConcurrentHashMap.newKeySet();
+
+    public final Set<CollisionObject> qAdd = ConcurrentHashMap.newKeySet(), qRemove = ConcurrentHashMap.newKeySet();
+
     private final int sectionSize, bufferSections, sectionCount;
 
     private boolean deleted = false;
@@ -40,13 +48,17 @@ public class CollisionHandler implements RegisteredTickable {
         this.sectionSize = sectionSize;
         this.bufferSections = bufferSections;
         sectionCount = ((int) Math.ceil((double) maxHeight / sectionSize)) + 2 * bufferSections;
-        collisionObjects = new HashSet[sectionCount];
+        collisionObjects = new Set[sectionCount];
         for (int i = 0; i < sectionCount; i++) {
-            collisionObjects[i] = new HashSet<>();
+            collisionObjects[i] = ConcurrentHashMap.newKeySet();
         }
-        dynamicObjects = new HashSet[sectionCount];
+        dynamicObjects = new Set[sectionCount];
         for (int i = 0; i < sectionCount; i++) {
-            dynamicObjects[i] = new HashSet<>();
+            dynamicObjects[i] = ConcurrentHashMap.newKeySet();
+        }
+        proceduralObjects = new Set[sectionCount];
+        for (int i = 0; i < sectionCount; i++) {
+            proceduralObjects[i] = ConcurrentHashMap.newKeySet();
         }
         //World floor
         worldBorderCollisionObjects.add(new WorldBorderObject(new StaticHitBox(
@@ -61,6 +73,29 @@ public class CollisionHandler implements RegisteredTickable {
                 maxHeight + sectionSize * bufferSections, 10, 0, 10, new ObjPos(Main.BLOCKS_X))
         ));
         registerTickable();
+    }
+
+    public void registerProcedural(CollisionObject... objects) {
+        for (CollisionObject o : objects) {
+            CollisionObjectData data = generateData(o);
+            o.setCollisionData(data);
+            proceduralObjects[data.bottomSection].add(o);
+            proceduralObjects[data.topSection].add(o);
+            proceduralObjectData.put(o, data);
+        }
+    }
+
+    public void removeProcedural(CollisionObject... objects) {
+        for (CollisionObject o : objects) {
+            CollisionObjectData data = proceduralObjectData.get(o);
+            proceduralObjectData.remove(o);
+            proceduralObjects[data.bottomSection].remove(o);
+            proceduralObjects[data.topSection].remove(o);
+        }
+    }
+
+    public void clearProcedural() {
+        removeProcedural(proceduralObjectData.keySet().toArray(new CollisionObject[0]));
     }
 
     public void register(CollisionObject... objects) {
@@ -117,6 +152,9 @@ public class CollisionHandler implements RegisteredTickable {
         if (deleted)
             return;
 
+        qAdd.forEach(this::register);
+        qRemove.forEach(this::remove);
+
         movableObjectSet.forEach(o -> {
             CollisionObjectData newData = generateData(o);
             CollisionObjectData oldData = o.getCollisionData();
@@ -153,8 +191,8 @@ public class CollisionHandler implements RegisteredTickable {
     private AtomicBoolean testIsCollision(boolean constraintsOnly, boolean alwaysSnap) {
         AtomicBoolean hasHadCollision = new AtomicBoolean(false);
         for (int i = 0; i < sectionCount; i++) {
-            HashSet<CollisionObject> objects = collisionObjects[i];
-            HashSet<CollisionObject> dynamics = dynamicObjects[i];
+            Set<CollisionObject> objects = collisionObjects[i];
+            Set<CollisionObject> dynamics = dynamicObjects[i];
             dynamics.forEach(dynamic -> {
                 if (!dynamic.hasCollision())
                     return;
@@ -210,12 +248,12 @@ public class CollisionHandler implements RegisteredTickable {
                 objects.add(object);
         }
 
-        for (CollisionObject object : collisionObjects[topSection]) {
+        for (CollisionObject object : proceduralObjects[topSection]) {
             if (object.hasCollision() && object.getHitBox().isColliding(box))
                 objects.add(object);
         }
         if (bottomSection != topSection) {
-            for (CollisionObject object : collisionObjects[bottomSection]) {
+            for (CollisionObject object : proceduralObjects[bottomSection]) {
                 if (object.hasCollision() && object.getHitBox().isColliding(box))
                     objects.add(object);
             }

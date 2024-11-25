@@ -47,6 +47,7 @@ public enum GeneratorType {
         gen.addData("curve", curve);
         StaticHitBox mainBound = curve.getBox().copy().expand(GeneratorTypeFunctions.FOREST_BRANCH_CURVE_SIZE.apply(length, 0f));
         lm.addBound(mainBound, BoundType.COLLISION);
+        lm.addBound(mainBound, BoundType.BLOCKS);
         lm.addBound(mainBound.copy().expand(0, 6, isLeftSide ? 0 : 7, isLeftSide ? -7 : 0), BoundType.OBSTRUCTION);
         lm.addBound(mainBound.copy().expand(0, 1), BoundType.OBSTRUCTION);
         lm.addBound(mainBound.copy().expand(2, 0), BoundType.OBSTRUCTION);
@@ -91,6 +92,7 @@ public enum GeneratorType {
         int sizeLeft = gen.randomInt(3, 6);
         int sizeRight = gen.randomInt(3, 6);
         lm.addBound(new StaticHitBox(2, -1, sizeLeft - 0.5f, sizeRight + 0.5f, lm.pos), BoundType.JUMP_VALIDATION);
+        lm.addBound(new StaticHitBox(1f, 1f, sizeLeft, sizeRight + 1, lm.pos), BoundType.BLOCKS);
         lm.addBound(new StaticHitBox(1f, 1f, sizeLeft, sizeRight + 1, lm.pos), BoundType.COLLISION);
         lm.addBound(new StaticHitBox(3f, 3f, sizeLeft - 2, sizeRight - 1, lm.pos), BoundType.OBSTRUCTION);
         lm.addBound(new StaticHitBox(1f, 1f, sizeLeft + 2, sizeRight + 3, lm.pos), BoundType.OBSTRUCTION);
@@ -119,7 +121,7 @@ public enum GeneratorType {
     }, (gen, lm, type) -> {
         if (lm.pos.y < MainPanel.level.getRegionTop()) {
             int borderProximityLimit = type.getInt(0);
-            gen.addMarker("platform", gen.randomPosAbove(lm, 0f, 1.5f, 6, 12, 2.5f, borderProximityLimit));
+            gen.addMarker("platform", gen.randomPosAbove(lm, 0.2f, 1.6f, 6, 12, 2.5f, borderProximityLimit));
         }
     }),
             storeInt("forceAwayFromBorderProximity")
