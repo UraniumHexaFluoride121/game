@@ -119,7 +119,7 @@ public class JumpSimulation implements Deletable, Renderable {
             return FAIL;
 
         simPos = fromLM.pos.copy();
-        simVelocity = new VelocityHandler(profile.initialVelocity, JUMP_IMPULSE);
+        simVelocity = new VelocityHandler(profile.initialVelocity, Math.min(JUMP_IMPULSE, MAX_VELOCITY));
         boolean stopForward = profile.type == ProfileType.AWAY_UNTIL_ABOVE;
 
         boolean forwardEnabled = false;

@@ -57,6 +57,8 @@ public abstract class PhysicsObject extends BlockLike {
         previousConstraints = constraints;
     }
 
+    public static final float MAX_VELOCITY = 30;
+
     public void processMovement(float deltaTime) {
         prevPos = pos.copy();
         float f = computeFriction();
@@ -66,7 +68,7 @@ public abstract class PhysicsObject extends BlockLike {
         velocity.applyAcceleration(getGravity(), deltaTime);
         //All velocity processing must happen BEFORE this point so that the new velocity
         //can be applied on the same tick
-        velocity.clamp(-30, 30, -30, 30);
+        velocity.clamp(-MAX_VELOCITY, MAX_VELOCITY, -MAX_VELOCITY, MAX_VELOCITY);
         pos.add(velocity.copy().multiply(deltaTime));
     }
 

@@ -49,7 +49,7 @@ public class GameRenderer implements Renderable {
 
 
     @Override
-    public void render(Graphics2D g) {
+    public synchronized void render(Graphics2D g) {
         float top = -MainPanel.cameraY + MainPanel.BLOCK_DIMENSIONS.y;
         float bottom = -MainPanel.cameraY;
         processQueued();
