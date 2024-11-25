@@ -2,21 +2,21 @@ package render.renderables;
 
 import foundation.math.ObjPos;
 import foundation.tick.Tickable;
+import render.RenderOrder;
+import render.TickedRenderable;
 import render.event.RenderEvent;
 import render.event.RenderEventListener;
-import render.RenderOrder;
-import render.Renderable;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.util.function.Supplier;
 
-public class RenderTexture extends RenderGameElement implements RenderEventListener {
-    private Renderable texture;
+public class RenderTexture extends RenderGameElement implements RenderEventListener, TickedRenderable {
+    private TickedRenderable texture;
     private Tickable textureAsTickable;
     private RenderEventListener textureAsEventListener;
 
-    public RenderTexture(RenderOrder renderOrder, Supplier<ObjPos> gamePos, Renderable texture) {
+    public RenderTexture(RenderOrder renderOrder, Supplier<ObjPos> gamePos, TickedRenderable texture) {
         super(renderOrder, gamePos);
         this.texture = texture;
         if (texture instanceof Tickable tickable)
@@ -55,5 +55,10 @@ public class RenderTexture extends RenderGameElement implements RenderEventListe
         texture = null;
         textureAsTickable = null;
         textureAsEventListener = null;
+    }
+
+    @Override
+    public boolean requiresTick() {
+        return texture.requiresTick();
     }
 }

@@ -32,10 +32,15 @@ public abstract class BlockLike implements RegisteredTickable, BoundedRenderable
     //init MUST be called after object creation
     public BlockLike init(RenderGameElement renderElement) {
         this.renderElement = renderElement;
-        registerTickable();
+        if (blockRequiresTick())
+            registerTickable();
         zOrder = MainPanel.GAME_RENDERER.getNextZOrder();
         MainPanel.GAME_RENDERER.register(this);
         return this;
+    }
+
+    public boolean blockRequiresTick() {
+        return true;
     }
 
     public void createHitBox(float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight) {

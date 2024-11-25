@@ -2,15 +2,15 @@ package render.texture.ct;
 
 import level.Level;
 import level.objects.BlockLike;
-import render.Renderable;
+import render.TickedRenderable;
 
 import java.util.function.BiPredicate;
 
 public class CTElement {
     public final BiPredicate<BlockLike, Level> condition;
-    public final Renderable renderable;
+    public final TickedRenderable renderable;
 
-    public CTElement(BiPredicate<BlockLike, Level> condition, Renderable renderable) {
+    public CTElement(BiPredicate<BlockLike, Level> condition, TickedRenderable renderable) {
         this.condition = condition;
         this.renderable = renderable;
     }

@@ -6,6 +6,7 @@ import level.ObjectLayer;
 import physics.CollisionBehaviour;
 import physics.CollisionType;
 import physics.HitBox;
+import render.renderables.RenderTexture;
 
 public class StaticBlock extends BlockLike {
     private final CollisionType collisionType;
@@ -18,6 +19,11 @@ public class StaticBlock extends BlockLike {
         this.objectLayer = objectLayer;
         this.hasCollision = hasCollision;
         createHitBox(hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
+    }
+
+    @Override
+    public boolean blockRequiresTick() {
+        return renderElement instanceof RenderTexture texture && !texture.requiresTick();
     }
 
     @Override

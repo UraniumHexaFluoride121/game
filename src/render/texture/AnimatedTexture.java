@@ -2,6 +2,7 @@ package render.texture;
 
 import foundation.tick.Tickable;
 import loader.*;
+import render.TickedRenderable;
 import render.event.RenderEvent;
 import render.event.RenderEventListener;
 import render.Renderable;
@@ -12,9 +13,9 @@ import java.util.HashSet;
 import java.util.Vector;
 import java.util.function.Supplier;
 
-public class AnimatedTexture implements Renderable, Tickable, RenderEventListener {
-    private final Vector<Renderable> elements = new Vector<>();
-    private final Vector<Renderable> initial = new Vector<>();
+public class AnimatedTexture implements TickedRenderable, Tickable, RenderEventListener {
+    private final Vector<TickedRenderable> elements = new Vector<>();
+    private final Vector<TickedRenderable> initial = new Vector<>();
     private final HashSet<RenderEvent> startInitialEvents;
 
     private int index = 0;
@@ -30,15 +31,15 @@ public class AnimatedTexture implements Renderable, Tickable, RenderEventListene
         isOnInitial = !pickRandomFrame;
     }
 
-    public void addRenderable(Renderable r) {
+    public void addRenderable(TickedRenderable r) {
         elements.add(r);
     }
 
-    public void addRenderableInitial(Renderable r) {
+    public void addRenderableInitial(TickedRenderable r) {
         initial.add(r);
     }
 
-    private Vector<Renderable> getActiveList() {
+    private Vector<TickedRenderable> getActiveList() {
         return isOnInitial && !initial.isEmpty() ? initial : elements;
     }
 
@@ -92,12 +93,12 @@ public class AnimatedTexture implements Renderable, Tickable, RenderEventListene
         Boolean pickRandomFrame = obj.getOrDefault("pickRandomFrame", false, JsonType.BOOLEAN_JSON_TYPE);
         Float frameDuration = obj.get("frameDuration", JsonType.FLOAT_JSON_TYPE);
 
-        ArrayList<Supplier<? extends Renderable>> elements = new ArrayList<>();
+        ArrayList<Supplier<? extends TickedRenderable>> elements = new ArrayList<>();
         renderables.forEach(o -> {
             elements.add(AssetManager.deserializeRenderable(o));
         }, JsonType.JSON_OBJECT_TYPE);
 
-        ArrayList<Supplier<? extends Renderable>> initialElements = new ArrayList<>();
+        ArrayList<Supplier<? extends TickedRenderable>> initialElements = new ArrayList<>();
         if (initial != null) {
             initial.forEach(o -> {
                 initialElements.add(AssetManager.deserializeRenderable(o));
@@ -113,13 +114,18 @@ public class AnimatedTexture implements Renderable, Tickable, RenderEventListene
 
         return () -> {
             AnimatedTexture t = new AnimatedTexture(startInitialEvents, pickRandomFrame, frameDuration);
-            for (Supplier<? extends Renderable> element : elements) {
+            for (Supplier<? extends TickedRenderable> element : elements) {
                 t.addRenderable(element.get());
             }
-            for (Supplier<? extends Renderable> initialElement : initialElements) {
+            for (Supplier<? extends TickedRenderable> initialElement : initialElements) {
                 t.addRenderableInitial(initialElement.get());
             }
             return t;
         };
+    }
+
+    @Override
+    public boolean requiresTick() {
+        return true;
     }
 }

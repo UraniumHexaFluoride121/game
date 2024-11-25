@@ -6,6 +6,7 @@ import foundation.tick.Tickable;
 import level.RandomType;
 import loader.*;
 import render.Renderable;
+import render.TickedRenderable;
 import render.event.RenderBlockUpdate;
 import render.event.RenderEvent;
 import render.event.RenderEventListener;
@@ -18,8 +19,8 @@ import java.util.Random;
 import java.util.Vector;
 import java.util.function.Supplier;
 
-public class RandomTexture implements Renderable, RenderEventListener, Tickable {
-    private final Vector<Renderable> textures = new Vector<>();
+public class RandomTexture implements TickedRenderable, RenderEventListener, Tickable {
+    private final Vector<TickedRenderable> textures = new Vector<>();
     private final HashSet<RenderEvent> events;
     private Renderable activeTexture = null;
     private Tickable tickable = null;
@@ -44,7 +45,7 @@ public class RandomTexture implements Renderable, RenderEventListener, Tickable 
         this.guaranteeUnique = guaranteeUnique;
     }
 
-    private void add(Renderable r) {
+    private void add(TickedRenderable r) {
         textures.add(r);
         switchToNewTexture(textureRandom::nextDouble);
     }
@@ -115,7 +116,7 @@ public class RandomTexture implements Renderable, RenderEventListener, Tickable 
         JsonArray renderables = obj.get("renderables", JsonType.JSON_ARRAY_TYPE);
         Boolean guaranteeUnique = obj.getOrDefault("guaranteeUnique", false, JsonType.BOOLEAN_JSON_TYPE);
 
-        ArrayList<Supplier<? extends Renderable>> elements = new ArrayList<>();
+        ArrayList<Supplier<? extends TickedRenderable>> elements = new ArrayList<>();
         renderables.forEach(o -> {
             elements.add(AssetManager.deserializeRenderable(o));
         }, JsonType.JSON_OBJECT_TYPE);
@@ -140,7 +141,7 @@ public class RandomTexture implements Renderable, RenderEventListener, Tickable 
 
             return () -> {
                 RandomTexture texture = new RandomTexture(eventSet, guaranteeUnique, true, type, xPivot, yPivot);
-                for (Supplier<? extends Renderable> element : elements) {
+                for (Supplier<? extends TickedRenderable> element : elements) {
                     texture.add(element.get());
                 }
                 return texture;
@@ -152,11 +153,20 @@ public class RandomTexture implements Renderable, RenderEventListener, Tickable 
 
         return () -> {
             RandomTexture texture = new RandomTexture(eventSet, guaranteeUnique, false, null, 0, 0);
-            for (Supplier<? extends Renderable> element : elements) {
+            for (Supplier<? extends TickedRenderable> element : elements) {
                 texture.add(element.get());
             }
             return texture;
         };
+    }
+
+    @Override
+    public boolean requiresTick() {
+        for (TickedRenderable texture : textures) {
+            if (texture.requiresTick())
+                return true;
+        }
+        return false;
     }
 
     private enum RotationType {

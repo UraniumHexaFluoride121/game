@@ -5,7 +5,7 @@ import foundation.tick.Tickable;
 import level.Level;
 import level.objects.BlockLike;
 import loader.*;
-import render.Renderable;
+import render.TickedRenderable;
 import render.event.RenderBlockUpdate;
 import render.event.RenderEvent;
 import render.event.RenderEventListener;
@@ -16,9 +16,9 @@ import java.util.Vector;
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
 
-public class ConnectedTexture implements Renderable, Tickable, RenderEventListener {
+public class ConnectedTexture implements TickedRenderable, Tickable, RenderEventListener {
     private final Vector<CTElement> textures = new Vector<>();
-    private final Vector<Renderable> activeTextures = new Vector<>();
+    private final Vector<TickedRenderable> activeTextures = new Vector<>();
     private final Vector<Tickable> activeTickables = new Vector<>();
 
     public void addTexture(CTElement e) {
@@ -78,11 +78,20 @@ public class ConnectedTexture implements Renderable, Tickable, RenderEventListen
         };
     }
 
+    @Override
+    public boolean requiresTick() {
+        for (CTElement texture : textures) {
+            if (texture.renderable.requiresTick())
+                return true;
+        }
+        return false;
+    }
+
     private static class CTElementSupplier {
         public final BiPredicate<BlockLike, Level> condition;
-        public final Supplier<? extends Renderable> renderable;
+        public final Supplier<? extends TickedRenderable> renderable;
 
-        private CTElementSupplier(Supplier<? extends Renderable> renderable, String string) {
+        private CTElementSupplier(Supplier<? extends TickedRenderable> renderable, String string) {
             this.condition = (b, l) -> (boolean) CTExpression.parser.parseExpression(string).apply(new CTExpressionData(b, l));
             this.renderable = renderable;
         }

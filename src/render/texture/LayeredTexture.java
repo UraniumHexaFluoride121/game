@@ -2,24 +2,24 @@ package render.texture;
 
 import foundation.tick.Tickable;
 import loader.*;
+import render.TickedRenderable;
 import render.event.RenderEvent;
 import render.event.RenderEventListener;
-import render.Renderable;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Vector;
 import java.util.function.Supplier;
 
-public class LayeredTexture implements Renderable, Tickable, RenderEventListener {
-    private final Vector<Renderable> textures = new Vector<>();
+public class LayeredTexture implements TickedRenderable, Tickable, RenderEventListener {
+    private final Vector<TickedRenderable> textures = new Vector<>();
     private final Vector<Tickable> tickableTextures = new Vector<>();
     private final Vector<RenderEventListener> renderEventTextures = new Vector<>();
 
     private LayeredTexture() {
     }
 
-    private void add(Renderable r) {
+    private void add(TickedRenderable r) {
         textures.add(r);
         if (r instanceof Tickable t)
             tickableTextures.add(t);
@@ -46,17 +46,26 @@ public class LayeredTexture implements Renderable, Tickable, RenderEventListener
         JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(resource));
         JsonArray renderables = obj.get("renderables", JsonType.JSON_ARRAY_TYPE);
 
-        ArrayList<Supplier<? extends Renderable>> textures = new ArrayList<>();
+        ArrayList<Supplier<? extends TickedRenderable>> textures = new ArrayList<>();
         renderables.forEach(o -> {
             textures.add(AssetManager.deserializeRenderable(o));
         }, JsonType.JSON_OBJECT_TYPE);
 
         return () -> {
             LayeredTexture texture = new LayeredTexture();
-            for (Supplier<? extends Renderable> supplier : textures) {
+            for (Supplier<? extends TickedRenderable> supplier : textures) {
                 texture.add(supplier.get());
             }
             return texture;
         };
+    }
+
+    @Override
+    public boolean requiresTick() {
+        for (TickedRenderable texture : textures) {
+            if (texture.requiresTick())
+                return true;
+        }
+        return false;
     }
 }

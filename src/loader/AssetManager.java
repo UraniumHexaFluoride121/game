@@ -8,14 +8,14 @@ import level.Level;
 import level.ObjectLayer;
 import level.RandomType;
 import level.objects.*;
-import level.procedural.generator.GeneratorType;
 import level.procedural.RegionType;
+import level.procedural.generator.GeneratorType;
 import level.procedural.marker.LMType;
 import level.procedural.marker.LayoutMarker;
 import physics.CollisionType;
 import physics.StaticHitBox;
 import render.RenderOrder;
-import render.Renderable;
+import render.TickedRenderable;
 import render.renderables.RenderTexture;
 import render.texture.*;
 import render.texture.ct.ConnectedTexture;
@@ -190,7 +190,7 @@ public abstract class AssetManager {
             blockHitBoxes.put(blockName, new StaticHitBox(hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight));
             switch (type) {
                 case PLAYER -> {
-                    Supplier<? extends Renderable> textureSupplier = deserializeRenderable(texture);
+                    Supplier<? extends TickedRenderable> textureSupplier = deserializeRenderable(texture);
                     blocks.put(blockName, pos -> {
                         Player player = new Player(pos, blockName,
                                 blockObj.getOrDefault("mass", 1f, JsonType.FLOAT_JSON_TYPE),
@@ -205,7 +205,7 @@ public abstract class AssetManager {
                 case STATIC_BLOCK -> {
                     if (layer.addToDynamic)
                         throw new IllegalArgumentException("staticBlocks type " + blockName + " was placed into a dynamic object layer " + layer);
-                    Supplier<? extends Renderable> textureSupplier = deserializeRenderable(texture);
+                    Supplier<? extends TickedRenderable> textureSupplier = deserializeRenderable(texture);
                     blocks.put(blockName, pos -> {
                         StaticBlock staticBlock = new StaticBlock(pos, blockName, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.STATIC, layer, hasCollision);
                         staticBlock.setFriction(friction);
@@ -216,7 +216,7 @@ public abstract class AssetManager {
                     });
                 }
                 case MOVABLE_BLOCK -> {
-                    Supplier<? extends Renderable> textureSupplier = deserializeRenderable(texture);
+                    Supplier<? extends TickedRenderable> textureSupplier = deserializeRenderable(texture);
                     blocks.put(blockName, pos -> {
                         StaticBlock staticBlock = new StaticBlock(pos, blockName, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.MOVABLE, ObjectLayer.DYNAMIC, hasCollision);
                         staticBlock.setFriction(friction);
@@ -227,7 +227,7 @@ public abstract class AssetManager {
                     });
                 }
                 case PHYSICS_BLOCK -> {
-                    Supplier<? extends Renderable> textureSupplier = deserializeRenderable(texture);
+                    Supplier<? extends TickedRenderable> textureSupplier = deserializeRenderable(texture);
                     blocks.put(blockName, pos -> {
                         PhysicsBlock physicsBlock = new PhysicsBlock(pos, blockName,
                                 blockObj.getOrDefault("mass", 1f, JsonType.FLOAT_JSON_TYPE),
@@ -273,7 +273,7 @@ public abstract class AssetManager {
     private static final HashMap<ResourceLocation, Supplier<RandomTexture>> randomTextures = new HashMap<>();
     private static final HashMap<ResourceLocation, Supplier<ConnectedTexture>> connectedTextures = new HashMap<>();
 
-    public static Supplier<? extends Renderable> deserializeRenderable(JsonObject object) {
+    public static Supplier<? extends TickedRenderable> deserializeRenderable(JsonObject object) {
         String type = object.get("type", JsonType.STRING_JSON_TYPE);
         ResourceLocation resource = new ResourceLocation(object.get("path", JsonType.STRING_JSON_TYPE));
         return switch (type) {

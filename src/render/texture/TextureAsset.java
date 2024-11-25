@@ -2,14 +2,14 @@ package render.texture;
 
 import foundation.Main;
 import loader.*;
-import render.Renderable;
+import render.TickedRenderable;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-public class TextureAsset implements Renderable {
+public class TextureAsset implements TickedRenderable {
     public ResourceLocation resource;
     public BufferedImage image;
     public AffineTransform transform;
@@ -28,6 +28,11 @@ public class TextureAsset implements Renderable {
         g.scale(1 / 16f, 1 / 16f);
         g.drawImage(image, transform, Main.window);
         g.scale(16, 16);
+    }
+
+    @Override
+    public boolean requiresTick() {
+        return false;
     }
 
     public static TextureAsset getTextureAsset(ResourceLocation resource) {
