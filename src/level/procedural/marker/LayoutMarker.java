@@ -150,8 +150,6 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
     }
 
     public boolean isBoxColliding(HitBox box, BoundType type) {
-        if (!hasBoundType(type))
-            return false;
         for (HitBox hitBox : bounds.get(type)) {
             if (hitBox.isColliding(box))
                 return true;

@@ -26,7 +26,9 @@ public class RenderTexture extends RenderGameElement implements RenderEventListe
     }
 
     @Override
-    public void render(Graphics2D g) {
+    public synchronized void render(Graphics2D g) {
+        if (gamePos == null)
+            return;
         AffineTransform prev = g.getTransform(), t = new AffineTransform();
         t.translate(gamePos.get().x, gamePos.get().y);
         g.transform(t);

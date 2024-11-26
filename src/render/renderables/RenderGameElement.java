@@ -26,7 +26,7 @@ public abstract class RenderGameElement implements OrderedRenderable, Tickable, 
 
     //Remove reference to parent object to avoid memory leaks
     @Override
-    public void delete() {
+    public synchronized void delete() {
         gamePos = null;
     }
 

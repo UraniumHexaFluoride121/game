@@ -14,6 +14,7 @@ import level.procedural.marker.LayoutMarker;
 import level.procedural.marker.movement.LMDPlayerMovement;
 import level.procedural.marker.movement.LMTPlayerMovement;
 import level.procedural.marker.resolved.LMDResolvedElement;
+import level.procedural.marker.resolved.LMTResolvedElement;
 import loader.AssetManager;
 import render.event.RenderEvent;
 
@@ -90,32 +91,56 @@ public class ProceduralGenerator implements Deletable {
                 }
             }
             HashSet<JumpSimulation> revalidatedJumps = new HashSet<>();
+            HashSet<JumpSimulation> addedJumps = new HashSet<>();
             if (validated.get()) {
                 //Generate blocks and validation markers in preparation for player movement sim
                 generatedLayoutMarkers.forEach(ProceduralGenerator::generateBlocks);
                 generatedLayoutMarkers.forEach(ProceduralGenerator::generateValidationMarkers);
                 for (LayoutMarker lm : generatedLayoutMarkers) {
                     if (lm.data instanceof LMDResolvedElement data) {
+                        MainPanel.level.layout.forEachMarker(lm.pos.y, 1, otherLM -> {
+                            if (otherLM.data instanceof LMDResolvedElement otherData && !otherLM.equals(lm)) {
+                                JumpSimulation jumpSimulationFrom = new JumpSimulation(otherLM, lm, otherData.gen.playerMovementMarkers, data.gen.playerMovementMarkers);
+                                jumpSimulationFrom.validateJump();
+                                jumpSimulationFrom.addFromLM();
+                                addedJumps.add(jumpSimulationFrom);
+
+                                JumpSimulation jumpSimulationTo = new JumpSimulation(lm, otherLM, data.gen.playerMovementMarkers, otherData.gen.playerMovementMarkers);
+                                jumpSimulationTo.validateJump();
+                                jumpSimulationTo.addFromLM();
+                                addedJumps.add(jumpSimulationTo);
+                            }
+                        });
+                    }/*
+
+                    if (lm.data instanceof LMDResolvedElement data) {
                         JumpSimulation jumpSimulation = new JumpSimulation(marker, lm, playerMovementMarkers, data.gen.playerMovementMarkers);
-                        jumpSimulation.addToLM();
+                        jumpSimulation.addFromLM();
+                        addedJumps.add(jumpSimulation);
                         if (!jumpSimulation.validateJump())
                             validated.set(false);
-                    }
+                    }*/
                 }
 
                 for (LayoutMarker lm : generatedLayoutMarkers) {
+                    if (!(lm.type instanceof LMTResolvedElement))
+                        continue;
                     MainPanel.level.layout.forEachMarker(lm.pos.y, 2, otherLM -> {
                         if (otherLM.data instanceof LMDResolvedElement rData && !otherLM.equals(lm)) {
-                            for (JumpSimulation jump : rData.jumps) {
+                            for (JumpSimulation jump : rData.jumps.keySet()) {
                                 if (jump.bound != null && lm.isBoxColliding(jump.bound, BoundType.COLLISION)) {
-                                    if (!jump.validateJump()) {
-                                        validated.set(false);
-                                    }
+                                    jump.validateJump();
                                     revalidatedJumps.add(jump);
                                 }
                             }
                         }
                     });
+                }
+                for (LayoutMarker lm : generatedLayoutMarkers) {
+                    if (!(lm.type instanceof LMTResolvedElement))
+                        continue;
+                    if (!MainPanel.level.layout.isLMReachable(lm))
+                        validated.set(false);
                 }
             }
             if (validated.get()) {
@@ -125,6 +150,7 @@ public class ProceduralGenerator implements Deletable {
                 generatedLayoutMarkers.forEach(MainPanel.level.layout::addProceduralLM); //Repeat the cycle for the newly validated markers
                 break;
             } else {
+                addedJumps.forEach(j -> ((LMDResolvedElement) j.from.data).jumps.remove(j));
                 generatedLayoutMarkers.forEach(lm -> {
                     if (lm.data instanceof LMDResolvedElement data)
                         data.gen.revertGeneration();

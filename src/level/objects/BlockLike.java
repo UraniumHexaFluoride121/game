@@ -57,12 +57,6 @@ public abstract class BlockLike implements RegisteredTickable, BoundedRenderable
     public abstract ObjectLayer getLayer();
 
     public synchronized void renderUpdateBlock(RenderEvent type) {
-        if (type instanceof RenderBlockUpdate u && u.type == RenderEvent.ON_GAME_INIT) {
-            if (receivedInit) {
-                return;
-            } else
-                receivedInit = true;
-        }
         renderElement.onEvent(new RenderBlockUpdate(type, this));
     }
 

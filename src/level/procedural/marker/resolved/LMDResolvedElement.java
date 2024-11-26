@@ -7,13 +7,13 @@ import level.procedural.marker.LMData;
 import render.Renderable;
 
 import java.awt.*;
-import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class LMDResolvedElement extends LMData implements Renderable {
     public ProceduralGenerator gen;
     public GeneratorType genType;
-    //A set with all the jumps from this LM
-    public final HashSet<JumpSimulation> jumps = new HashSet<>();
+    //A map with all the jumps to this LM, mapped to the data of the LM we jumped from
+    public final ConcurrentHashMap<JumpSimulation, LMDResolvedElement> jumps = new ConcurrentHashMap<>();
     public boolean root = false;
 
     public LMDResolvedElement(ProceduralGenerator gen, GeneratorType genType) {
@@ -33,6 +33,6 @@ public class LMDResolvedElement extends LMData implements Renderable {
     }
 
     public void render(Graphics2D g) {
-        jumps.forEach(j -> j.render(g));
+        jumps.forEach((j, to) -> j.render(g));
     }
 }

@@ -115,6 +115,7 @@ public class Level implements Deletable {
                     break;
                 }
             }
+            System.out.println("generated markers: " + ProceduralGenerator.generatedMarkers);
             updatePool.shutdown();
         }).start();
     }

@@ -6,8 +6,6 @@ import foundation.MainPanel;
 import foundation.VelocityHandler;
 import foundation.math.MathHelper;
 import foundation.math.ObjPos;
-import level.objects.PhysicsObject;
-import level.objects.Player;
 import level.procedural.generator.BoundType;
 import level.procedural.marker.LayoutMarker;
 import level.procedural.marker.movement.LMDPlayerMovement;
@@ -46,6 +44,7 @@ public class JumpSimulation implements Deletable, Renderable {
     public Set<RenderGameSquare> debugRenderSquares = ConcurrentHashMap.newKeySet();
     public StaticHitBox bound;
     public boolean hasValidJump = false;
+    public int validatedCount = 0;
 
     public JumpSimulation(LayoutMarker from, LayoutMarker to, HashSet<LayoutMarker> fromLMs, HashSet<LayoutMarker> toLMS) {
         this.from = from;
@@ -54,10 +53,8 @@ public class JumpSimulation implements Deletable, Renderable {
         this.toLMS = toLMS;
     }
 
-    public void addToLM() {
-        if (to.data instanceof LMDResolvedElement toData) {
-            toData.jumps.add(this);
-        }
+    public void addFromLM() {
+        ((LMDResolvedElement) from.data).jumps.put(this, ((LMDResolvedElement) to.data));
     }
 
     public boolean validateJump() {
@@ -71,7 +68,7 @@ public class JumpSimulation implements Deletable, Renderable {
         });
         StaticHitBox playerStaticBox = AssetManager.blockHitBoxes.get("player");
         DynamicHitBox playerBox = new DynamicHitBox(playerStaticBox.up, playerStaticBox.down, playerStaticBox.left, playerStaticBox.right, this::getSimPos);
-        int validatedCount = 0;
+        validatedCount = 0;
         for (LayoutMarker fromLM : fromLMs) {
             for (LayoutMarker toLM : toLMS) {
                 LMDPlayerMovement data = ((LMDPlayerMovement) fromLM.data);
@@ -96,6 +93,7 @@ public class JumpSimulation implements Deletable, Renderable {
         }
         if (validatedCount > 0/* && validatedCount < 15*/)
             return true;
+        hasValidJump = false;
         clearDebugRender();
         return false;
     }
@@ -242,13 +240,13 @@ public class JumpSimulation implements Deletable, Renderable {
         if (holdJump)
             simVelocity.applyAcceleration(DEFAULT_GRAVITY.copy().divide(-2), DELTA_TIME);
         if (movement == Direction.LEFT)
-            simVelocity.applyAcceleration(new ObjPos(-Player.MOVEMENT_ACCELERATION), DELTA_TIME);
+            simVelocity.applyAcceleration(new ObjPos(-MOVEMENT_ACCELERATION), DELTA_TIME);
         if (movement == Direction.RIGHT)
-            simVelocity.applyAcceleration(new ObjPos(Player.MOVEMENT_ACCELERATION), DELTA_TIME);
+            simVelocity.applyAcceleration(new ObjPos(MOVEMENT_ACCELERATION), DELTA_TIME);
 
-        simVelocity.tickExponentialXDecay(DELTA_TIME, PhysicsObject.EXP_X_DECAY);
-        simVelocity.tickExponentialYDecay(DELTA_TIME, PhysicsObject.EXP_Y_DECAY);
-        simVelocity.tickLinearXDecay(DELTA_TIME, PhysicsObject.LINEAR_X_DECAY);
+        simVelocity.tickExponentialXDecay(DELTA_TIME, EXP_X_DECAY);
+        simVelocity.tickExponentialYDecay(DELTA_TIME, EXP_Y_DECAY);
+        simVelocity.tickLinearXDecay(DELTA_TIME, LINEAR_X_DECAY);
         simVelocity.applyAcceleration(DEFAULT_GRAVITY, DELTA_TIME);
         simPos.add(simVelocity.copy().multiply(DELTA_TIME));
     }
