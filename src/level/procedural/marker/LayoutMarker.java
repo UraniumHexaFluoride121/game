@@ -27,9 +27,10 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class LayoutMarker implements BoundedRenderable, Deletable {
-    private final HashMap<BoundType, HashSet<HitBox>> bounds = new HashMap<>();
+    private final ConcurrentHashMap<BoundType, HashSet<HitBox>> bounds = new ConcurrentHashMap<>();
     private final HashMap<BoundType, HashSet<Renderable>> boundsDebugRenderer = new HashMap<>();
     public LMType type;
     public final ObjPos pos;
@@ -150,6 +151,8 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
     }
 
     public boolean isBoxColliding(HitBox box, BoundType type) {
+        if (!hasBoundType(type))
+            return false;
         for (HitBox hitBox : bounds.get(type)) {
             if (hitBox.isColliding(box))
                 return true;

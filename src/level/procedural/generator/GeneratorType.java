@@ -13,6 +13,7 @@ import loader.JsonType;
 import physics.StaticHitBox;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -57,11 +58,18 @@ public enum GeneratorType {
         BezierCurve3 curve = gen.getData("curve", BezierCurve3.class);
         float length;
         boolean isLeftSide = lm.pos.x < Main.BLOCKS_X / 2f;
+        HashMap<Integer, Integer> blockHeights = new HashMap<>();
         if (isLeftSide) {
             length = lm.pos.x;
             curve.forEachBlockNearCurve(2f,
                     (point, dist) -> dist < GeneratorTypeFunctions.FOREST_BRANCH_CURVE_SIZE.apply(length, point),
                     (pos, dist) -> {
+                        int x = ((int) pos.x);
+                        int y = ((int) pos.y);
+                        if (!blockHeights.containsKey(x))
+                            blockHeights.put(x, y);
+                        else
+                            blockHeights.put(x, Math.max(blockHeights.get(x), y));
                         gen.addBlock(type.getString(0), pos);
                     });
         } else {
@@ -69,10 +77,37 @@ public enum GeneratorType {
             curve.forEachBlockNearCurve(2,
                     (point, dist) -> dist < GeneratorTypeFunctions.FOREST_BRANCH_CURVE_SIZE.apply(length, point),
                     (pos, dist) -> {
+                        int x = ((int) pos.x);
+                        int y = ((int) pos.y);
+                        if (!blockHeights.containsKey(x))
+                            blockHeights.put(x, y);
+                        else
+                            blockHeights.put(x, Math.max(blockHeights.get(x), y));
                         gen.addBlock(type.getString(0), pos);
                     });
         }
+        gen.addData("blockHeights", blockHeights);
     }, (gen, lm, type) -> {
+        HashMap<Integer, Integer> blockHeights = gen.getData("blockHeights", HashMap.class);
+        String blockName = type.getString(0);
+        StaticHitBox box = AssetManager.blockHitBoxes.get(blockName);
+        int lastHeight = -1;
+        int from = 0;
+        for (int x = 0; x <= Main.BLOCKS_X; x++) {
+            int height = blockHeights.getOrDefault(x, -1);
+            if (lastHeight == -1 || lastHeight != height) {
+                if (lastHeight != -1) {
+                    if (lastHeight > height) {
+                        gen.addJumpMarker("static_jump", new ObjPos(x - 1 + box.getRight(), lastHeight + box.getTop()));
+                    } else {
+                        gen.addJumpMarker("static_jump", new ObjPos(x + box.getLeft(), height + box.getTop()));
+                    }
+                    lm.addBound(new StaticHitBox(lastHeight + 1 + box.getTop(), lastHeight + box.getTop(), from + 0.3f, x - 0.3f), BoundType.JUMP_VALIDATION);
+                }
+                from = x;
+                lastHeight = height;
+            }
+        }
     }, (gen, lm, type) -> {
         if (lm.pos.y < MainPanel.level.getRegionTop()) {
             BezierCurve3 curve = gen.getData("curve", BezierCurve3.class);

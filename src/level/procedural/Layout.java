@@ -55,7 +55,7 @@ public class Layout {
         }
     }
 
-    public boolean isLMReachable(LayoutMarker lm) {
+    public HashSet<LMDResolvedElement> nonReachable(LayoutMarker lm) {
         HashSet<LMDResolvedElement> goals = new HashSet<>();
         forEachMarker(lm.pos.y, 2, nearbyLM -> {
             if (nearbyLM.data instanceof LMDResolvedElement nearbyLMData)
@@ -66,24 +66,24 @@ public class Layout {
             if (section < 5) {
                 for (LMDResolvedElement root : roots) {
                     if (bfsLM(new HashSet<>(), goals, root))
-                        return true;
+                        return goals;
                 }
             } else {
                 for (LayoutMarker root : markerSections[section - 3]) {
                     if (root.data instanceof LMDResolvedElement rootData) {
                         if (bfsLM(new HashSet<>(), goals, rootData))
-                            return true;
+                            return goals;
                     }
                 }
                 for (LayoutMarker root : markerSections[section - 4]) {
                     if (root.data instanceof LMDResolvedElement rootData) {
                         if (bfsLM(new HashSet<>(), goals, rootData))
-                            return true;
+                            return goals;
                     }
                 }
             }
         }
-        return false;
+        return goals;
     }
 
     public boolean dfsLM(HashSet<LMDResolvedElement> visited, HashSet<LMDResolvedElement> goals, LMDResolvedElement current) {

@@ -111,15 +111,7 @@ public class ProceduralGenerator implements Deletable {
                                 addedJumps.add(jumpSimulationTo);
                             }
                         });
-                    }/*
-
-                    if (lm.data instanceof LMDResolvedElement data) {
-                        JumpSimulation jumpSimulation = new JumpSimulation(marker, lm, playerMovementMarkers, data.gen.playerMovementMarkers);
-                        jumpSimulation.addFromLM();
-                        addedJumps.add(jumpSimulation);
-                        if (!jumpSimulation.validateJump())
-                            validated.set(false);
-                    }*/
+                    }
                 }
 
                 for (LayoutMarker lm : generatedLayoutMarkers) {
@@ -139,7 +131,7 @@ public class ProceduralGenerator implements Deletable {
                 for (LayoutMarker lm : generatedLayoutMarkers) {
                     if (!(lm.type instanceof LMTResolvedElement))
                         continue;
-                    if (!MainPanel.level.layout.isLMReachable(lm))
+                    if (!MainPanel.level.layout.nonReachable(lm).isEmpty())
                         validated.set(false);
                 }
             }
