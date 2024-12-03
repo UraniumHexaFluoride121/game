@@ -20,7 +20,7 @@ public class StaticHitBox implements HitBox {
     }
 
     public StaticHitBox(ObjPos from, ObjPos to) {
-        this(to.y, from.y, from.x, to.x);
+        this(Math.max(from.y, to.y), Math.min(from.y, to.y), Math.min(from.x, to.x), Math.max(from.x, to.x));
     }
 
     public StaticHitBox(HitBox box) {

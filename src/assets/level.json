@@ -33,6 +33,6 @@
   },
   "generationData": {
     "forest_branch": "forest_branch.json",
-    "island_test": "island_test.json"
+    "island": "island.json"
   }
 }

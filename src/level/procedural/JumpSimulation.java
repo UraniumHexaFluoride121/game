@@ -37,7 +37,6 @@ public class JumpSimulation implements Deletable, Renderable {
             JUMP_IMPULSE / 5 * 1,
             JUMP_IMPULSE / 5 * 0
     };
-    public static final boolean DEBUG_RENDER_SIM = true;
     public LayoutMarker from, to;
     public HashSet<LayoutMarker> fromLMs, toLMS;
     public Set<RenderGameCircle> debugRenderCircles = ConcurrentHashMap.newKeySet();
@@ -81,7 +80,7 @@ public class JumpSimulation implements Deletable, Renderable {
                                 if (!hasValidJump) {
                                     bound = validationResult.bound;
                                     hasValidJump = true;
-                                    if (DEBUG_RENDER && DEBUG_RENDER_SIM)
+                                    if (DEBUG_RENDER && DEBUG_RENDER_SIM && DEBUG_RENDER_JUMP_BOUNDS)
                                         debugRenderSquares.add(new RenderGameSquare(new Color(34, 228, 178), bound));
                                 }
                                 validatedCount++;

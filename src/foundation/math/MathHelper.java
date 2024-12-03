@@ -11,6 +11,15 @@ public abstract class MathHelper {
         return (v - min) / (max - min);
     }
 
+    public static float map(float fromMin, float fromMax, float toMin, float toMax, float v) {
+        return lerp(toMin, toMax, normalise(fromMin, fromMax, v));
+    }
+
+    public static float map(float fromMin, float fromMax, float toMin, float toMax, float v, boolean clamp) {
+        float lerped = lerp(toMin, toMax, normalise(fromMin, fromMax, v));
+        return clamp ? clamp(toMin, toMax, lerped) : lerped;
+    }
+    
     public static float clamp(float min, float max, float value) {
         return Math.min(max, Math.max(min, value));
     }

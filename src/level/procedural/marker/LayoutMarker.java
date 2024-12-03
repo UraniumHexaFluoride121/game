@@ -27,6 +27,7 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class LayoutMarker implements BoundedRenderable, Deletable {
@@ -35,13 +36,13 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
     public LMType type;
     public final ObjPos pos;
 
-    public LMData data = new LMData();
+    public LMData data = new LMData(this);
 
     public LayoutMarker(LMType type, ObjPos pos) {
         this.type = type;
         this.pos = pos;
         if (type instanceof LMTPlayerMovement) {
-            data = new LMDPlayerMovement();
+            data = new LMDPlayerMovement(this);
         }
         if (Layout.DEBUG_RENDER)
             MainPanel.GAME_RENDERER.register(this);
@@ -62,7 +63,7 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
                     MainPanel.level.getRegion(pos), t, this, MainPanel.level
             ));
             ProceduralGenerator gen = genType.generator.get();
-            data = new LMDResolvedElement(gen, genType);
+            data = new LMDResolvedElement(this, gen, genType);
             gen.generate(this, genType);
         }
     }
@@ -201,10 +202,15 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
         g.translate(pos.x, pos.y);
         type.debugRenderable.render(g);
         g.setTransform(prev);
-        for (HashSet<Renderable> types : boundsDebugRenderer.values()) {
-            for (Renderable r : types) {
-                r.render(g);
+        for (Map.Entry<BoundType, HashSet<Renderable>> entry : boundsDebugRenderer.entrySet()) {
+            if ((entry.getKey() == BoundType.JUMP_VALIDATION && Layout.DEBUG_RENDER_VALIDATION_BOUNDS) || (entry.getKey() != BoundType.JUMP_VALIDATION && Layout.DEBUG_RENDER_LM_BOUNDS)) {
+                for (Renderable r : entry.getValue()) {
+                    r.render(g);
+                }
             }
+        }
+        if (data instanceof LMDPlayerMovement pData) {
+            pData.debugRenderables.forEach(r -> r.render(g));
         }
         if (data instanceof LMDResolvedElement rData) {
             rData.render(g);
@@ -234,6 +240,7 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
     @Override
     public void delete() {
         MainPanel.level.layout.removeMarker(this);
+        data.delete();
         if (Layout.DEBUG_RENDER)
             MainPanel.GAME_RENDERER.remove(this);
     }

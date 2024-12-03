@@ -6,7 +6,7 @@ import foundation.math.MathHelper;
 import foundation.math.ObjPos;
 import level.Level;
 import level.ObjectLayer;
-import level.RandomType;
+import foundation.math.RandomType;
 import level.objects.*;
 import level.procedural.RegionType;
 import level.procedural.generator.GeneratorType;

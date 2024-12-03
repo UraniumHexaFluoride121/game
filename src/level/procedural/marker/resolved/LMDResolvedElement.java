@@ -4,6 +4,7 @@ import level.procedural.JumpSimulation;
 import level.procedural.generator.GeneratorType;
 import level.procedural.generator.ProceduralGenerator;
 import level.procedural.marker.LMData;
+import level.procedural.marker.LayoutMarker;
 import render.Renderable;
 
 import java.awt.*;
@@ -16,7 +17,8 @@ public class LMDResolvedElement extends LMData implements Renderable {
     public final ConcurrentHashMap<JumpSimulation, LMDResolvedElement> jumps = new ConcurrentHashMap<>();
     public boolean root = false;
 
-    public LMDResolvedElement(ProceduralGenerator gen, GeneratorType genType) {
+    public LMDResolvedElement(LayoutMarker lm, ProceduralGenerator gen, GeneratorType genType) {
+        super(lm);
         this.gen = gen;
         this.genType = genType;
     }

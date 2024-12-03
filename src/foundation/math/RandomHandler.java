@@ -1,4 +1,4 @@
-package level;
+package foundation.math;
 
 import java.util.HashMap;
 import java.util.Random;

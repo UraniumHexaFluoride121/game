@@ -14,6 +14,14 @@ import java.util.function.Predicate;
 public class Layout {
     public static final boolean DEBUG_RENDER = false;
 
+    public static final boolean DEBUG_RENDER_LM_BOUNDS = false;
+
+    public static final boolean DEBUG_RENDER_SIM = true;
+    public static final boolean DEBUG_RENDER_VALIDATION_BOUNDS = true;
+    public static final boolean DEBUG_RENDER_JUMP_BOUNDS = false;
+
+    public static final boolean DEBUG_RENDER_BEZIER_CURVES = false;
+
     private final int sectionSize, sectionCount, maxHeight;
     public final ArrayList<LayoutMarker>[] markerSections;
     public final HashSet<LMDResolvedElement> roots = new HashSet<>();

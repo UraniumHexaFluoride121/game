@@ -3,7 +3,7 @@ package render.texture;
 import foundation.MainPanel;
 import foundation.math.MathHelper;
 import foundation.tick.Tickable;
-import level.RandomType;
+import foundation.math.RandomType;
 import loader.*;
 import render.Renderable;
 import render.TickedRenderable;

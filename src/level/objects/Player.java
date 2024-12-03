@@ -66,7 +66,7 @@ public class Player extends PhysicsBlock {
     }
 
 
-    public static final float MOVEMENT_ACCELERATION = 30, JUMP_IMPULSE = 20;
+    public static final float MOVEMENT_ACCELERATION = 30, JUMP_IMPULSE = 22.7f;
 
     public float jumpTimer = 0;
 

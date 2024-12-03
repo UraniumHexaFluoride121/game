@@ -6,6 +6,7 @@ import foundation.input.InputHandler;
 import foundation.input.InputHandlingOrder;
 import foundation.input.InputType;
 import foundation.math.ObjPos;
+import foundation.math.RandomHandler;
 import level.objects.BlockLike;
 import level.objects.Player;
 import level.procedural.Layout;

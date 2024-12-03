@@ -1,7 +1,7 @@
 package render;
 
 import foundation.MainPanel;
-import level.RandomType;
+import foundation.math.RandomType;
 import level.objects.StaticBlock;
 
 import java.awt.*;

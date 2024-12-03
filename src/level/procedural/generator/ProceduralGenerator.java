@@ -5,10 +5,9 @@ import foundation.Main;
 import foundation.MainPanel;
 import foundation.math.MathHelper;
 import foundation.math.ObjPos;
-import level.RandomType;
+import foundation.math.RandomType;
 import level.objects.BlockLike;
 import level.procedural.JumpSimulation;
-import level.procedural.Layout;
 import level.procedural.marker.GeneratorLMFunction;
 import level.procedural.marker.LayoutMarker;
 import level.procedural.marker.movement.LMDPlayerMovement;
@@ -21,6 +20,7 @@ import render.event.RenderEvent;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -161,11 +161,10 @@ public class ProceduralGenerator implements Deletable {
         generatedLayoutMarkers.forEach(LayoutMarker::delete);
         overwrittenBlocks.clear();
         generatedBlocks.clear();
-        if (Layout.DEBUG_RENDER) //Delete debug elements that were added to the renderer
-            generationData.forEach((k, v) -> {
-                if (v instanceof Deletable d)
-                    d.delete();
-            });
+        generationData.forEach((k, v) -> {
+            if (v instanceof Deletable d)
+                d.delete();
+        });
         generationData.clear();
     }
 
@@ -191,11 +190,23 @@ public class ProceduralGenerator implements Deletable {
 
     public LMDPlayerMovement addJumpMarker(String name, ObjPos pos) {
         if (MainPanel.level.outOfBounds(pos))
-            return new LMDPlayerMovement();
+            return null;
         LayoutMarker marker = new LayoutMarker(name, pos);
         generatedLayoutMarkers.add(marker);
         MainPanel.level.layout.addMarker(marker);
-        return ((LMDPlayerMovement) marker.data);
+        LMDPlayerMovement data = (LMDPlayerMovement) marker.data;
+        return data;
+    }
+
+    public LMDPlayerMovement addJumpMarker(String name, ObjPos pos, Consumer<LMDPlayerMovement> action) {
+        if (MainPanel.level.outOfBounds(pos))
+            return null;
+        LayoutMarker marker = new LayoutMarker(name, pos);
+        generatedLayoutMarkers.add(marker);
+        MainPanel.level.layout.addMarker(marker);
+        LMDPlayerMovement data = (LMDPlayerMovement) marker.data;
+        action.accept(data);
+        return data;
     }
 
     public void addData(String name, Object data) {
@@ -253,15 +264,19 @@ public class ProceduralGenerator implements Deletable {
     }
 
     public int randomInt(int min, int max) {
-        return MathHelper.randIntBetween(min, max, MainPanel.level.randomHandler.getDoubleSupplier(RandomType.PROCEDURAL));
+        return MathHelper.randIntBetween(min, max, random());
     }
 
     public float randomFloat(float min, float max) {
-        return MathHelper.randFloatBetween(min, max, MainPanel.level.randomHandler.getDoubleSupplier(RandomType.PROCEDURAL));
+        return MathHelper.randFloatBetween(min, max, random());
     }
 
     public boolean randomBoolean(float probability) {
-        return MathHelper.randBoolean(probability, MainPanel.level.randomHandler.getDoubleSupplier(RandomType.PROCEDURAL));
+        return MathHelper.randBoolean(probability, random());
+    }
+
+    public Supplier<Double> random() {
+        return MainPanel.level.randomHandler.getDoubleSupplier(RandomType.PROCEDURAL);
     }
 
     @Override

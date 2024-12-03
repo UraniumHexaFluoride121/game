@@ -4,7 +4,7 @@ import foundation.MainPanel;
 import foundation.expression.*;
 import foundation.math.MathHelper;
 import foundation.math.ObjPos;
-import level.RandomType;
+import foundation.math.RandomType;
 import level.procedural.generator.BoundType;
 import level.procedural.generator.GeneratorValidation;
 import level.procedural.marker.LayoutMarker;

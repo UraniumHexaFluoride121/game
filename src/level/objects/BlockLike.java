@@ -21,7 +21,6 @@ public abstract class BlockLike implements RegisteredTickable, BoundedRenderable
     public float friction = 1, bounciness = 0;
     public CollisionHandler.CollisionObjectData collisionObjectData;
     public final String name;
-    public boolean receivedInit = false;
     public int zOrder;
 
     public BlockLike(ObjPos pos, String name) {
