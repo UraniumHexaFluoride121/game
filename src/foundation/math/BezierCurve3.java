@@ -4,6 +4,7 @@ import foundation.Deletable;
 import foundation.Main;
 import foundation.MainPanel;
 import level.procedural.Layout;
+import level.procedural.generator.BlockCollection;
 import physics.StaticHitBox;
 import render.BoundedRenderable;
 import render.RenderOrder;
@@ -162,6 +163,12 @@ public class BezierCurve3 implements BoundedRenderable, Deletable {
                     function.accept(new ObjPos(x, y), distanceToCurve);
             }
         }
+    }
+
+    public BlockCollection forEachBlockNearCurve(float dist, BiPredicate<Float, Float> filter) {
+        BlockCollection c = new BlockCollection();
+        forEachBlockNearCurve(dist, filter, (pos, d) -> c.addBlock(pos));
+        return c.calculateBound();
     }
 
     @Override

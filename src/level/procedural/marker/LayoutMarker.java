@@ -240,13 +240,7 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
     @Override
     public void delete() {
         MainPanel.level.layout.removeMarker(this);
-        data.delete();
         if (Layout.DEBUG_RENDER)
             MainPanel.GAME_RENDERER.remove(this);
-    }
-
-    private void register() {
-        MainPanel.level.layout.addMarker(this);
-        generate();
     }
 }

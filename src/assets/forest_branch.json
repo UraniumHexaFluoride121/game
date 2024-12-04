@@ -1,4 +1,4 @@
 {
-  "leafBlock": "static_example",
-  "woodBlock": "wood_red"
+  "woodBlock": "wood_red",
+  "generateNextPlatformAs": "platform"
 }

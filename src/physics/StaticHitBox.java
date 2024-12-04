@@ -55,15 +55,28 @@ public class StaticHitBox implements HitBox {
         return this;
     }
 
-    public void expandToFit(HitBox box) {
-        expandToFit(box.getTop(), box.getBottom(), box.getLeft(), box.getRight());
+    public StaticHitBox expandToFit(HitBox box) {
+        return expandToFit(box.getTop(), box.getBottom(), box.getLeft(), box.getRight());
     }
 
-    public void expandToFit(float up, float down, float left, float right) {
+    public StaticHitBox expandToFit(float up, float down, float left, float right) {
         this.up = Math.max(this.up, up);
         this.down = Math.min(this.down, down);
         this.right = Math.max(this.right, right);
         this.left = Math.min(this.left, left);
+        return this;
+    }
+
+    public StaticHitBox offset(ObjPos pos) {
+        return offset(pos.x, pos.y);
+    }
+
+    public StaticHitBox offset(float x, float y) {
+        up += y;
+        down += y;
+        right += x;
+        left += x;
+        return this;
     }
 
     public float middleX() {

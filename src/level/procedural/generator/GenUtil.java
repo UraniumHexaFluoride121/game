@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.function.Supplier;
 
 public abstract class GenUtil {
-    public static StackData blockStackInward(int initialLeft, int initialRight, Supplier<Double> random, FunctionalWeightedRandom<Integer, StackRandomData> inward) {
+    public static StackData blockStackInward(int initialLeft, int initialRight, boolean inverted, Supplier<Double> random, FunctionalWeightedRandom<Integer, StackRandomData> inward) {
         ArrayList<Integer> left = new ArrayList<>(), right = new ArrayList<>();
         left.add(initialLeft);
         right.add(initialRight);
@@ -27,7 +27,10 @@ public abstract class GenUtil {
         }
         left.remove(left.size() - 1);
         right.remove(right.size() - 1);
-        return new StackData(left, right);
+        return new StackData(left, right, inverted).setBound(inverted ?
+                new StaticHitBox(1, left.size() - 1, initialLeft, initialRight + 1, new ObjPos()) :
+                new StaticHitBox(left.size(), 0, initialLeft, initialRight + 1, new ObjPos())
+        );
     }
 
     private static int getLastStackSize(ArrayList<Integer> left, ArrayList<Integer> right) {
@@ -37,39 +40,51 @@ public abstract class GenUtil {
     public record StackRandomData(int layer, int lastValue, int lastWidth) {
     }
 
-    public record StackData(ArrayList<Integer> left, ArrayList<Integer> right) {
-        public int height() {
-            return left.size();
+    public static class StackData extends BlockCollection {
+        public final ArrayList<Integer> left;
+        public final ArrayList<Integer> right;
+        public final boolean inverted;
+
+        public StackData(ArrayList<Integer> left, ArrayList<Integer> right, boolean inverted) {
+            this.left = left;
+            this.right = right;
+            this.inverted = inverted;
+            forEachLayer((l, r, i) -> {
+                for (int j = -l; j <= r; j++) {
+                    addBlock(j, inverted ? -i : i);
+                }
+            });
         }
 
-        public int getRightPercent(float percent) {
+        @Override
+        public StackData setBound(StaticHitBox bound) {
+            super.setBound(bound);
+            return this;
+        }
+
+        @Override
+        public StackData calculateBound() {
+            super.calculateBound();
+            return this;
+        }
+
+        public int rightLayer(float percent) {
             return right.get(((int) ((right.size() - 1) * percent)));
         }
 
-        public int getLeftPercent(float percent) {
+        public int leftLayer(float percent) {
             return left.get(((int) ((left.size() - 1) * percent)));
         }
 
-        public int getHeightPercent(float percent) {
-            return (int) ((left.size() - 1) * percent);
-        }
-
-        public HashMap<Integer, Integer> getBlockHeights(ObjPos pos, boolean inverted) {
-            return getBlockHeights((int) pos.x, pos.y, inverted);
-        }
-
-        public HashMap<Integer, Integer> getBlockHeights(float x, float y, boolean inverted) {
-            return getBlockHeights((int) x, (int) y, inverted);
-        }
-
-        public HashMap<Integer, Integer> getBlockHeights(int x, int y, boolean inverted) {
+        @Override
+        public HashMap<Integer, Integer> getBlockHeights(int x, int y) {
             HashMap<Integer, Integer> blockHeights = new HashMap<>();
             if (inverted) {
                 for (int i = -left.get(0); i <= right.get(0); i++) {
                     blockHeights.put(i + x, y);
                 }
             } else {
-                forEach((l, r, layer) -> {
+                forEachLayer((l, r, layer) -> {
                     for (int i = -l; i <= r; i++) {
                         blockHeights.put(i + x, y + layer);
                     }
@@ -78,7 +93,7 @@ public abstract class GenUtil {
             return blockHeights;
         }
 
-        public void forEach(StackLayerConsumer action) {
+        public void forEachLayer(StackLayerConsumer action) {
             for (int i = 0; i < left.size(); i++) {
                 action.accept(left.get(i), right.get(i), i);
             }
