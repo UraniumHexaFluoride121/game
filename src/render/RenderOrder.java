@@ -6,6 +6,7 @@ public enum RenderOrder {
     BACKGROUND("background"),
     PLAYER("player"),
     BLOCK("block"),
+    UI("ui"),
     DEBUG("debug"); //Debug is not accessible through json
 
     public final String s;

@@ -106,4 +106,27 @@ public abstract class MathHelper {
             };
         }
     }
+
+    public static String floatToString(float v, int decimals) {
+        char[] chars = String.valueOf(v).toCharArray();
+        StringBuilder s = new StringBuilder();
+        boolean isDecimal = false;
+        for (int i = 0; ; i++) {
+            if (isDecimal) {
+                for (int j = i; j < i + decimals; j++) {
+                    if (j < chars.length) {
+                        s.append(chars[j]);
+                    } else
+                        s.append('0');
+                }
+                break;
+            }
+            if (i < chars.length) {
+                s.append(chars[i]);
+            }
+            if (chars[i] == '.')
+                isDecimal = true;
+        }
+        return s.toString();
+    }
 }

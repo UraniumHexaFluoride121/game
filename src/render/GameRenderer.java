@@ -3,6 +3,7 @@ package render;
 import foundation.MainPanel;
 import foundation.math.RandomType;
 import level.objects.StaticBlock;
+import render.ui.UIRenderable;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -22,8 +23,12 @@ public class GameRenderer implements Renderable {
             qRegister = ConcurrentHashMap.newKeySet(),
             qRemove = ConcurrentHashMap.newKeySet(),
             nonStatics = ConcurrentHashMap.newKeySet();
+    private final Set<UIRenderable>
+            qRegisterUI = ConcurrentHashMap.newKeySet(),
+            qRemoveUI = ConcurrentHashMap.newKeySet();
     private Set<BoundedRenderable>[] statics;
     private TreeMap<RenderOrder, TreeMap<Integer, HashSet<BoundedRenderable>>> renderables = new TreeMap<>();
+    private TreeMap<Integer, HashSet<UIRenderable>> uiElements = new TreeMap<>();
 
     public GameRenderer(AffineTransform transform, Supplier<AffineTransform> cameraTransform) {
         this.transform = transform;
@@ -35,6 +40,14 @@ public class GameRenderer implements Renderable {
         for (int i = 0; i < sectionCount; i++) {
             statics[i] = ConcurrentHashMap.newKeySet();
         }
+    }
+
+    public synchronized void registerUI(UIRenderable r) {
+        qRegisterUI.add(r);
+    }
+
+    public synchronized void removeUI(UIRenderable r) {
+        qRemoveUI.add(r);
     }
 
     public synchronized void register(BoundedRenderable r) {
@@ -63,6 +76,21 @@ public class GameRenderer implements Renderable {
                 nonStatics.remove(r);
         });
         qRemove.clear();
+
+
+        for (UIRenderable r : qRegisterUI) {
+            if (!uiElements.containsKey(r.getZOrder()))
+                uiElements.put(r.getZOrder(), new HashSet<>());
+            uiElements.get(r.getZOrder()).add(r);
+        }
+        qRegisterUI.clear();
+
+        for (UIRenderable r : qRemoveUI) {
+            if (!uiElements.containsKey(r.getZOrder()))
+                continue;
+            uiElements.get(r.getZOrder()).remove(r);
+        }
+        qRemoveUI.clear();
     }
 
     public int prevTop = -1, prevBottom = -1;
@@ -91,6 +119,7 @@ public class GameRenderer implements Renderable {
                     r.render(g);
             });
         }));
+        uiElements.forEach((z, set) -> set.forEach(r -> r.render(g)));
         g.setTransform(prev);
     }
 

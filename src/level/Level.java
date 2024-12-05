@@ -21,6 +21,7 @@ import physics.StaticHitBox;
 import render.event.RenderBlockUpdate;
 import render.event.RenderEvent;
 import render.renderables.RenderBackground;
+import render.ui.UIProgressTracker;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -119,6 +120,7 @@ public class Level implements Deletable {
             System.out.println("generated markers: " + ProceduralGenerator.generatedMarkers);
             updatePool.shutdown();
         }).start();
+        GAME_RENDERER.registerUI(new UIProgressTracker(0).startTime());
     }
 
     public BlockLike getBlock(ObjectLayer layer, int x, int y) {

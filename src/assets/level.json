@@ -27,12 +27,12 @@
   ],
   "layoutMarkerData": {
     "platform": "platform.json",
-
     "island_attached": "island_attached.json",
     "island_floating": "island_floating.json"
   },
   "generationData": {
     "forest_branch": "forest_branch.json",
     "island": "island.json"
-  }
+  },
+  "glyphs": "symbols/glyphs.json"
 }

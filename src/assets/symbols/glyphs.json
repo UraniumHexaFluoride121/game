@@ -1,0 +1,162 @@
+{
+  "!": {
+    "path": "symbols/_textures.json#!.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "?": {
+    "path": "symbols/_textures.json#question_mark.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  ".": {
+    "path": "symbols/_textures.json#period.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "0": {
+    "path": "symbols/_textures.json#0.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "1": {
+    "path": "symbols/_textures.json#1.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "2": {
+    "path": "symbols/_textures.json#2.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "3": {
+    "path": "symbols/_textures.json#3.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "4": {
+    "path": "symbols/_textures.json#4.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "5": {
+    "path": "symbols/_textures.json#5.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "6": {
+    "path": "symbols/_textures.json#6.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "7": {
+    "path": "symbols/_textures.json#7.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "8": {
+    "path": "symbols/_textures.json#8.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "9": {
+    "path": "symbols/_textures.json#9.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "B": {
+    "path": "alphabet/_textures.json#B.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "C": {
+    "path": "alphabet/_textures.json#C.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "D": {
+    "path": "alphabet/_textures.json#D.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "E": {
+    "path": "alphabet/_textures.json#E.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "F": {
+    "path": "alphabet/_textures.json#F.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "G": {
+    "path": "alphabet/_textures.json#G.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "H": {
+    "path": "alphabet/_textures.json#H.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "I": {
+    "path": "alphabet/_textures.json#I.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "J": {
+    "path": "alphabet/_textures.json#J.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "K": {
+    "path": "alphabet/_textures.json#K.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "L": {
+    "path": "alphabet/_textures.json#L.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "M": {
+    "path": "alphabet/_textures.json#M.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "N": {
+    "path": "alphabet/_textures.json#N.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "O": {
+    "path": "alphabet/_textures.json#O.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "P": {
+    "path": "alphabet/_textures.json#P.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "W": {
+    "path": "alphabet/_textures.json#W.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "X": {
+    "path": "alphabet/_textures.json#X.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "Y": {
+    "path": "alphabet/_textures.json#Y.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "Z": {
+    "path": "alphabet/_textures.json#Z.png",
+    "type": "TextureAsset",
+    "width": 6
+  }
+}

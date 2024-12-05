@@ -7,7 +7,9 @@ import render.TickedRenderable;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.awt.image.RescaleOp;
 import java.util.ArrayList;
+import java.util.function.Function;
 
 public class TextureAsset implements TickedRenderable {
     public ResourceLocation resource;
@@ -60,6 +62,16 @@ public class TextureAsset implements TickedRenderable {
                 transform.translate(-xPivot, -yPivot);
             }
         }
+        if (obj.containsName("colorFactor")) {
+            JsonObject colorFactorObj = obj.get("colorFactor", JsonType.JSON_OBJECT_TYPE);
+            float rFactor = colorFactorObj.getOrDefault("r", 1f, JsonType.FLOAT_JSON_TYPE);
+            float gFactor = colorFactorObj.getOrDefault("g", 1f, JsonType.FLOAT_JSON_TYPE);
+            float bFactor = colorFactorObj.getOrDefault("b", 1f, JsonType.FLOAT_JSON_TYPE);
+            Function<Graphics2D, RescaleOp> op4 = g -> new RescaleOp(new float[]{rFactor, gFactor, bFactor, 1}, new float[]{0, 0, 0, 0}, g.getRenderingHints());
+            if (image.getData().getNumDataElements() == 4) {
+                op4.apply(image.createGraphics()).filter(image, image);
+            }
+        }
         return new TextureAsset(resource, image, transform);
     }
 
@@ -69,6 +81,16 @@ public class TextureAsset implements TickedRenderable {
         JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(multiTextureResource));
         JsonArray paths = obj.get("paths", JsonType.JSON_ARRAY_TYPE);
         ArrayList<TextureAsset> assets = new ArrayList<>();
+        Function<Graphics2D, RescaleOp> op4;
+        if (obj.containsName("colorFactor")) {
+            JsonObject colorFactorObj = obj.get("colorFactor", JsonType.JSON_OBJECT_TYPE);
+            float rFactor = colorFactorObj.getOrDefault("r", 1f, JsonType.FLOAT_JSON_TYPE);
+            float gFactor = colorFactorObj.getOrDefault("g", 1f, JsonType.FLOAT_JSON_TYPE);
+            float bFactor = colorFactorObj.getOrDefault("b", 1f, JsonType.FLOAT_JSON_TYPE);
+            op4 = g -> new RescaleOp(new float[]{rFactor, gFactor, bFactor, 1}, new float[]{0, 0, 0, 0}, g.getRenderingHints());
+        } else {
+            op4 = null;
+        }
         paths.forEach(path -> {
             BufferedImage image = AssetManager.getImage(new ResourceLocation(path));
             AffineTransform transform = new AffineTransform();
@@ -92,6 +114,9 @@ public class TextureAsset implements TickedRenderable {
                 }
             }
             String imageFile = path.substring(path.lastIndexOf("/") + 1);
+            if (op4 != null && image.getData().getNumDataElements() == 4) {
+                op4.apply(image.createGraphics()).filter(image, image);
+            }
             assets.add(new TextureAsset(
                     new ResourceLocation(multiTextureResource.relativePath + "#" + imageFile),
                     image,

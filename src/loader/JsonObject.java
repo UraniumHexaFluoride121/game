@@ -1,6 +1,8 @@
 package loader;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiConsumer;
 
 public final class JsonObject extends JsonDataStructure {
     public HashMap<String, Object> pairs = new HashMap<>();
@@ -33,6 +35,19 @@ public final class JsonObject extends JsonDataStructure {
             }
         }
         return (T) o;
+    }
+
+    public <T> void forEach(JsonType<T> type, BiConsumer<String, T> action) {
+        for (Map.Entry<String, Object> entry : pairs.entrySet()) {
+            Object o = entry.getValue();
+            if (o instanceof Number n) {
+                switch (type.numberType) {
+                    case FLOAT -> o = n.floatValue();
+                    case INTEGER -> o = n.intValue();
+                }
+            }
+            action.accept(entry.getKey(), ((T) o));
+        }
     }
 
     public boolean containsName(String name) {

@@ -41,8 +41,20 @@ public abstract class AssetManager {
     public static final HashMap<String, StaticHitBox> blockHitBoxes = new HashMap<>();
     public static final HashMap<String, Float> blockFriction = new HashMap<>(), blockBounciness = new HashMap<>();
 
+    public static final HashMap<Character, GlyphData> glyphs = new HashMap<>();
+
     public static BlockLike createBlock(String s, ObjPos pos) {
         return blocks.get(s).apply(pos);
+    }
+
+    public static void readGlyphs(ResourceLocation resource) {
+        JsonObject dataElements = (JsonObject) JsonLoader.readJsonResource(new ResourceLocation(((JsonObject) JsonLoader.readJsonResource(resource))
+                .get("glyphs", JsonType.STRING_JSON_TYPE)));
+        dataElements.forEach(JsonType.JSON_OBJECT_TYPE, (k, v) -> {
+            if (k.length() != 1)
+                return;
+            glyphs.put(k.charAt(0), new GlyphData(v.get("width", JsonType.INTEGER_JSON_TYPE), deserializeRenderable(v).get()));
+        });
     }
 
     public static void readLayoutMarkerData(ResourceLocation resource) {
@@ -259,6 +271,8 @@ public abstract class AssetManager {
             if (inputStream == null)
                 throw new RuntimeException("Unable to load image with path " + resource.relativePath);
             BufferedImage image = ImageIO.read(inputStream);
+            if (image == null)
+                throw new RuntimeException("Image was null with path: " + resource.relativePath);
             textures.put(resource, image);
             return image;
         } catch (IOException e) {

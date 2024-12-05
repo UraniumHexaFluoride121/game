@@ -36,6 +36,7 @@ public class MainPanel extends JFrame implements KeyListener, RegisteredTickable
     public void init() {
         AssetManager.readRegions(LEVEL_PATH);
         AssetManager.readBlocks(LEVEL_PATH);
+        AssetManager.readGlyphs(LEVEL_PATH);
         level = new Level();
         AssetManager.readLayoutMarkerData(LEVEL_PATH);
         level.init();

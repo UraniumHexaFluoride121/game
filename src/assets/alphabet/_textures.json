@@ -1,0 +1,28 @@
+{
+  "paths": [
+    "alphabet/B.png",
+    "alphabet/C.png",
+    "alphabet/D.png",
+    "alphabet/E.png",
+    "alphabet/F.png",
+    "alphabet/G.png",
+    "alphabet/H.png",
+    "alphabet/I.png",
+    "alphabet/J.png",
+    "alphabet/K.png",
+    "alphabet/L.png",
+    "alphabet/M.png",
+    "alphabet/N.png",
+    "alphabet/O.png",
+    "alphabet/P.png",
+    "alphabet/W.png",
+    "alphabet/X.png",
+    "alphabet/Y.png",
+    "alphabet/Z.png"
+  ],
+  "colorFactor": {
+    "r": 0,
+    "g": 0,
+    "b": 0
+  }
+}

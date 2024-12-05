@@ -84,6 +84,7 @@ public class JumpSimulation implements Deletable, Renderable {
                                         debugRenderSquares.add(new RenderGameSquare(new Color(34, 228, 178), bound));
                                 }
                                 validatedCount++;
+                                return true;
                             }
                         }
                     }
