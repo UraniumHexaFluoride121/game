@@ -28,7 +28,25 @@ public class RenderText extends RenderGameElement implements BoundedRenderable {
         this.textAlign = textAlign;
         zOrder = MainPanel.GAME_RENDERER.getNextZOrder();
         char[] chars = text.toCharArray();
+        boolean specialChar = false;
+        StringBuilder s = new StringBuilder();
         for (char c : chars) {
+            if (c == '*') {
+                if (specialChar) {
+                    GlyphData e = AssetManager.specialGlyphs.get(s.toString());
+                    if (e == null)
+                        throw new RuntimeException("Could not find special character glyph for string: \"" + s + "\"");
+                    totalWidth += e.width();
+                    glyphs.add(e);
+                    s = new StringBuilder();
+                }
+                specialChar = !specialChar;
+                continue;
+            }
+            if (specialChar) {
+                s.append(c);
+                continue;
+            }
             GlyphData e = AssetManager.glyphs.get(c);
             if (e == null)
                 throw new RuntimeException("Could not find glyph for character: \"" + c + "\"");

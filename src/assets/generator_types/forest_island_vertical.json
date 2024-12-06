@@ -1,0 +1,5 @@
+{
+  "forceAwayFromBorderProximity": 20,
+  "block": "stone_grey",
+  "generateNextPlatformAs": "platform"
+}

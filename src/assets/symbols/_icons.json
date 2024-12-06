@@ -1,0 +1,9 @@
+{
+  "paths": [
+    "symbols/height_indicator.png",
+    "symbols/time.png"
+  ],
+  "transform": {
+    "yOffset": -1
+  }
+}

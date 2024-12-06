@@ -214,16 +214,20 @@ public class ProceduralGenerator implements Deletable {
     }
 
     public ObjPos randomPosAbove(LayoutMarker lm, float minAngle, float maxAngle, float minLength, float maxLength, float xLengthMultiplier, int borderProximityLimit) {
+        return randomPosAbove(lm.pos, minAngle, maxAngle, minLength, maxLength, xLengthMultiplier, borderProximityLimit);
+    }
+
+    public ObjPos randomPosAbove(ObjPos origin, float minAngle, float maxAngle, float minLength, float maxLength, float xLengthMultiplier, int borderProximityLimit) {
         ObjPos pos;
         do {
             float angle = randomFloat(minAngle, maxAngle);
             float length = randomFloat(minLength, maxLength);
             boolean isRight = randomBoolean(0.5f);
-            if (lm.pos.x > Main.BLOCKS_X - 1 - borderProximityLimit)
+            if (origin.x > Main.BLOCKS_X - 1 - borderProximityLimit)
                 isRight = false;
-            else if (lm.pos.x < borderProximityLimit)
+            else if (origin.x < borderProximityLimit)
                 isRight = true;
-            pos = new ObjPos(lm.pos.x + Math.cos(angle) * length * xLengthMultiplier * (isRight ? 1 : -1), lm.pos.y + Math.sin(angle) * length).toInt();
+            pos = new ObjPos(origin.x + Math.cos(angle) * length * xLengthMultiplier * (isRight ? 1 : -1), origin.y + Math.sin(angle) * length).toInt();
         } while (MainPanel.level.outOfBounds(pos));
         return pos;
     }

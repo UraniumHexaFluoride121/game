@@ -1,0 +1,15 @@
+{
+  "generatesAs": [
+    {
+      "name": "forest_island_vertical_large",
+      "condition": "rand[0.2] and this.pos.x > 20 and distanceToBorder[this.pos] > 6"
+    },
+    {
+      "name": "forest_island_default",
+      "condition": "rand[0.6]"
+    },
+    {
+      "name": "forest_island_vertical"
+    }
+  ]
+}

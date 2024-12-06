@@ -11,6 +11,7 @@ import physics.StaticHitBox;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 public abstract class GenUtil {
@@ -37,7 +38,97 @@ public abstract class GenUtil {
         return left.get(left.size() - 1) + right.get(right.size() - 1) + 1;
     }
 
-    public record StackRandomData(int layer, int lastValue, int lastWidth) {
+    public record StackRandomData(int layer, int lastValue, int lastSize) {
+    }
+
+    public static class VerticalStackData extends BlockCollection {
+        public final int centerUp, centerDown;
+        public ArrayList<Integer>
+                leftUp = new ArrayList<>(),
+                leftDown = new ArrayList<>(),
+                rightUp = new ArrayList<>(),
+                rightDown = new ArrayList<>();
+
+        public VerticalStackData(int centerUp, int centerDown, Supplier<Double> random, FunctionalWeightedRandom<Integer, StackRandomData> inward) {
+            this.centerUp = centerUp;
+            this.centerDown = centerDown;
+            generateInward(centerUp, centerDown, rightUp, rightDown, random, inward);
+            generateInward(centerUp, centerDown, leftUp, leftDown, random, inward);
+            forEachLayer((u, d, l) -> {
+                for (int i = -d; i <= u; i++) {
+                    addBlock(l, i);
+                }
+            });
+            calculateBound();
+        }
+
+        private void generateInward(int initialUp, int initialDown, ArrayList<Integer> upLayers, ArrayList<Integer> downLayers, Supplier<Double> random, FunctionalWeightedRandom<Integer, StackRandomData> inward) {
+            int prevUp = 0, prevDown = 0, up = initialUp, down = initialDown;
+            int layer = 0;
+            while (true) {
+                int newUp = inward.getValue(random, new StackRandomData(layer, prevUp, up + down + 1));
+                int newDown = inward.getValue(random, new StackRandomData(layer, prevDown, up + down + 1));
+                up -= newUp;
+                down -= newDown;
+                prevUp = newUp;
+                prevDown = newDown;
+                if (up + down + 1 <= 0)
+                    break;
+                upLayers.add(layer, up);
+                downLayers.add(layer, down);
+                layer++;
+            }
+        }
+
+        private int getLastStackSize(boolean left) {
+            return left ? leftUp.get(leftUp.size() - 1) + leftDown.get(leftDown.size() - 1) + 1 : rightUp.get(rightUp.size() - 1) + rightDown.get(rightDown.size() - 1) + 1;
+        }
+
+        public void addLayer(int index, int up, int down) {
+            if (index > 0) {
+                leftUp.add(index, up);
+                leftDown.add(index, down);
+            } else if (index < 0) {
+                rightUp.add(index, up);
+                rightDown.add(index, down);
+            }
+        }
+
+        @Override
+        public VerticalStackData calculateBound() {
+            super.calculateBound();
+            return this;
+        }
+
+        @Override
+        public HashMap<Integer, Integer> getBlockHeights(int x, int y) {
+            HashMap<Integer, Integer> blockHeights = new HashMap<>();
+            forEachLayer((u, d, layer) -> {
+                blockHeights.put(x + layer, y + u);
+            });
+            return blockHeights;
+        }
+
+        public void forEachLayer(VerticalStackLayerConsumer action) {
+            for (int i = -leftUp.size(); i <= rightUp.size(); i++) {
+                int finalI = i;
+                forLayer(i, (u, d) -> action.accept(u, d, finalI));
+            }
+        }
+
+        public void forLayer(int layer, BiConsumer<Integer, Integer> action) {
+            if (layer == 0)
+                action.accept(centerUp, centerDown);
+            else if (layer > 0)
+                action.accept(rightUp.get(layer - 1), rightDown.get(layer - 1));
+            else
+                action.accept(leftUp.get(-layer - 1), leftDown.get(-layer - 1));
+        }
+
+        @FunctionalInterface
+        public interface VerticalStackLayerConsumer {
+            void accept(int up, int down, int layer);
+        }
     }
 
     public static class StackData extends BlockCollection {

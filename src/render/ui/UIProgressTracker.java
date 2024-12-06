@@ -24,11 +24,11 @@ public class UIProgressTracker extends UIElement {
     }
 
     public String getTime() {
-        return MathHelper.floatToString((System.currentTimeMillis() - startTime) / 1000f, 3);
+        return "*time*" + MathHelper.floatToString((System.currentTimeMillis() - startTime) / 1000f, 3);
     }
 
     public String getHeight() {
-        return MathHelper.floatToString(MainPanel.level.cameraPlayer.pos.y, 1);
+        return "*height*" + MathHelper.floatToString(Math.round(MainPanel.level.cameraPlayer.pos.y), 0);
     }
 
     @Override

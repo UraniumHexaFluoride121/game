@@ -61,7 +61,7 @@ public class JumpSimulation implements Deletable, Renderable {
         hasValidJump = false;
         bound = null;
         HashSet<LayoutMarker> collisionMarkers = new HashSet<>();
-        MainPanel.level.layout.forEachMarker(from.pos.y, 1, lm -> {
+        MainPanel.level.layout.forEachMarker(from.pos.y, 2, lm -> {
             if (lm.hasBoundType(BoundType.COLLISION))
                 collisionMarkers.add(lm);
         });

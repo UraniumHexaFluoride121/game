@@ -18,9 +18,12 @@ import level.procedural.marker.resolved.LMTResolvedElement;
 import loader.AssetManager;
 import physics.CollisionHandler;
 import physics.StaticHitBox;
+import render.RenderOrder;
 import render.event.RenderBlockUpdate;
 import render.event.RenderEvent;
 import render.renderables.RenderBackground;
+import render.renderables.RenderText;
+import render.renderables.TextAlign;
 import render.ui.UIProgressTracker;
 
 import java.awt.*;
@@ -121,6 +124,7 @@ public class Level implements Deletable {
             updatePool.shutdown();
         }).start();
         GAME_RENDERER.registerUI(new UIProgressTracker(0).startTime());
+        GAME_RENDERER.register(new RenderText(RenderOrder.DEBUG, () -> new ObjPos(5, 5), "TES*time*TING", 2, TextAlign.LEFT));
     }
 
     public BlockLike getBlock(ObjectLayer layer, int x, int y) {

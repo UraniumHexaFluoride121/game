@@ -122,10 +122,15 @@ public abstract class MathHelper {
                 break;
             }
             if (i < chars.length) {
+                if (chars[i] == '.') {
+                    if (decimals == 0)
+                        break;
+                    isDecimal = true;
+                }
                 s.append(chars[i]);
+            } else {
+                break;
             }
-            if (chars[i] == '.')
-                isDecimal = true;
         }
         return s.toString();
     }

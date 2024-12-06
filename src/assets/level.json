@@ -26,13 +26,15 @@
     }
   ],
   "layoutMarkerData": {
-    "platform": "platform.json",
-    "island_attached": "island_attached.json",
-    "island_floating": "island_floating.json"
+    "platform": "layout_marker/unresolved/platform.json",
+    "island_attached": "layout_marker/resolved/island_attached.json",
+    "island_floating": "layout_marker/resolved/island_floating.json"
   },
   "generationData": {
-    "forest_branch": "forest_branch.json",
-    "island": "island.json"
+    "forest_branch": "generator_types/forest_branch.json",
+    "forest_island_default": "generator_types/forest_island_default.json",
+    "forest_island_vertical": "generator_types/forest_island_vertical.json",
+    "forest_island_vertical_large": "generator_types/forest_island_vertical.json"
   },
   "glyphs": "symbols/glyphs.json"
 }

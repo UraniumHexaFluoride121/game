@@ -1,4 +1,14 @@
 {
+  "time": {
+    "path": "symbols/_icons.json#time.png",
+    "type": "TextureAsset",
+    "width": 10
+  },
+  "height": {
+    "path": "symbols/_icons.json#height_indicator.png",
+    "type": "TextureAsset",
+    "width": 10
+  },
   "!": {
     "path": "symbols/_textures.json#!.png",
     "type": "TextureAsset",
@@ -136,6 +146,36 @@
   },
   "P": {
     "path": "alphabet/_textures.json#P.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "Q": {
+    "path": "alphabet/_textures.json#Q.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "R": {
+    "path": "alphabet/_textures.json#R.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "S": {
+    "path": "alphabet/_textures.json#S.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "T": {
+    "path": "alphabet/_textures.json#T.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "U": {
+    "path": "alphabet/_textures.json#U.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  "V": {
+    "path": "alphabet/_textures.json#V.png",
     "type": "TextureAsset",
     "width": 6
   },

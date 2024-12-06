@@ -16,7 +16,7 @@ public interface GeneratorValidation {
     static boolean validate(LayoutMarker marker, GeneratorValidation validation) {
         ValidationData data = new ValidationData();
         AtomicBoolean validated = new AtomicBoolean(true);
-        MainPanel.level.layout.forEachMarker(marker.pos.y, 1, lm -> {
+        MainPanel.level.layout.forEachMarker(marker.pos.y, 3, lm -> {
             if (!validation.validate(marker, lm, data))
                 validated.set(false);
         });/*

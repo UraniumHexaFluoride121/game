@@ -70,7 +70,8 @@ public class TextureAsset implements TickedRenderable {
             Function<Graphics2D, RescaleOp> op4 = g -> new RescaleOp(new float[]{rFactor, gFactor, bFactor, 1}, new float[]{0, 0, 0, 0}, g.getRenderingHints());
             if (image.getData().getNumDataElements() == 4) {
                 op4.apply(image.createGraphics()).filter(image, image);
-            }
+            } else
+                System.out.println("[WARNING] Formatting of image with path " + imageResource.relativePath + " does not support color modification");
         }
         return new TextureAsset(resource, image, transform);
     }
@@ -114,8 +115,11 @@ public class TextureAsset implements TickedRenderable {
                 }
             }
             String imageFile = path.substring(path.lastIndexOf("/") + 1);
-            if (op4 != null && image.getData().getNumDataElements() == 4) {
-                op4.apply(image.createGraphics()).filter(image, image);
+            if (op4 != null) {
+                if (image.getData().getNumDataElements() == 4)
+                    op4.apply(image.createGraphics()).filter(image, image);
+                else
+                    System.out.println("[WARNING] Formatting of image with path " + path + " does not support color modification");
             }
             assets.add(new TextureAsset(
                     new ResourceLocation(multiTextureResource.relativePath + "#" + imageFile),

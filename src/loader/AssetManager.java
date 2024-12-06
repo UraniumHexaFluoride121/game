@@ -42,6 +42,7 @@ public abstract class AssetManager {
     public static final HashMap<String, Float> blockFriction = new HashMap<>(), blockBounciness = new HashMap<>();
 
     public static final HashMap<Character, GlyphData> glyphs = new HashMap<>();
+    public static final HashMap<String, GlyphData> specialGlyphs = new HashMap<>();
 
     public static BlockLike createBlock(String s, ObjPos pos) {
         return blocks.get(s).apply(pos);
@@ -51,9 +52,12 @@ public abstract class AssetManager {
         JsonObject dataElements = (JsonObject) JsonLoader.readJsonResource(new ResourceLocation(((JsonObject) JsonLoader.readJsonResource(resource))
                 .get("glyphs", JsonType.STRING_JSON_TYPE)));
         dataElements.forEach(JsonType.JSON_OBJECT_TYPE, (k, v) -> {
-            if (k.length() != 1)
-                return;
-            glyphs.put(k.charAt(0), new GlyphData(v.get("width", JsonType.INTEGER_JSON_TYPE), deserializeRenderable(v).get()));
+            GlyphData data = new GlyphData(v.get("width", JsonType.INTEGER_JSON_TYPE), deserializeRenderable(v).get());
+            if (k.length() == 1) {
+                glyphs.put(k.charAt(0), data);
+            } else {
+                specialGlyphs.put(k, data);
+            }
         });
     }
 
@@ -68,7 +72,7 @@ public abstract class AssetManager {
         });
         JsonObject generationPaths = ((JsonObject) JsonLoader.readJsonResource(resource))
                 .get("generationData", JsonType.JSON_OBJECT_TYPE);
-        for (GeneratorType type : GeneratorType.values()) {
+        for (GeneratorType type : GeneratorType.values) {
             if (!type.hasData())
                 return;
             JsonObject data = ((JsonObject) JsonLoader.readJsonResource(new ResourceLocation(generationPaths.get(type.s, JsonType.STRING_JSON_TYPE))));
