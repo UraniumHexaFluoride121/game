@@ -52,8 +52,8 @@ public abstract class GenUtil {
         public VerticalStackData(int centerUp, int centerDown, Supplier<Double> random, FunctionalWeightedRandom<Integer, StackRandomData> inward) {
             this.centerUp = centerUp;
             this.centerDown = centerDown;
-            generateInward(centerUp, centerDown, rightUp, rightDown, random, inward);
-            generateInward(centerUp, centerDown, leftUp, leftDown, random, inward);
+            generateInward(centerUp, centerDown, rightUp, rightDown, random, inward, null);
+            generateInward(centerUp, centerDown, leftUp, leftDown, random, inward, null);
             forEachLayer((u, d, l) -> {
                 for (int i = -d; i <= u; i++) {
                     addBlock(l, i);
@@ -62,16 +62,32 @@ public abstract class GenUtil {
             calculateBound();
         }
 
-        private void generateInward(int initialUp, int initialDown, ArrayList<Integer> upLayers, ArrayList<Integer> downLayers, Supplier<Double> random, FunctionalWeightedRandom<Integer, StackRandomData> inward) {
-            int prevUp = 0, prevDown = 0, up = initialUp, down = initialDown;
+        public VerticalStackData(int centerUp, int centerDown, Supplier<Double> random, FunctionalWeightedRandom<Integer, StackRandomData> inward, FunctionalWeightedRandom<Integer, StackRandomData> offset) {
+            this.centerUp = centerUp;
+            this.centerDown = centerDown;
+            generateInward(centerUp, centerDown, rightUp, rightDown, random, inward, offset);
+            generateInward(centerUp, centerDown, leftUp, leftDown, random, inward, offset);
+            forEachLayer((u, d, l) -> {
+                for (int i = -d; i <= u; i++) {
+                    addBlock(l, i);
+                }
+            });
+            removeDisconnected(0, 0);
+            calculateBound();
+        }
+
+        private void generateInward(int initialUp, int initialDown, ArrayList<Integer> upLayers, ArrayList<Integer> downLayers, Supplier<Double> random, FunctionalWeightedRandom<Integer, StackRandomData> inward, FunctionalWeightedRandom<Integer, StackRandomData> offset) {
+            int prevUp = 0, prevDown = 0, prevOffset = 0, up = initialUp, down = initialDown;
             int layer = 0;
             while (true) {
                 int newUp = inward.getValue(random, new StackRandomData(layer, prevUp, up + down + 1));
                 int newDown = inward.getValue(random, new StackRandomData(layer, prevDown, up + down + 1));
-                up -= newUp;
-                down -= newDown;
+                int newOffset = offset == null ? 0 : offset.getValue(random, new StackRandomData(layer, prevOffset, up + down + 1));
+                up += newOffset - newUp;
+                down += -newOffset - newDown;
                 prevUp = newUp;
                 prevDown = newDown;
+                prevOffset = newOffset;
                 if (up + down + 1 <= 0)
                     break;
                 upLayers.add(layer, up);
@@ -80,33 +96,10 @@ public abstract class GenUtil {
             }
         }
 
-        private int getLastStackSize(boolean left) {
-            return left ? leftUp.get(leftUp.size() - 1) + leftDown.get(leftDown.size() - 1) + 1 : rightUp.get(rightUp.size() - 1) + rightDown.get(rightDown.size() - 1) + 1;
-        }
-
-        public void addLayer(int index, int up, int down) {
-            if (index > 0) {
-                leftUp.add(index, up);
-                leftDown.add(index, down);
-            } else if (index < 0) {
-                rightUp.add(index, up);
-                rightDown.add(index, down);
-            }
-        }
-
         @Override
         public VerticalStackData calculateBound() {
             super.calculateBound();
             return this;
-        }
-
-        @Override
-        public HashMap<Integer, Integer> getBlockHeights(int x, int y) {
-            HashMap<Integer, Integer> blockHeights = new HashMap<>();
-            forEachLayer((u, d, layer) -> {
-                blockHeights.put(x + layer, y + u);
-            });
-            return blockHeights;
         }
 
         public void forEachLayer(VerticalStackLayerConsumer action) {
@@ -233,15 +226,5 @@ public abstract class GenUtil {
                 lastHeight = height;
             }
         }
-    }
-
-    public static HashMap<Integer, Integer> maxBlockHeights(HashMap<Integer, Integer> a, HashMap<Integer, Integer> b) {
-        a.forEach((x, y) -> {
-            if (b.containsKey(x)) {
-                b.put(x, Math.max(a.get(x), b.get(x)));
-            } else
-                b.put(x, y);
-        });
-        return b;
     }
 }

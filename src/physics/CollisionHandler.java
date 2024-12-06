@@ -75,7 +75,7 @@ public class CollisionHandler implements RegisteredTickable {
         registerTickable();
     }
 
-    public void registerProcedural(CollisionObject... objects) {
+    public synchronized void registerProcedural(CollisionObject... objects) {
         for (CollisionObject o : objects) {
             CollisionObjectData data = generateData(o);
             o.setCollisionData(data);
@@ -85,7 +85,7 @@ public class CollisionHandler implements RegisteredTickable {
         }
     }
 
-    public void removeProcedural(CollisionObject... objects) {
+    public synchronized void removeProcedural(CollisionObject... objects) {
         for (CollisionObject o : objects) {
             CollisionObjectData data = proceduralObjectData.get(o);
             proceduralObjectData.remove(o);
@@ -94,11 +94,11 @@ public class CollisionHandler implements RegisteredTickable {
         }
     }
 
-    public void clearProcedural() {
+    public synchronized void clearProcedural() {
         removeProcedural(proceduralObjectData.keySet().toArray(new CollisionObject[0]));
     }
 
-    public void register(CollisionObject... objects) {
+    public synchronized void register(CollisionObject... objects) {
         for (CollisionObject o : objects) {
             CollisionObjectData data = generateData(o);
             o.setCollisionData(data);
@@ -113,7 +113,7 @@ public class CollisionHandler implements RegisteredTickable {
         }
     }
 
-    public void remove(CollisionObject... objects) {
+    public synchronized void remove(CollisionObject... objects) {
         for (CollisionObject o : objects) {
             CollisionObjectData data = o.getCollisionData();
             o.setCollisionData(null);
@@ -147,7 +147,7 @@ public class CollisionHandler implements RegisteredTickable {
     }
 
     @Override
-    public void tick(float deltaTime) {
+    public synchronized void tick(float deltaTime) {
         if (deleted)
             return;
 
@@ -241,7 +241,7 @@ public class CollisionHandler implements RegisteredTickable {
         return null;
     }
 
-    public HashSet<CollisionObject> getBoxCollidingWith(HitBox box) {
+    public synchronized HashSet<CollisionObject> getBoxCollidingWith(HitBox box) {
         int topSection = yPosToSection(box.getTop());
         int bottomSection = yPosToSection(box.getBottom());
 

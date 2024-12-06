@@ -21,6 +21,7 @@ import render.renderables.RenderGameCircle;
 import render.renderables.RenderGameSquare;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,14 +39,14 @@ public class JumpSimulation implements Deletable, Renderable {
             JUMP_IMPULSE / 5 * 0
     };
     public LayoutMarker from, to;
-    public HashSet<LayoutMarker> fromLMs, toLMS;
+    public ArrayList<LayoutMarker> fromLMs, toLMS;
     public Set<RenderGameCircle> debugRenderCircles = ConcurrentHashMap.newKeySet();
     public Set<RenderGameSquare> debugRenderSquares = ConcurrentHashMap.newKeySet();
     public StaticHitBox bound;
     public boolean hasValidJump = false;
     public int validatedCount = 0;
 
-    public JumpSimulation(LayoutMarker from, LayoutMarker to, HashSet<LayoutMarker> fromLMs, HashSet<LayoutMarker> toLMS) {
+    public JumpSimulation(LayoutMarker from, LayoutMarker to, ArrayList<LayoutMarker> fromLMs, ArrayList<LayoutMarker> toLMS) {
         this.from = from;
         this.to = to;
         this.fromLMs = fromLMs;

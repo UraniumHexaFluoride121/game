@@ -21,11 +21,14 @@ public class LMTResolvedElement extends LMType {
     private static final HashMap<String, LMTResolvedElement> elements = new HashMap<>();
 
     public static final LMTResolvedElement ISLAND_FLOATING = new LMTResolvedElement(
-            "island_floating",
+            "forest_island_floating",
             new RenderGameSquare(RenderOrder.DEBUG, Color.BLUE, 0.5f, () -> new ObjPos(0.5f, 0.5f)));
     public static final LMTResolvedElement ISLAND_SIDE_ATTACHED = new LMTResolvedElement(
-            "island_attached",
+            "forest_island_attached",
             new RenderGameSquare(RenderOrder.DEBUG, Color.BLUE, 0.5f, () -> new ObjPos(0.5f, 0.5f)));
+    public static final LMTResolvedElement ISLAND_DOT = new LMTResolvedElement(
+            "forest_island_extra",
+            new RenderGameSquare(RenderOrder.DEBUG, Color.CYAN, 0.5f, () -> new ObjPos(0.5f, 0.5f)));
 
     private final ArrayList<GenerationElement> generatorConditions = new ArrayList<>();
 

@@ -54,6 +54,22 @@ public class BlockCollection {
         return setBound(new StaticHitBox(maxY + 1, minY, minX, maxX + 1));
     }
 
+    public void removeDisconnected(int originX, int originY) {
+        HashSet<ObjPos> visited = new HashSet<>();
+        dfsConnected(new ObjPos(originX, originY), visited);
+        blockPositions = visited;
+    }
+
+    private void dfsConnected(ObjPos pos, HashSet<ObjPos> visited) {
+        if (blockPositions.contains(pos.toInt()) && !visited.contains(pos.toInt())) {
+            visited.add(pos);
+            dfsConnected(pos.copy().add(0, 1), visited);
+            dfsConnected(pos.copy().add(0, -1), visited);
+            dfsConnected(pos.copy().add(1, 0), visited);
+            dfsConnected(pos.copy().add(-1, 0), visited);
+        }
+    }
+
     public int height() {
         return (int) (bound.getTop() - bound.getBottom());
     }

@@ -17,11 +17,11 @@ public class RandomHandler {
         }
     }
 
-    public Random getRandom(RandomType type) {
+    public synchronized Random getRandom(RandomType type) {
         return randoms.get(type);
     }
 
-    public Supplier<Double> getDoubleSupplier(RandomType type) {
+    public synchronized Supplier<Double> getDoubleSupplier(RandomType type) {
         return getRandom(type)::nextDouble;
     }
 

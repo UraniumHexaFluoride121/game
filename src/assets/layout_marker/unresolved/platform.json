@@ -1,11 +1,11 @@
 {
   "resolvesTo": [
     {
-      "name": "island_attached",
+      "name": "forest_island_attached",
       "condition": "distanceToBorder[this.pos] <= 20 && distanceToBorder[this.pos] > 3 && rand[0.7]"
     },
     {
-      "name": "island_floating",
+      "name": "forest_island_floating",
       "condition": "true"
     }
   ]

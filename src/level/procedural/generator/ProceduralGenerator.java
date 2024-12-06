@@ -17,6 +17,7 @@ import level.procedural.marker.resolved.LMTResolvedElement;
 import loader.AssetManager;
 import render.event.RenderEvent;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -31,8 +32,8 @@ public class ProceduralGenerator implements Deletable {
     private final HashSet<BlockLike> overwrittenBlocks = new HashSet<>();
     //All layout markers added by the marker generation function must be added to this set
     //The markerFunction is the only function allowed to add LayoutMarkers
-    private final HashSet<LayoutMarker> generatedLayoutMarkers = new HashSet<>();
-    private final HashSet<LayoutMarker> playerMovementMarkers = new HashSet<>();
+    private final ArrayList<LayoutMarker> generatedLayoutMarkers = new ArrayList<>();
+    private final ArrayList<LayoutMarker> playerMovementMarkers = new ArrayList<>();
 
     //Data that the generator stores for use in validation
     private final HashMap<String, Object> generationData = new HashMap<>();

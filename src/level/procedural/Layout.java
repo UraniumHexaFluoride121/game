@@ -65,25 +65,31 @@ public class Layout {
 
     public HashSet<LMDResolvedElement> nonReachable(LayoutMarker lm) {
         HashSet<LMDResolvedElement> goals = new HashSet<>();
-        forEachMarker(lm.pos.y, 2, nearbyLM -> {
+        forEachMarker(lm.pos.y, 4, nearbyLM -> {
             if (nearbyLM.data instanceof LMDResolvedElement nearbyLMData)
                 goals.add(nearbyLMData);
         });
         if (lm.data instanceof LMDResolvedElement) {
             int section = yPosToSection(lm.pos.y);
-            if (section < 5) {
+            if (section < 8) {
                 for (LMDResolvedElement root : roots) {
                     if (bfsLM(new HashSet<>(), goals, root))
                         return goals;
                 }
             } else {
-                for (LayoutMarker root : markerSections[section - 3]) {
+                for (LayoutMarker root : markerSections[section - 5]) {
                     if (root.data instanceof LMDResolvedElement rootData) {
                         if (bfsLM(new HashSet<>(), goals, rootData))
                             return goals;
                     }
                 }
-                for (LayoutMarker root : markerSections[section - 4]) {
+                for (LayoutMarker root : markerSections[section - 6]) {
+                    if (root.data instanceof LMDResolvedElement rootData) {
+                        if (bfsLM(new HashSet<>(), goals, rootData))
+                            return goals;
+                    }
+                }
+                for (LayoutMarker root : markerSections[section - 7]) {
                     if (root.data instanceof LMDResolvedElement rootData) {
                         if (bfsLM(new HashSet<>(), goals, rootData))
                             return goals;

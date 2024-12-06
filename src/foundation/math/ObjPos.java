@@ -256,6 +256,11 @@ public class ObjPos {
         return (x == ((ObjPos) obj).x && y == ((ObjPos) obj).y);
     }
 
+    @Override
+    public int hashCode() {
+        return ((int) (x * y));
+    }
+
     public static ObjPos random(float fromX, float fromY, float toX, float toY) {
         return new ObjPos(((float) Math.random()) * (toX - fromX) + fromX, ((float) Math.random()) * (toY - fromY) + fromY);
     }

@@ -1,5 +1,6 @@
 package level.procedural.generator;
 
+import foundation.MainPanel;
 import level.procedural.marker.GeneratorLMFunction;
 import level.procedural.types.ForestTypes;
 import loader.AssetManager;
@@ -13,8 +14,13 @@ import java.util.function.Supplier;
 
 public class GeneratorType {
     public static final HashSet<GeneratorType> values = new HashSet<>();
-    public static final GeneratorType[] types = new GeneratorType[] {
-            ForestTypes.FOREST_BRANCH, ForestTypes.FOREST_ISLAND_DEFAULT, ForestTypes.FOREST_ISLAND_VERTICAL, ForestTypes.FOREST_ISLAND_VERTICAL_LARGE
+    public static final GeneratorType[] types = new GeneratorType[]{
+            ForestTypes.FOREST_BRANCH,
+            ForestTypes.FOREST_ISLAND_DEFAULT,
+            ForestTypes.FOREST_ISLAND_DEFAULT_SMALL,
+            ForestTypes.FOREST_ISLAND_DEFAULT_SMALL_EXTRA,
+            ForestTypes.FOREST_ISLAND_VERTICAL,
+            ForestTypes.FOREST_ISLAND_VERTICAL_LARGE
     };
 
     public final String s;
@@ -92,6 +98,32 @@ public class GeneratorType {
     public static GeneratorFunction generateBlockCollection(int blockNameIndex, String collectionDataName) {
         return (gen, lm, type) -> {
             gen.getData(collectionDataName, BlockCollection.class).generateBlocks(type.getString(blockNameIndex), lm.pos, gen);
+        };
+    }
+
+    public static GeneratorLMFunction generateDefault(int borderProximityIndex, int platformNameIndex) {
+        return generateAbove(borderProximityIndex, platformNameIndex, 0.2f, 1.6f, 6, 15, 2.5f);
+    }
+
+    public static GeneratorLMFunction generateAround(int borderProximityIndex, int platformNameIndex, int maxLength, float probability) {
+        return (gen, lm, type) -> {
+            if (gen.randomBoolean(probability) && lm.pos.y > 30)
+                generateAbove(borderProximityIndex, platformNameIndex, -1f, 1.6f, 7, maxLength, 1f).generateMarkers(gen, lm, type);
+        };
+    }
+
+    public static GeneratorLMFunction generateAbove(int borderProximityIndex, int platformNameIndex, float minAngle, float maxAngle, float minLength, float maxLength, float xLengthMultiplier) {
+        return (gen, lm, type) -> {
+            if (lm.pos.y < MainPanel.level.getRegionTop()) {
+                int borderProximityLimit = type.getInt(borderProximityIndex);
+                gen.addMarker(type.getString(platformNameIndex), gen.randomPosAbove(lm, minAngle, maxAngle, minLength, maxLength, xLengthMultiplier, borderProximityLimit));
+            }
+        };
+    }
+
+    public static GeneratorLMFunction generateNothing() {
+        return (gen, lm, type) -> {
+
         };
     }
 }

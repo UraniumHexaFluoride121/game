@@ -1,7 +1,7 @@
 {
   "generatesAs": [
     {
-      "name": "forest_branch",
+      "name": "forest_island_default_small_extra",
       "condition": "region == forest"
     }
   ]
