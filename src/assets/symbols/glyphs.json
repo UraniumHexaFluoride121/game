@@ -19,6 +19,16 @@
     "type": "TextureAsset",
     "width": 6
   },
+  "/": {
+    "path": "symbols/_textures.json#slash.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
+  ":": {
+    "path": "symbols/_textures.json#colon.png",
+    "type": "TextureAsset",
+    "width": 4
+  },
   ".": {
     "path": "symbols/_textures.json#period.png",
     "type": "TextureAsset",

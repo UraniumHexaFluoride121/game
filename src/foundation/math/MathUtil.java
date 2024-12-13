@@ -2,7 +2,7 @@ package foundation.math;
 
 import java.util.function.Supplier;
 
-public abstract class MathHelper {
+public abstract class MathUtil {
     public static float lerp(float a, float b, float t) {
         return (b - a) * t + a;
     }
@@ -132,6 +132,26 @@ public abstract class MathHelper {
                 break;
             }
         }
+        return s.toString();
+    }
+
+    public static String floatToTime(float seconds, int decimals) {
+        int minutes = (int) (seconds / 60);
+        seconds -= minutes * 60;
+        int hours = minutes / 60;
+        minutes -= hours * 60;
+        StringBuilder s = new StringBuilder();
+        if (hours != 0) {
+            s.append(hours).append(':');
+            if (minutes < 10)
+                s.append('0');
+        }
+        if (minutes != 0) {
+            s.append(minutes).append(':');
+            if (seconds < 10)
+                s.append('0');
+        }
+        s.append(floatToString(seconds, decimals).replace('.', ':'));
         return s.toString();
     }
 }

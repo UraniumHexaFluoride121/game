@@ -4,7 +4,7 @@ import foundation.Main;
 import foundation.MainPanel;
 import foundation.math.BezierCurve3;
 import foundation.math.FunctionalWeightedRandom;
-import foundation.math.MathHelper;
+import foundation.math.MathUtil;
 import foundation.math.ObjPos;
 import level.procedural.Layout;
 import level.procedural.generator.*;
@@ -23,20 +23,20 @@ public abstract class ForestTypes {
         if (isLeftSide) {
             length = lm.pos.x;
             float firstOffset = gen.randomFloat(-length / 5, length / 5);
-            float centerPointX = MathHelper.lerp(0, lm.pos.x, t);
+            float centerPointX = MathUtil.lerp(0, lm.pos.x, t);
             curve = new BezierCurve3(
                     0, lm.pos.y + firstOffset,
-                    centerPointX, MathHelper.lerp(lm.pos.y + firstOffset, lm.pos.y, t) + gen.randomFloat(-length / 4, length / 4),
+                    centerPointX, MathUtil.lerp(lm.pos.y + firstOffset, lm.pos.y, t) + gen.randomFloat(-length / 4, length / 4),
                     lm.pos.x + 3, lm.pos.y,
                     0.5f
             );
         } else {
             length = Main.BLOCKS_X - 1 - lm.pos.x;
             float firstOffset = gen.randomFloat(-length / 5, length / 5);
-            float centerPointX = MathHelper.lerp(Main.BLOCKS_X - 1, lm.pos.x, t);
+            float centerPointX = MathUtil.lerp(Main.BLOCKS_X - 1, lm.pos.x, t);
             curve = new BezierCurve3(
                     Main.BLOCKS_X - 1, lm.pos.y + firstOffset,
-                    centerPointX, MathHelper.lerp(lm.pos.y + firstOffset, lm.pos.y, t) + gen.randomFloat(-length / 4, length / 4),
+                    centerPointX, MathUtil.lerp(lm.pos.y + firstOffset, lm.pos.y, t) + gen.randomFloat(-length / 4, length / 4),
                     lm.pos.x - 3, lm.pos.y,
                     0.5f
             );

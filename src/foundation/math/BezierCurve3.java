@@ -89,7 +89,7 @@ public class BezierCurve3 implements BoundedRenderable, Deletable {
         if (zeroLength) {
             return 0;
         } else {
-            float[] solutions = MathHelper.solveCubic(a, b, c, d);
+            float[] solutions = MathUtil.solveCubic(a, b, c, d);
             for (float solution : solutions) {
                 if (solution < 0 || solution > 1)
                     continue;
@@ -115,7 +115,7 @@ public class BezierCurve3 implements BoundedRenderable, Deletable {
         if (zeroLength) {
             return pos.distance(new ObjPos(px1, py1));
         } else {
-            float[] solutions = MathHelper.solveCubic(a, b, c, d);
+            float[] solutions = MathUtil.solveCubic(a, b, c, d);
             for (float solution : solutions) {
                 if (solution < 0 || solution > 1)
                     break;

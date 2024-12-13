@@ -1,7 +1,7 @@
 package render.texture;
 
 import foundation.MainPanel;
-import foundation.math.MathHelper;
+import foundation.math.MathUtil;
 import foundation.tick.Tickable;
 import foundation.math.RandomType;
 import loader.*;
@@ -194,7 +194,7 @@ public class RandomTexture implements TickedRenderable, RenderEventListener, Tic
         }
 
         public float getRotation(Supplier<Double> randomSource) {
-            return possibleRotations[MathHelper.randIntBetween(0, possibleRotations.length - 1, randomSource)];
+            return possibleRotations[MathUtil.randIntBetween(0, possibleRotations.length - 1, randomSource)];
         }
 
         @Override

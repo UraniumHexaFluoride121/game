@@ -2,7 +2,7 @@ package loader;
 
 import foundation.Main;
 import foundation.MainPanel;
-import foundation.math.MathHelper;
+import foundation.math.MathUtil;
 import foundation.math.ObjPos;
 import level.Level;
 import level.ObjectLayer;
@@ -87,7 +87,7 @@ public abstract class AssetManager {
             int min = r.get("min", JsonType.INTEGER_JSON_TYPE), max = r.get("max", JsonType.INTEGER_JSON_TYPE);
             l.addRegion(
                     r.get("name", JsonType.STRING_JSON_TYPE),
-                    l.getRegionTop() + MathHelper.randIntBetween(min, max, l.randomHandler.getDoubleSupplier(RandomType.REGIONS))
+                    l.getRegionTop() + MathUtil.randIntBetween(min, max, l.randomHandler.getDoubleSupplier(RandomType.REGIONS))
             );
         }, JsonType.JSON_OBJECT_TYPE);
     }
@@ -147,9 +147,9 @@ public abstract class AssetManager {
                             int left = markerObj.getOrDefault("left", 0, JsonType.INTEGER_JSON_TYPE);
                             int right = markerObj.getOrDefault("right", 0, JsonType.INTEGER_JSON_TYPE);
 
-                            int x = MathHelper.clampInt(0, Main.BLOCKS_X - 1, MathHelper.randIntBetween(j - left, j + right,
+                            int x = MathUtil.clampInt(0, Main.BLOCKS_X - 1, MathUtil.randIntBetween(j - left, j + right,
                                     MainPanel.level.randomHandler.getRandom(RandomType.PROCEDURAL)::nextDouble));
-                            int y = MathHelper.clampInt(0, Main.BLOCKS_X - 1, MathHelper.randIntBetween(yOffset - down, yOffset + up,
+                            int y = MathUtil.clampInt(0, Main.BLOCKS_X - 1, MathUtil.randIntBetween(yOffset - down, yOffset + up,
                                     MainPanel.level.randomHandler.getRandom(RandomType.PROCEDURAL)::nextDouble));
 
                             LayoutMarker marker = new LayoutMarker(

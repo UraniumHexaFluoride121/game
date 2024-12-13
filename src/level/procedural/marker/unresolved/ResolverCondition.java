@@ -2,7 +2,7 @@ package level.procedural.marker.unresolved;
 
 import foundation.MainPanel;
 import foundation.expression.*;
-import foundation.math.MathHelper;
+import foundation.math.MathUtil;
 import foundation.math.ObjPos;
 import foundation.math.RandomType;
 import level.procedural.generator.BoundType;
@@ -76,12 +76,12 @@ public class ResolverCondition extends Expression<ResolverConditionData> {
                 if (args.get(0) instanceof ExpressionObjectStatic<ResolverConditionData, ?> static0) {
                     float probability = ((Number) static0.value).floatValue();
                     return new ExpressionObject<>(Boolean.class, o ->
-                            MathHelper.randBoolean(probability, o.l.randomHandler.getDoubleSupplier(RandomType.PROCEDURAL))
+                            MathUtil.randBoolean(probability, o.l.randomHandler.getDoubleSupplier(RandomType.PROCEDURAL))
                     );
                 } else {
                     Function<ResolverConditionData, ?> f = args.get(0).f;
                     return new ExpressionObject<>(Boolean.class, o ->
-                            MathHelper.randBoolean(((Number) f.apply(o)).floatValue(), o.l.randomHandler.getDoubleSupplier(RandomType.PROCEDURAL))
+                            MathUtil.randBoolean(((Number) f.apply(o)).floatValue(), o.l.randomHandler.getDoubleSupplier(RandomType.PROCEDURAL))
                     );
                 }
             }

@@ -3,7 +3,7 @@ package level.procedural.generator;
 import foundation.Deletable;
 import foundation.Main;
 import foundation.MainPanel;
-import foundation.math.MathHelper;
+import foundation.math.MathUtil;
 import foundation.math.ObjPos;
 import foundation.math.RandomType;
 import level.objects.BlockLike;
@@ -269,15 +269,15 @@ public class ProceduralGenerator implements Deletable {
     }
 
     public int randomInt(int min, int max) {
-        return MathHelper.randIntBetween(min, max, random());
+        return MathUtil.randIntBetween(min, max, random());
     }
 
     public float randomFloat(float min, float max) {
-        return MathHelper.randFloatBetween(min, max, random());
+        return MathUtil.randFloatBetween(min, max, random());
     }
 
     public boolean randomBoolean(float probability) {
-        return MathHelper.randBoolean(probability, random());
+        return MathUtil.randBoolean(probability, random());
     }
 
     public Supplier<Double> random() {

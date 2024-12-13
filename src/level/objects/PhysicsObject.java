@@ -3,7 +3,7 @@ package level.objects;
 import foundation.Direction;
 import foundation.MainPanel;
 import foundation.VelocityHandler;
-import foundation.math.MathHelper;
+import foundation.math.MathUtil;
 import foundation.math.ObjPos;
 import level.ObjectLayer;
 import physics.*;
@@ -101,7 +101,7 @@ public abstract class PhysicsObject extends BlockLike {
         float blockBelowFriction = 0;
         int blockBelowCount = 0;
         for (int i = 0; i < 5; i++) {
-            CollisionObject objectBelow = MainPanel.level.collisionHandler.getObjectAt(new ObjPos(MathHelper.lerp(hitBox.getLeft(), hitBox.getRight(), MathHelper.normalise(0, 4, i)), hitBox.getBottom() - 0.05f));
+            CollisionObject objectBelow = MainPanel.level.collisionHandler.getObjectAt(new ObjPos(MathUtil.lerp(hitBox.getLeft(), hitBox.getRight(), MathUtil.normalise(0, 4, i)), hitBox.getBottom() - 0.05f));
             if (objectBelow != null) {
                 blockBelowCount++;
                 blockBelowFriction += objectBelow.getFriction();
@@ -118,13 +118,13 @@ public abstract class PhysicsObject extends BlockLike {
         for (int i = 0; i < 5; i++) {
             ObjPos samplePos = switch (d) {
                 case DOWN ->
-                        new ObjPos(MathHelper.lerp(hitBox.getLeft(), hitBox.getRight(), MathHelper.normalise(0, 4, i)), hitBox.getBottom() - 0.05f);
+                        new ObjPos(MathUtil.lerp(hitBox.getLeft(), hitBox.getRight(), MathUtil.normalise(0, 4, i)), hitBox.getBottom() - 0.05f);
                 case UP ->
-                        new ObjPos(MathHelper.lerp(hitBox.getLeft(), hitBox.getRight(), MathHelper.normalise(0, 4, i)), hitBox.getTop() + 0.05f);
+                        new ObjPos(MathUtil.lerp(hitBox.getLeft(), hitBox.getRight(), MathUtil.normalise(0, 4, i)), hitBox.getTop() + 0.05f);
                 case LEFT ->
-                        new ObjPos(hitBox.getLeft() - 0.05f, MathHelper.lerp(hitBox.getBottom(), hitBox.getTop(), MathHelper.normalise(0, 4, i)));
+                        new ObjPos(hitBox.getLeft() - 0.05f, MathUtil.lerp(hitBox.getBottom(), hitBox.getTop(), MathUtil.normalise(0, 4, i)));
                 case RIGHT ->
-                        new ObjPos(hitBox.getRight() + 0.05f, MathHelper.lerp(hitBox.getBottom(), hitBox.getTop(), MathHelper.normalise(0, 4, i)));
+                        new ObjPos(hitBox.getRight() + 0.05f, MathUtil.lerp(hitBox.getBottom(), hitBox.getTop(), MathUtil.normalise(0, 4, i)));
             };
             CollisionObject object = MainPanel.level.collisionHandler.getObjectAt(samplePos);
             if (object != null) {
@@ -133,8 +133,8 @@ public abstract class PhysicsObject extends BlockLike {
             }
         }
         if (blockCount == 0)
-            return MathHelper.clamp(0, 1, getBounciness());
-        return MathHelper.clamp(0, 1, getBounciness() + (blockBounciness / blockCount));
+            return MathUtil.clamp(0, 1, getBounciness());
+        return MathUtil.clamp(0, 1, getBounciness() + (blockBounciness / blockCount));
     }
 
     private static final boolean PRINT_DEBUG_COLLISION = false;

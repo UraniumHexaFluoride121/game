@@ -1,7 +1,7 @@
 package render.ui;
 
 import foundation.MainPanel;
-import foundation.math.MathHelper;
+import foundation.math.MathUtil;
 import render.RenderOrder;
 import render.renderables.RenderTextDynamic;
 import render.renderables.TextAlign;
@@ -24,11 +24,12 @@ public class UIProgressTracker extends UIElement {
     }
 
     public String getTime() {
-        return "*time*" + MathHelper.floatToString((System.currentTimeMillis() - startTime) / 1000f, 3);
+        return "*time*" + MathUtil.floatToTime((System.currentTimeMillis() - startTime) / 1000f, 3);
     }
 
     public String getHeight() {
-        return "*height*" + MathHelper.floatToString(Math.round(MainPanel.level.cameraPlayer.pos.y), 0);
+        int height = Math.round(MainPanel.level.cameraPlayer.pos.y);
+        return "*height*" + height;
     }
 
     @Override

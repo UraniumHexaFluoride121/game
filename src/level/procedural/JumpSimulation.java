@@ -4,7 +4,7 @@ import foundation.Deletable;
 import foundation.Direction;
 import foundation.MainPanel;
 import foundation.VelocityHandler;
-import foundation.math.MathHelper;
+import foundation.math.MathUtil;
 import foundation.math.ObjPos;
 import level.procedural.generator.BoundType;
 import level.procedural.marker.LayoutMarker;
@@ -132,9 +132,9 @@ public class JumpSimulation implements Deletable, Renderable {
             if (!stopForward) {
                 float remainingDistanceToStop = simVelocity.getRemainingDistanceToStop(EXP_Y_DECAY, -DEFAULT_GRAVITY.y, true);
                 float remainingTimeToStop = simVelocity.getSignedRemainingTimeToStop(EXP_Y_DECAY, -DEFAULT_GRAVITY.y, true);
-                float[] equation = MathHelper.findQuadratic(0, remainingTimeToStop * 2, remainingDistanceToStop);
+                float[] equation = MathUtil.findQuadratic(0, remainingTimeToStop * 2, remainingDistanceToStop);
                 if (equation != null) {
-                    float[] timeToHitGroundSolutions = MathHelper.solveQuadratic(equation[0], equation[1], simPos.y - toLM.pos.y);
+                    float[] timeToHitGroundSolutions = MathUtil.solveQuadratic(equation[0], equation[1], simPos.y - toLM.pos.y);
                     if (timeToHitGroundSolutions != null) {
                         float timeToHitGround = timeToHitGroundSolutions[0] < 0 ? timeToHitGroundSolutions[1] : timeToHitGroundSolutions[0];
                         float remainingDist = simVelocity.getOffsetAfterTime(EXP_X_DECAY, LINEAR_X_DECAY, false, timeToHitGround);

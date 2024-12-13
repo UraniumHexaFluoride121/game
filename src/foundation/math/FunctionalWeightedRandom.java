@@ -26,7 +26,7 @@ public class FunctionalWeightedRandom<T, U> implements Deletable {
             sum += calculated;
             calculatedWeights[i] = calculated;
         }
-        float chosen = MathHelper.randFloatBetween(0, sum, random);
+        float chosen = MathUtil.randFloatBetween(0, sum, random);
 
         float total = 0;
         for (int i = 0; i < weights.size(); i++) {
