@@ -57,7 +57,7 @@ public abstract class PresetTypes {
             lm.addBound(blocksBound, BoundType.BLOCKS);
             lm.addBound(blocksBound, BoundType.COLLISION);
             lm.addBound(new StaticHitBox(blocks.up() + 3, blocks.down() + 2, stack.leftLayer(.7f), stack.rightLayer(.7f) + 1, lm.pos), BoundType.OBSTRUCTION);
-            lm.addBound(new StaticHitBox(1, stack.height(.4f), blocks.left() + 3, blocks.right() + 4, lm.pos), BoundType.OBSTRUCTION);
+            lm.addBound(new StaticHitBox(1, stack.height(.4f), blocks.left() + 2, blocks.right() + 3, lm.pos), BoundType.OBSTRUCTION);
             lm.addBound(blocksBound.expand(3, 7), BoundType.OVERCROWDING);
             gen.addData("blocks", blocks);
         }, LayoutMarker.isNotColliding(BoundType.OBSTRUCTION)

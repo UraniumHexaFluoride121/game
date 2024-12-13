@@ -3,6 +3,7 @@ package level.procedural.generator;
 import foundation.Direction;
 import foundation.Main;
 import foundation.math.FunctionalWeightedRandom;
+import foundation.math.MathUtil;
 import foundation.math.ObjPos;
 import level.procedural.marker.LayoutMarker;
 import level.procedural.marker.movement.LMDPlayerMovement;
@@ -80,9 +81,10 @@ public abstract class GenUtil {
             int prevUp = 0, prevDown = 0, prevOffset = 0, up = initialUp, down = initialDown;
             int layer = 0;
             while (true) {
-                int newUp = inward.getValue(random, new StackRandomData(layer, prevUp, up + down + 1));
-                int newDown = inward.getValue(random, new StackRandomData(layer, prevDown, up + down + 1));
-                int newOffset = offset == null ? 0 : offset.getValue(random, new StackRandomData(layer, prevOffset, up + down + 1));
+                int newUp = inward.getValue(random, new StackRandomData(layer + 1, prevUp, up + down + 1));
+                int newDown = inward.getValue(random, new StackRandomData(layer + 1, prevDown, up + down + 1));
+                int newOffset = layer == 0 ? 0 : offset == null ? 0 : offset.getValue(random, new StackRandomData(layer + 1, prevOffset, up + down + 1));
+                newOffset = (int) (MathUtil.min(Math.abs(newOffset), newUp, newDown) * Math.signum(newOffset));
                 up += newOffset - newUp;
                 down += -newOffset - newDown;
                 prevUp = newUp;

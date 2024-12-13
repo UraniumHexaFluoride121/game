@@ -154,4 +154,13 @@ public abstract class MathUtil {
         s.append(floatToString(seconds, decimals).replace('.', ':'));
         return s.toString();
     }
+
+    public static int min(int... values) {
+        int v = values[0];
+        for (int i = 1; i < values.length; i++) {
+            if (values[i] < v)
+                v = values[i];
+        }
+        return v;
+    }
 }

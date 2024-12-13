@@ -124,9 +124,9 @@ public abstract class ForestTypes {
                     .andThen(GeneratorType.generateAround(0, 2, 15, 0.3f)),
             new FunctionalWeightedRandom<Integer, GenUtil.StackRandomData>()
                     .add(1, s -> 10f)
-                    .add(2, s -> 12f)
-                    .add(3, s -> 8f)
-                    .add(4, s -> s.lastSize() > 8 ? 2f : 0),
+                    .add(2, s -> s.layer() == 1 ? 7f : 12f)
+                    .add(3, s -> s.layer() == 1 ? 5f : 8f)
+                    .add(4, s -> s.lastSize() > 8 && s.layer() != 1 ? 2f : 0),
             new FunctionalWeightedRandom<Integer, GenUtil.StackRandomData>()
                     .add(-3, s -> 1f)
                     .add(-2, s -> 4f)
@@ -143,10 +143,10 @@ public abstract class ForestTypes {
             GeneratorType.generateDefault(0, 1),
             new FunctionalWeightedRandom<Integer, GenUtil.StackRandomData>()
                     .add(2, s -> 5f)
-                    .add(3, s -> 10f)
-                    .add(4, s -> 15f)
-                    .add(5, s -> 12f)
-                    .add(6, s -> s.lastSize() > 8 ? 2f : 0),
+                    .add(3, s -> s.layer() == 1 ? 5f : 10f)
+                    .add(4, s -> s.layer() == 1 ? 1f : 15f)
+                    .add(5, s -> s.layer() == 1 ? 0 : 12f)
+                    .add(6, s -> s.lastSize() > 8 && s.layer() != 1 ? 2f : 0),
             new FunctionalWeightedRandom<Integer, GenUtil.StackRandomData>()
                     .add(-3, s -> 4f)
                     .add(-2, s -> 4f)
