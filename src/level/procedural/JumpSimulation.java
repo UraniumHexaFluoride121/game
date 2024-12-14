@@ -9,7 +9,6 @@ import foundation.math.ObjPos;
 import level.procedural.generator.BoundType;
 import level.procedural.marker.LayoutMarker;
 import level.procedural.marker.movement.LMDPlayerMovement;
-import level.procedural.marker.resolved.LMDResolvedElement;
 import loader.AssetManager;
 import physics.CollisionObject;
 import physics.DynamicHitBox;
@@ -31,6 +30,8 @@ import static level.objects.Player.*;
 import static level.procedural.Layout.*;
 
 public class JumpSimulation implements Deletable, Renderable {
+    private static final float DELTA_TIME = 0.01f;
+    public static final float MAXIMUM_JUMP_HEIGHT = VelocityHandler.getMaximumHeight(JUMP_IMPULSE, EXP_Y_DECAY, 0, DEFAULT_GRAVITY.y / 2);
     private static final float[] HOLD_JUMP = new float[]{
             JUMP_IMPULSE / 5 * 4,
             JUMP_IMPULSE / 5 * 3,
@@ -38,26 +39,28 @@ public class JumpSimulation implements Deletable, Renderable {
             JUMP_IMPULSE / 5 * 1,
             JUMP_IMPULSE / 5 * 0
     };
-    public LayoutMarker from, to;
+    public JumpSimGroup from, to;
     public ArrayList<LayoutMarker> fromLMs, toLMS;
     public Set<RenderGameCircle> debugRenderCircles = ConcurrentHashMap.newKeySet();
     public Set<RenderGameSquare> debugRenderSquares = ConcurrentHashMap.newKeySet();
     public StaticHitBox bound;
     public boolean hasValidJump = false;
+    public boolean validatedJumpHadCollision = true;
     public int validatedCount = 0;
 
-    public JumpSimulation(LayoutMarker from, LayoutMarker to, ArrayList<LayoutMarker> fromLMs, ArrayList<LayoutMarker> toLMS) {
+    public JumpSimulation(JumpSimGroup from, JumpSimGroup to, ArrayList<LayoutMarker> fromLMs, ArrayList<LayoutMarker> toLMS) {
         this.from = from;
         this.to = to;
         this.fromLMs = fromLMs;
         this.toLMS = toLMS;
     }
 
-    public void addFromLM() {
-        ((LMDResolvedElement) from.data).jumps.put(this, ((LMDResolvedElement) to.data));
+    public void addFromGroup() {
+        from.jumps.put(this, to);
     }
 
     public boolean validateJump() {
+        validatedJumpHadCollision = true;
         if (DEBUG_RENDER_SIM && DEBUG_RENDER) clearDebugRender();
         hasValidJump = false;
         bound = null;
@@ -71,6 +74,8 @@ public class JumpSimulation implements Deletable, Renderable {
         validatedCount = 0;
         for (LayoutMarker fromLM : fromLMs) {
             for (LayoutMarker toLM : toLMS) {
+                if (toLM.pos.y - fromLM.pos.y > MAXIMUM_JUMP_HEIGHT)
+                    continue;
                 LMDPlayerMovement data = ((LMDPlayerMovement) fromLM.data);
                 for (float v : data.acceleration) {
                     for (float holdJump : HOLD_JUMP) {
@@ -127,6 +132,8 @@ public class JumpSimulation implements Deletable, Renderable {
         if (!MainPanel.level.collisionHandler.getBoxCollidingWith(playerBox).isEmpty())
             return FAIL;
 
+        boolean hasHadCollision = false;
+
         while (simVelocity.y > 0 || simPos.y > toLM.pos.y) {
             Direction direction;
             if (!stopForward) {
@@ -178,31 +185,23 @@ public class JumpSimulation implements Deletable, Renderable {
 
             bound.expandToFit(playerBox);
 
-            if (to.isBoxColliding(playerBox, BoundType.JUMP_VALIDATION))
+            if (to.isValidated(playerBox)) {
+                if (!hasHadCollision)
+                    validatedJumpHadCollision = false;
                 return new ValidationResult(true, bound);
+            }
 
-            if (collisionDirections != null) {
-                if (collisionDirections.contains(Direction.DOWN))
-                    return FAIL;
-                if (!collisionDirections.isEmpty())
-                    stopForward = false;
+            if (collisionDirections.contains(Direction.DOWN))
+                return FAIL;
+            if (!collisionDirections.isEmpty()) {
+                hasHadCollision = true;
+                stopForward = false;
             }
         }
         return FAIL;
     }
 
-    private static final float DELTA_TIME = 0.01f;
-
     private HashSet<Direction> simCollision(DynamicHitBox playerBox, HashSet<LayoutMarker> collisionMarkers) {
-        boolean lmColliding = false;
-        for (LayoutMarker collisionMarker : collisionMarkers) {
-            if (collisionMarker.isBoxColliding(playerBox, BoundType.COLLISION)) {
-                lmColliding = true;
-                break;
-            }
-        }
-        if (!lmColliding)
-            return null;
         HashSet<Direction> directions = new HashSet<>();
         HashSet<CollisionObject> objects = MainPanel.level.collisionHandler.getBoxCollidingWith(playerBox);
         for (CollisionObject object : objects) {

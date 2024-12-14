@@ -5,11 +5,20 @@ import physics.StaticHitBox;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class BlockCollection {
     public HashSet<ObjPos> blockPositions = new HashSet<>();
     public StaticHitBox bound;
+
+    public BlockCollection(HashSet<ObjPos> blockPositions) {
+        this.blockPositions = blockPositions;
+    }
+
+    public BlockCollection() {
+    }
 
     public void addBlock(ObjPos pos) {
         blockPositions.add(pos.copy());
@@ -19,12 +28,42 @@ public class BlockCollection {
         blockPositions.add(new ObjPos(x, y));
     }
 
-    public void generateBlocks(String blockName, ProceduralGenerator gen) {
-        blockPositions.forEach(pos -> gen.addBlock(blockName, pos.copy()));
+    public BlockCollection generateTopLayers(String blockName, ObjPos origin, ProceduralGenerator gen, boolean removeGenerated, int layers, Supplier<Boolean> extraBlockProbability) {
+        HashSet<ObjPos> blocks = new HashSet<>(blockPositions);
+        for (int i = 0; i < layers + 1; i++) {
+            HashMap<Integer, ObjPos> topLayer = new HashMap<>();
+            blocks.forEach(pos -> {
+                int xPos = (int) pos.x;
+                if (!topLayer.containsKey(xPos))
+                    topLayer.put(xPos, pos);
+                else if (topLayer.get(xPos).y < pos.y)
+                    topLayer.put(xPos, pos);
+            });
+            if (i == layers) {
+                HashSet<ObjPos> lastLayer = new HashSet<>();
+                for (Map.Entry<Integer, ObjPos> entry : topLayer.entrySet()) {
+                    if (extraBlockProbability.get()) {
+                        lastLayer.add(entry.getValue());
+                    }
+                }
+                lastLayer.forEach(pos -> gen.addBlock(blockName, pos.copy().add(origin)));
+                blocks.removeIf(lastLayer::contains);
+                break;
+            }
+            topLayer.forEach((height, pos) -> gen.addBlock(blockName, pos.copy().add(origin)));
+            blocks.removeIf(topLayer::containsValue);
+        }
+        return new BlockCollection(blocks);
     }
 
-    public void generateBlocks(String blockName, ObjPos origin, ProceduralGenerator gen) {
+    public BlockCollection generateBlocks(String blockName, ProceduralGenerator gen) {
+        blockPositions.forEach(pos -> gen.addBlock(blockName, pos.copy()));
+        return null;
+    }
+
+    public BlockCollection generateBlocks(String blockName, ObjPos origin, ProceduralGenerator gen) {
         blockPositions.forEach(pos -> gen.addBlock(blockName, pos.copy().add(origin)));
+        return null;
     }
 
     public BlockCollection setBound(StaticHitBox bound) {

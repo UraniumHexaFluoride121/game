@@ -13,11 +13,11 @@ import java.util.function.Supplier;
 import static level.procedural.generator.GeneratorType.*;
 
 public abstract class PresetTypes {
-    public static Supplier<GeneratorType> verticalIsland(String name, int upwardOffset, int minSize, int maxSize, BiConsumer<GeneratorType, JsonObject> jsonParser, GeneratorLMFunction generation, FunctionalWeightedRandom<Integer, GenUtil.StackRandomData> weights, FunctionalWeightedRandom<Integer, GenUtil.StackRandomData> offset) {
-        return verticalIsland(name, 2, upwardOffset, minSize, maxSize, jsonParser, generation, weights, offset);
+    public static Supplier<GeneratorType> verticalIsland(String name, int upwardOffset, int minSize, int maxSize, BiConsumer<GeneratorType, JsonObject> jsonParser, GeneratorFunction blockGeneration, GeneratorLMFunction lmGeneration, FunctionalWeightedRandom<Integer, GenUtil.StackRandomData> weights, FunctionalWeightedRandom<Integer, GenUtil.StackRandomData> offset) {
+        return verticalIsland(name, 2, upwardOffset, minSize, maxSize, jsonParser, blockGeneration, lmGeneration, weights, offset);
     }
 
-    public static Supplier<GeneratorType> verticalIsland(String name, int obstructionWidth, int upwardOffset, int minSize, int maxSize, BiConsumer<GeneratorType, JsonObject> jsonParser, GeneratorLMFunction generation, FunctionalWeightedRandom<Integer, GenUtil.StackRandomData> weights, FunctionalWeightedRandom<Integer, GenUtil.StackRandomData> offset) {
+    public static Supplier<GeneratorType> verticalIsland(String name, int obstructionWidth, int upwardOffset, int minSize, int maxSize, BiConsumer<GeneratorType, JsonObject> jsonParser, GeneratorFunction blockGeneration, GeneratorLMFunction lmGeneration, FunctionalWeightedRandom<Integer, GenUtil.StackRandomData> weights, FunctionalWeightedRandom<Integer, GenUtil.StackRandomData> offset) {
         return () -> new GeneratorType(name, () -> new ProceduralGenerator((gen, lm, type) -> {
             int sizeUp = gen.randomInt(minSize, maxSize) + upwardOffset;
             int sizeDown = gen.randomInt(minSize, maxSize) - upwardOffset;
@@ -31,13 +31,13 @@ public abstract class PresetTypes {
             gen.addData("blocks", verticalStack);
         }, LayoutMarker.isNotColliding(BoundType.OBSTRUCTION)
                 .and(LayoutMarker.isNotColliding(BoundType.OVERCROWDING)),
-                generateBlockCollection(0, "blocks"),
+                blockGeneration,
                 generateBlockCollectionValidation(0, "blocks"),
-                generation), jsonParser, true
+                lmGeneration), jsonParser, true
         );
     }
 
-    public static Supplier<GeneratorType> defaultIsland(String name, int minSize, int maxSize, BiConsumer<GeneratorType, JsonObject> jsonParser, GeneratorLMFunction generation, FunctionalWeightedRandom<Integer, GenUtil.StackRandomData> weightsLower, FunctionalWeightedRandom<Integer, GenUtil.StackRandomData> weightsUpper) {
+    public static Supplier<GeneratorType> defaultIsland(String name, int minSize, int maxSize, BiConsumer<GeneratorType, JsonObject> jsonParser, GeneratorFunction blockGeneration, GeneratorLMFunction lmGeneration, FunctionalWeightedRandom<Integer, GenUtil.StackRandomData> weightsLower, FunctionalWeightedRandom<Integer, GenUtil.StackRandomData> weightsUpper) {
         return () -> new GeneratorType(name, () -> new ProceduralGenerator((gen, lm, type) -> {
             int sizeLeft = gen.randomInt(minSize, maxSize);
             int sizeRight = gen.randomInt(minSize, maxSize);
@@ -62,9 +62,9 @@ public abstract class PresetTypes {
             gen.addData("blocks", blocks);
         }, LayoutMarker.isNotColliding(BoundType.OBSTRUCTION)
                 .and(LayoutMarker.isNotColliding(BoundType.OVERCROWDING)),
-                generateBlockCollection(0, "blocks"),
+                blockGeneration,
                 generateBlockCollectionValidation(0, "blocks"),
-                generation), jsonParser, true
+                lmGeneration), jsonParser, true
         );
     }
 }

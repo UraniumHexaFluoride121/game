@@ -145,6 +145,11 @@ public abstract class MathUtil {
             s.append(hours).append(':');
             if (minutes < 10)
                 s.append('0');
+            if (minutes == 0) {
+                s.append("0:");
+                if (seconds < 10)
+                    s.append('0');
+            }
         }
         if (minutes != 0) {
             s.append(minutes).append(':');

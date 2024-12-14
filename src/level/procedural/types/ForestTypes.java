@@ -14,6 +14,8 @@ import physics.StaticHitBox;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import static level.procedural.generator.GeneratorType.*;
+
 public abstract class ForestTypes {
     public static final GeneratorType FOREST_BRANCH = new GeneratorType("forest_branch", () -> new ProceduralGenerator((gen, lm, type) -> {
         BezierCurve3 curve;
@@ -79,16 +81,18 @@ public abstract class ForestTypes {
                 gen.addMarker("debug", pos.get());
         }
     }),
-            GeneratorType.storeString("woodBlock")
-                    .andThen(GeneratorType.storeString("generateNextPlatformAs")), true
+            storeString("woodBlock")
+                    .andThen(storeString("generateNextPlatformAs")), true
     );
     public static final GeneratorType FOREST_ISLAND_DEFAULT = PresetTypes.defaultIsland("forest_island_default", 3, 6,
-            GeneratorType.storeInt("forceAwayFromBorderProximity")
-                    .andThen(GeneratorType.storeString("block"))
-                    .andThen(GeneratorType.storeString("generateNextPlatformAs"))
-                    .andThen(GeneratorType.storeString("generateExtraPlatformAs")),
-            GeneratorType.generateDefault(0, 1)
-                    .andThen(GeneratorType.generateAround(0, 2, 15, 0.3f)), new FunctionalWeightedRandom<Integer, GenUtil.StackRandomData>()
+            storeInt("forceAwayFromBorderProximity")
+                    .andThen(storeString("block"))
+                    .andThen(storeString("generateNextPlatformAs"))
+                    .andThen(storeString("generateExtraPlatformAs")),
+            genCollection("blocks", topLayers(0, 2, 0.3f)
+                            .andThen(allBlocks(0))),
+            generateDefault(0, 1)
+                    .andThen(generateAround(0, 2, 15, 0.3f)), new FunctionalWeightedRandom<Integer, GenUtil.StackRandomData>()
                     .add(0, s -> s.lastValue() == 0 ? 2f : 12)
                     .add(1, s -> 15f)
                     .add(2, s -> 15f)
@@ -101,27 +105,31 @@ public abstract class ForestTypes {
                     .add(4, s -> s.lastSize() > 8 ? 5f : 2)
     ).get();
     public static final GeneratorType FOREST_ISLAND_DEFAULT_SMALL = PresetTypes.defaultIsland("forest_island_default_small", 1, 2,
-            GeneratorType.storeInt("forceAwayFromBorderProximity")
-                    .andThen(GeneratorType.storeString("block"))
-                    .andThen(GeneratorType.storeString("generateNextPlatformAs")),
-            GeneratorType.generateDefault(0, 1), new FunctionalWeightedRandom<Integer, GenUtil.StackRandomData>()
+            storeInt("forceAwayFromBorderProximity")
+                    .andThen(storeString("block"))
+                    .andThen(storeString("generateNextPlatformAs")),
+            genCollection("blocks", allBlocks(0)),
+            generateDefault(0, 1), new FunctionalWeightedRandom<Integer, GenUtil.StackRandomData>()
                     .add(0, s -> s.lastValue() == 0 ? 1f : 8f)
                     .add(1, s -> 8f), null
     ).get();
     public static final GeneratorType FOREST_ISLAND_DEFAULT_SMALL_EXTRA = PresetTypes.defaultIsland("forest_island_default_small_extra", 1, 2,
-            GeneratorType.storeInt("forceAwayFromBorderProximity")
-                    .andThen(GeneratorType.storeString("block")),
-            GeneratorType.generateNothing(), new FunctionalWeightedRandom<Integer, GenUtil.StackRandomData>()
+            storeInt("forceAwayFromBorderProximity")
+                    .andThen(storeString("block")),
+            genCollection("blocks", allBlocks(0)),
+            generateNothing(), new FunctionalWeightedRandom<Integer, GenUtil.StackRandomData>()
                     .add(0, s -> s.lastValue() == 0 ? 2f : 8f)
                     .add(1, s -> 10f), null
     ).get();
     public static final GeneratorType FOREST_ISLAND_VERTICAL = PresetTypes.verticalIsland("forest_island_vertical", 2, 4, 6,
-            GeneratorType.storeInt("forceAwayFromBorderProximity")
-                    .andThen(GeneratorType.storeString("block"))
-                    .andThen(GeneratorType.storeString("generateNextPlatformAs"))
-                    .andThen(GeneratorType.storeString("generateExtraPlatformAs")),
-            GeneratorType.generateDefault(0, 1)
-                    .andThen(GeneratorType.generateAround(0, 2, 15, 0.3f)),
+            storeInt("forceAwayFromBorderProximity")
+                    .andThen(storeString("block"))
+                    .andThen(storeString("generateNextPlatformAs"))
+                    .andThen(storeString("generateExtraPlatformAs")),
+            genCollection("blocks", topLayers(0, 2, 0.3f)
+                    .andThen(allBlocks(0))),
+            generateDefault(0, 1)
+                    .andThen(generateAround(0, 2, 15, 0.3f)),
             new FunctionalWeightedRandom<Integer, GenUtil.StackRandomData>()
                     .add(1, s -> 10f)
                     .add(2, s -> s.layer() == 1 ? 7f : 12f)
@@ -137,10 +145,11 @@ public abstract class ForestTypes {
                     .add(3, s -> 1f)
     ).get();
     public static final GeneratorType FOREST_ISLAND_VERTICAL_LARGE = PresetTypes.verticalIsland("forest_island_vertical_large", 1, 2, 8, 15,
-            GeneratorType.storeInt("forceAwayFromBorderProximity")
-                    .andThen(GeneratorType.storeString("block"))
-                    .andThen(GeneratorType.storeString("generateNextPlatformAs")),
-            GeneratorType.generateDefault(0, 1),
+            storeInt("forceAwayFromBorderProximity")
+                    .andThen(storeString("block"))
+                    .andThen(storeString("generateNextPlatformAs")),
+            genCollection("blocks", allBlocks(0)),
+            generateDefault(0, 1),
             new FunctionalWeightedRandom<Integer, GenUtil.StackRandomData>()
                     .add(2, s -> 5f)
                     .add(3, s -> s.layer() == 1 ? 5f : 10f)

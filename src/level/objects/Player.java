@@ -1,10 +1,10 @@
 package level.objects;
 
 import foundation.Direction;
-import foundation.math.ObjPos;
 import foundation.input.InputHandler;
 import foundation.input.InputHandlingOrder;
 import foundation.input.InputType;
+import foundation.math.ObjPos;
 import render.event.RenderEvent;
 
 import java.awt.event.KeyEvent;

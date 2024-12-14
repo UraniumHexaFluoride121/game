@@ -115,6 +115,24 @@ public class VelocityHandler extends ObjPos {
         return v.x;
     }
 
+    public static float getMaximumHeight(float initialSpeed, float expDecay, float linearDecay, float acceleration) {
+        VelocityHandler v = new VelocityHandler(initialSpeed);
+        float dist = 0;
+        float prevDist = 0;
+        int loops = 0;
+        while (dist >= prevDist) {
+            prevDist = dist;
+            v.tickExponentialXDecay(DELTA_TIME, expDecay);
+            v.tickLinearXDecay(DELTA_TIME, linearDecay);
+            v.applyAcceleration(new ObjPos(acceleration), DELTA_TIME);
+            dist += v.x * DELTA_TIME;
+            loops++;
+            if (loops > 1000)
+                return Float.NaN;
+        }
+        return prevDist;
+    }
+
     public VelocityHandler copyAsVelocityHandler() {
         return new VelocityHandler(x, y);
     }

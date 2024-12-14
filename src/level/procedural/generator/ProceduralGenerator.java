@@ -7,11 +7,11 @@ import foundation.math.MathUtil;
 import foundation.math.ObjPos;
 import foundation.math.RandomType;
 import level.objects.BlockLike;
+import level.procedural.JumpSimGroup;
 import level.procedural.JumpSimulation;
 import level.procedural.marker.GeneratorLMFunction;
 import level.procedural.marker.LayoutMarker;
 import level.procedural.marker.movement.LMDPlayerMovement;
-import level.procedural.marker.movement.LMTPlayerMovement;
 import level.procedural.marker.resolved.LMDResolvedElement;
 import level.procedural.marker.resolved.LMTResolvedElement;
 import loader.AssetManager;
@@ -64,10 +64,6 @@ public class ProceduralGenerator implements Deletable {
     public static void generateValidationMarkers(LayoutMarker marker) {
         if (marker.data instanceof LMDResolvedElement data) {
             data.gen.validatorMarkerFunction.generateMarkers(data.gen, marker, data.genType);
-            data.gen.generatedLayoutMarkers.forEach(lm -> {
-                if (lm.type instanceof LMTPlayerMovement)
-                    data.gen.playerMovementMarkers.add(lm);
-            });
         }
     }
 
@@ -99,18 +95,20 @@ public class ProceduralGenerator implements Deletable {
                 generatedLayoutMarkers.forEach(ProceduralGenerator::generateValidationMarkers);
                 for (LayoutMarker lm : generatedLayoutMarkers) {
                     if (lm.data instanceof LMDResolvedElement data) {
-                        MainPanel.level.layout.forEachMarker(lm.pos.y, 1, otherLM -> {
-                            if (otherLM.data instanceof LMDResolvedElement otherData && !otherLM.equals(lm)) {
-                                JumpSimulation jumpSimulationFrom = new JumpSimulation(otherLM, lm, otherData.gen.playerMovementMarkers, data.gen.playerMovementMarkers);
-                                jumpSimulationFrom.validateJump();
-                                jumpSimulationFrom.addFromLM();
-                                addedJumps.add(jumpSimulationFrom);
+                        data.forEachJumpSimGroup(group -> {
+                            MainPanel.level.layout.forEachJumpSimGroup(lm.pos.y, 1, otherGroup -> {
+                                if (!otherGroup.equals(group)) {
+                                    JumpSimulation jumpSimulationFrom = new JumpSimulation(otherGroup, group, otherGroup.movementMarkers, group.movementMarkers);
+                                    jumpSimulationFrom.validateJump();
+                                    jumpSimulationFrom.addFromGroup();
+                                    addedJumps.add(jumpSimulationFrom);
 
-                                JumpSimulation jumpSimulationTo = new JumpSimulation(lm, otherLM, data.gen.playerMovementMarkers, otherData.gen.playerMovementMarkers);
-                                jumpSimulationTo.validateJump();
-                                jumpSimulationTo.addFromLM();
-                                addedJumps.add(jumpSimulationTo);
-                            }
+                                    JumpSimulation jumpSimulationTo = new JumpSimulation(group, otherGroup, group.movementMarkers, otherGroup.movementMarkers);
+                                    jumpSimulationTo.validateJump();
+                                    jumpSimulationTo.addFromGroup();
+                                    addedJumps.add(jumpSimulationTo);
+                                }
+                            });
                         });
                     }
                 }
@@ -118,9 +116,9 @@ public class ProceduralGenerator implements Deletable {
                 for (LayoutMarker lm : generatedLayoutMarkers) {
                     if (!(lm.type instanceof LMTResolvedElement))
                         continue;
-                    MainPanel.level.layout.forEachMarker(lm.pos.y, 2, otherLM -> {
-                        if (otherLM.data instanceof LMDResolvedElement rData && !otherLM.equals(lm)) {
-                            for (JumpSimulation jump : rData.jumps.keySet()) {
+                    MainPanel.level.layout.forEachJumpSimGroup(lm.pos.y, 2, otherGroup -> {
+                        if (!((LMDResolvedElement) lm.data).jumps.contains(otherGroup)) {
+                            for (JumpSimulation jump : otherGroup.jumps.keySet()) {
                                 if (jump.bound != null && lm.isBoxColliding(jump.bound, BoundType.COLLISION)) {
                                     jump.validateJump();
                                     revalidatedJumps.add(jump);
@@ -132,7 +130,8 @@ public class ProceduralGenerator implements Deletable {
                 for (LayoutMarker lm : generatedLayoutMarkers) {
                     if (!(lm.type instanceof LMTResolvedElement))
                         continue;
-                    if (!MainPanel.level.layout.nonReachable(lm).isEmpty())
+                    HashSet<JumpSimGroup> jumpSimGroups = MainPanel.level.layout.nonReachable(lm);
+                    if (!jumpSimGroups.isEmpty())
                         validated.set(false);
                 }
             }
@@ -143,14 +142,19 @@ public class ProceduralGenerator implements Deletable {
                 generatedLayoutMarkers.forEach(MainPanel.level.layout::addProceduralLM); //Repeat the cycle for the newly validated markers
                 break;
             } else {
-                addedJumps.forEach(j -> ((LMDResolvedElement) j.from.data).jumps.remove(j));
+                addedJumps.forEach(j -> j.from.jumps.remove(j));
                 generatedLayoutMarkers.forEach(lm -> {
-                    if (lm.data instanceof LMDResolvedElement data)
+                    if (lm.data instanceof LMDResolvedElement data) {
                         data.gen.revertGeneration();
+                        data.delete();
+                    }
                     lm.delete();
                 });
                 generatedLayoutMarkers.clear();
-                revalidatedJumps.forEach(JumpSimulation::validateJump);
+                revalidatedJumps.forEach(j -> {
+                    if (j.validatedJumpHadCollision)
+                        j.validateJump();
+                });
             }
         }
     }
@@ -189,22 +193,26 @@ public class ProceduralGenerator implements Deletable {
         MainPanel.level.layout.addMarker(marker);
     }
 
-    public LMDPlayerMovement addJumpMarker(String name, ObjPos pos) {
-        if (MainPanel.level.outOfBounds(pos))
-            return null;
-        LayoutMarker marker = new LayoutMarker(name, pos);
-        generatedLayoutMarkers.add(marker);
-        MainPanel.level.layout.addMarker(marker);
-        LMDPlayerMovement data = (LMDPlayerMovement) marker.data;
-        return data;
+    public JumpSimGroup newJumpSimGroup(LayoutMarker lm) {
+        JumpSimGroup group = new JumpSimGroup(lm.pos);
+        ((LMDResolvedElement) lm.data).jumps.add(group);
+        MainPanel.level.layout.addJumpGroup(group);
+        return group;
     }
 
-    public LMDPlayerMovement addJumpMarker(String name, ObjPos pos, Consumer<LMDPlayerMovement> action) {
+    public LMDPlayerMovement addJumpMarker(String name, JumpSimGroup group, ObjPos pos) {
         if (MainPanel.level.outOfBounds(pos))
             return null;
         LayoutMarker marker = new LayoutMarker(name, pos);
-        generatedLayoutMarkers.add(marker);
-        MainPanel.level.layout.addMarker(marker);
+        group.movementMarkers.add(marker);
+        return (LMDPlayerMovement) marker.data;
+    }
+
+    public LMDPlayerMovement addJumpMarker(String name, JumpSimGroup group, ObjPos pos, Consumer<LMDPlayerMovement> action) {
+        if (MainPanel.level.outOfBounds(pos))
+            return null;
+        LayoutMarker marker = new LayoutMarker(name, pos);
+        group.movementMarkers.add(marker);
         LMDPlayerMovement data = (LMDPlayerMovement) marker.data;
         action.accept(data);
         return data;
@@ -282,6 +290,10 @@ public class ProceduralGenerator implements Deletable {
 
     public Supplier<Double> random() {
         return MainPanel.level.randomHandler.getDoubleSupplier(RandomType.PROCEDURAL);
+    }
+
+    public Supplier<Boolean> probability(float probability) {
+        return () -> MathUtil.randBoolean(probability, random());
     }
 
     @Override

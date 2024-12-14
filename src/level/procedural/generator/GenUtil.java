@@ -5,6 +5,7 @@ import foundation.Main;
 import foundation.math.FunctionalWeightedRandom;
 import foundation.math.MathUtil;
 import foundation.math.ObjPos;
+import level.procedural.JumpSimGroup;
 import level.procedural.marker.LayoutMarker;
 import level.procedural.marker.movement.LMDPlayerMovement;
 import loader.AssetManager;
@@ -192,6 +193,7 @@ public abstract class GenUtil {
     }
 
     public static void generateJumpValidation(HashMap<Integer, Integer> blockHeights, ProceduralGenerator gen, LayoutMarker lm, StaticHitBox box, float friction) {
+        JumpSimGroup group = gen.newJumpSimGroup(lm);
         int lastHeight = -1;
         int from = 0;
         boolean lastWasUp = true;
@@ -202,7 +204,7 @@ public abstract class GenUtil {
             int height = blockHeights.getOrDefault(x, -1);
             if (lastHeight == -1 || lastHeight != height) {
                 if (lastHeight != -1) {
-                    lm.addBound(new StaticHitBox(lastHeight + 1 + box.getTop(), lastHeight + box.getTop(), from + 0.3f, x - 0.3f), BoundType.JUMP_VALIDATION);
+                    group.addBound(new StaticHitBox(lastHeight + 1 + box.getTop(), lastHeight + box.getTop(), from + 0.3f, x - 0.3f));
                 }
                 int finalLastHeight = lastHeight, finalHeight = height;
                 boolean finalLastWasUp = lastWasUp;
@@ -211,14 +213,14 @@ public abstract class GenUtil {
                 }
                 if (lastHeight > height) {
                     int finalFrom = from;
-                    lastJump = gen.addJumpMarker("static_jump", new ObjPos(x - 1 + box.getRight(), lastHeight + box.getTop()), data -> {
+                    lastJump = gen.addJumpMarker("static_jump", group, new ObjPos(x - 1 + box.getRight(), lastHeight + box.getTop()), data -> {
                         if (finalHeight == -1)
                             data.setApproachDirection(Direction.RIGHT);
                         data.addAcceleration(data.lm.pos.x - finalFrom + (finalLastWasUp ? box.getLeft() : -playerWidth + 1 - box.getRight()), friction, true);
                     });
                     lastWasUp = false;
                 } else {
-                    lastJump = gen.addJumpMarker("static_jump", new ObjPos(x - box.getLeft(), height + box.getTop()), data -> {
+                    lastJump = gen.addJumpMarker("static_jump", group, new ObjPos(x - box.getLeft(), height + box.getTop()), data -> {
                         if (finalLastHeight == -1)
                             data.setApproachDirection(Direction.LEFT);
                     });

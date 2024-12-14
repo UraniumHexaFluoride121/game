@@ -203,7 +203,7 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
         type.debugRenderable.render(g);
         g.setTransform(prev);
         for (Map.Entry<BoundType, HashSet<Renderable>> entry : boundsDebugRenderer.entrySet()) {
-            if ((entry.getKey() == BoundType.JUMP_VALIDATION && Layout.DEBUG_RENDER_VALIDATION_BOUNDS) || (entry.getKey() != BoundType.JUMP_VALIDATION && Layout.DEBUG_RENDER_LM_BOUNDS)) {
+            if (Layout.DEBUG_RENDER_LM_BOUNDS) {
                 for (Renderable r : entry.getValue()) {
                     r.render(g);
                 }
@@ -214,6 +214,9 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
         }
         if (data instanceof LMDResolvedElement rData) {
             rData.render(g);
+            if (Layout.DEBUG_RENDER_VALIDATION_BOUNDS) {
+                rData.jumps.forEach(j -> j.render(g));
+            }
         }
     }
 

@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 public class Layout {
     public static final boolean DEBUG_RENDER = false;
@@ -24,7 +23,8 @@ public class Layout {
 
     private final int sectionSize, sectionCount, maxHeight;
     public final ArrayList<LayoutMarker>[] markerSections;
-    public final HashSet<LMDResolvedElement> roots = new HashSet<>();
+    public final ArrayList<JumpSimGroup>[] jumpSimGroups;
+    public final HashSet<JumpSimGroup> roots = new HashSet<>();
 
     public Layout(int maxHeight, int sectionSize, int bufferSections) {
         this.maxHeight = maxHeight;
@@ -33,6 +33,10 @@ public class Layout {
         markerSections = new ArrayList[sectionCount];
         for (int i = 0; i < sectionCount; i++) {
             markerSections[i] = new ArrayList<>();
+        }
+        jumpSimGroups = new ArrayList[sectionCount];
+        for (int i = 0; i < sectionCount; i++) {
+            jumpSimGroups[i] = new ArrayList<>();
         }
     }
 
@@ -44,14 +48,14 @@ public class Layout {
             markers.addAll(markerSection);
         }
         markers.forEach(LayoutMarker::generate);
+        markers.forEach(ProceduralGenerator::generateBlocks);
+        markers.forEach(ProceduralGenerator::generateValidationMarkers);
         markers.forEach(lm -> {
             if (lm.data instanceof LMDResolvedElement rData) {
                 rData.setRoot();
-                roots.add(rData);
+                roots.addAll(rData.jumps);
             }
         });
-        markers.forEach(ProceduralGenerator::generateBlocks);
-        markers.forEach(ProceduralGenerator::generateValidationMarkers);
         markers.forEach(this::addProceduralLM);
         while (!qProceduralMarkers.isEmpty()) {
             HashSet<LayoutMarker> generatingMarkers = qProceduralMarkers;
@@ -63,74 +67,52 @@ public class Layout {
         }
     }
 
-    public HashSet<LMDResolvedElement> nonReachable(LayoutMarker lm) {
-        HashSet<LMDResolvedElement> goals = new HashSet<>();
-        forEachMarker(lm.pos.y, 4, nearbyLM -> {
-            if (nearbyLM.data instanceof LMDResolvedElement nearbyLMData)
-                goals.add(nearbyLMData);
-        });
+    public HashSet<JumpSimGroup> nonReachable(LayoutMarker lm) {
+        HashSet<JumpSimGroup> goals = new HashSet<>();
+        forEachJumpSimGroup(lm.pos.y, 4, goals::add);
         if (lm.data instanceof LMDResolvedElement) {
             int section = yPosToSection(lm.pos.y);
             if (section < 8) {
-                for (LMDResolvedElement root : roots) {
+                for (JumpSimGroup root : roots) {
                     if (bfsLM(new HashSet<>(), goals, root))
                         return goals;
                 }
             } else {
-                for (LayoutMarker root : markerSections[section - 5]) {
-                    if (root.data instanceof LMDResolvedElement rootData) {
-                        if (bfsLM(new HashSet<>(), goals, rootData))
-                            return goals;
-                    }
+                for (JumpSimGroup root : jumpSimGroups[section - 5]) {
+                    if (bfsLM(new HashSet<>(), goals, root))
+                        return goals;
                 }
-                for (LayoutMarker root : markerSections[section - 6]) {
-                    if (root.data instanceof LMDResolvedElement rootData) {
-                        if (bfsLM(new HashSet<>(), goals, rootData))
-                            return goals;
-                    }
+                for (JumpSimGroup root : jumpSimGroups[section - 6]) {
+                    if (bfsLM(new HashSet<>(), goals, root))
+                        return goals;
                 }
-                for (LayoutMarker root : markerSections[section - 7]) {
-                    if (root.data instanceof LMDResolvedElement rootData) {
-                        if (bfsLM(new HashSet<>(), goals, rootData))
-                            return goals;
-                    }
+                for (JumpSimGroup root : jumpSimGroups[section - 7]) {
+                    if (bfsLM(new HashSet<>(), goals, root))
+                        return goals;
                 }
             }
         }
         return goals;
     }
 
-    public boolean dfsLM(HashSet<LMDResolvedElement> visited, HashSet<LMDResolvedElement> goals, LMDResolvedElement current) {
-        visited.add(current);
-        goals.remove(current);
-        if (goals.isEmpty())
-            return true;
-        for (Map.Entry<JumpSimulation, LMDResolvedElement> jump : current.jumps.entrySet()) {
-            if (jump.getKey().hasValidJump && !visited.contains(jump.getValue()) && dfsLM(visited, goals, jump.getValue())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean bfsLM(HashSet<LMDResolvedElement> visited, HashSet<LMDResolvedElement> goals, LMDResolvedElement root) {
-        HashSet<LMDResolvedElement> front = new HashSet<>();
+    public boolean bfsLM(HashSet<JumpSimGroup> visited, HashSet<JumpSimGroup> goals, JumpSimGroup root) {
+        HashSet<JumpSimGroup> front = new HashSet<>();
         front.add(root);
         return bfsLM(visited, goals, front);
     }
 
-    public boolean bfsLM(HashSet<LMDResolvedElement> visited, HashSet<LMDResolvedElement> goals, HashSet<LMDResolvedElement> front) {
-        for (LMDResolvedElement lm : front) {
-            visited.add(lm);
-            goals.remove(lm);
+    public boolean bfsLM(HashSet<JumpSimGroup> visited, HashSet<JumpSimGroup> goals, HashSet<JumpSimGroup> front) {
+        for (JumpSimGroup group : front) {
+            visited.add(group);
+            goals.remove(group);
         }
         if (goals.isEmpty())
             return true;
         if (front.isEmpty())
             return false;
-        HashSet<LMDResolvedElement> newFront = new HashSet<>();
-        for (LMDResolvedElement lm : front) {
-            for (Map.Entry<JumpSimulation, LMDResolvedElement> jump : lm.jumps.entrySet()) {
+        HashSet<JumpSimGroup> newFront = new HashSet<>();
+        for (JumpSimGroup group : front) {
+            for (Map.Entry<JumpSimulation, JumpSimGroup> jump : group.jumps.entrySet()) {
                 if (jump.getKey().hasValidJump && !visited.contains(jump.getValue())) {
                     newFront.add(jump.getValue());
                 }
@@ -152,12 +134,32 @@ public class Layout {
         markerSections[yPosToSection(yPos)].add(marker);
     }
 
+    public void addJumpGroup(JumpSimGroup group) {
+        int xPos = ((int) group.pos.x);
+        int yPos = ((int) group.pos.y);
+        if (MainPanel.level.outOfBounds(xPos, yPos))
+            return;
+        jumpSimGroups[yPosToSection(yPos)].add(group);
+    }
+
     public void removeMarker(LayoutMarker marker) {
         int xPos = ((int) marker.pos.x);
         int yPos = ((int) marker.pos.y);
         if (MainPanel.level.outOfBounds(xPos, yPos))
             return;
         markerSections[yPosToSection(yPos)].remove(marker);
+        if (marker.data instanceof LMDResolvedElement rData) {
+            rData.jumps.forEach(this::removeJumpGroup);
+            rData.jumps.clear();
+        }
+    }
+
+    public void removeJumpGroup(JumpSimGroup group) {
+        int xPos = ((int) group.pos.x);
+        int yPos = ((int) group.pos.y);
+        if (MainPanel.level.outOfBounds(xPos, yPos))
+            return;
+        jumpSimGroups[yPosToSection(yPos)].remove(group);
     }
 
     public void forEachMarker(float y, int bufferSections, Consumer<LayoutMarker> action) {
@@ -168,21 +170,12 @@ public class Layout {
         }
     }
 
-    public boolean forEachMarkerBreak(float y, int bufferSections, Predicate<LayoutMarker> action) {
+    public void forEachJumpSimGroup(float y, int bufferSections, Consumer<JumpSimGroup> action) {
         int min = Math.max(0, yPosToSection(y) - bufferSections);
         int max = Math.min(sectionCount - 1, yPosToSection(y) + bufferSections);
-        boolean breakLoop = false;
         for (int i = min; i <= max; i++) {
-            for (LayoutMarker layoutMarker : markerSections[i]) {
-                if (action.test(layoutMarker)) {
-                    breakLoop = true;
-                    break;
-                }
-            }
-            if (breakLoop)
-                break;
+            jumpSimGroups[i].forEach(action);
         }
-        return breakLoop;
     }
 
     public int yPosToSection(float y) {

@@ -95,10 +95,20 @@ public class GeneratorType {
         };
     }
 
-    public static GeneratorFunction generateBlockCollection(int blockNameIndex, String collectionDataName) {
+    public static GeneratorFunction genCollection(String collectionDataName, BlockCollectionAction action) {
         return (gen, lm, type) -> {
-            gen.getData(collectionDataName, BlockCollection.class).generateBlocks(type.getString(blockNameIndex), lm.pos, gen);
+            action.generate(gen, lm, type, gen.getData(collectionDataName, BlockCollection.class));
         };
+    }
+
+    public static BlockCollectionAction topLayers(int blockNameIndex, int layers, float extraLayerProbability) {
+        return (gen, lm, type, collection) ->
+                collection.generateTopLayers(type.getString(blockNameIndex), lm.pos, gen, true, layers, gen.probability(extraLayerProbability));
+    }
+
+    public static BlockCollectionAction allBlocks(int blockNameIndex) {
+        return (gen, lm, type, collection) ->
+                collection.generateBlocks(type.getString(blockNameIndex), lm.pos, gen);
     }
 
     public static GeneratorLMFunction generateDefault(int borderProximityIndex, int platformNameIndex) {
