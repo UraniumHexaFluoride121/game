@@ -1,6 +1,13 @@
-package level.procedural.generator;
+package level.procedural.collections;
 
+import foundation.Direction;
+import foundation.Main;
 import foundation.math.ObjPos;
+import level.procedural.generator.ProceduralGenerator;
+import level.procedural.jump.JumpSimGroup;
+import level.procedural.marker.LayoutMarker;
+import level.procedural.marker.movement.LMDPlayerMovement;
+import loader.AssetManager;
 import physics.StaticHitBox;
 
 import java.util.HashMap;
@@ -20,6 +27,46 @@ public class BlockCollection {
     public BlockCollection() {
     }
 
+    public static void generateJumpValidation(HashMap<Integer, Integer> blockHeights, ProceduralGenerator gen, LayoutMarker lm, StaticHitBox box, float friction) {
+        JumpSimGroup group = gen.newJumpSimGroup(lm);
+        int lastHeight = -1;
+        int from = 0;
+        boolean lastWasUp = true;
+        LMDPlayerMovement lastJump = null;
+        StaticHitBox playerBox = AssetManager.blockHitBoxes.get("player");
+        float playerWidth = playerBox.left + playerBox.right;
+        for (int x = 0; x <= Main.BLOCKS_X; x++) {
+            int height = blockHeights.getOrDefault(x, -1);
+            if (lastHeight == -1 || lastHeight != height) {
+                if (lastHeight != -1) {
+                    group.addBound(new StaticHitBox(lastHeight + 1 + box.getTop(), lastHeight + box.getTop(), from + 0.3f, x - 0.3f));
+                }
+                int finalLastHeight = lastHeight, finalHeight = height;
+                boolean finalLastWasUp = lastWasUp;
+                if (lastWasUp && lastJump != null) {
+                    lastJump.addAcceleration(lastJump.lm.pos.x - x + (lastHeight > height ? 1 - box.getRight() : box.getLeft() + playerWidth), friction, false);
+                }
+                if (lastHeight > height) {
+                    int finalFrom = from;
+                    lastJump = gen.addJumpMarker("static_jump", group, new ObjPos(x - 1 + box.getRight(), lastHeight + box.getTop()), data -> {
+                        if (finalHeight == -1)
+                            data.setApproachDirection(Direction.RIGHT);
+                        data.addAcceleration(data.lm.pos.x - finalFrom + (finalLastWasUp ? box.getLeft() : -playerWidth + 1 - box.getRight()), friction, true);
+                    });
+                    lastWasUp = false;
+                } else {
+                    lastJump = gen.addJumpMarker("static_jump", group, new ObjPos(x - box.getLeft(), height + box.getTop()), data -> {
+                        if (finalLastHeight == -1)
+                            data.setApproachDirection(Direction.LEFT);
+                    });
+                    lastWasUp = true;
+                }
+                from = x;
+                lastHeight = height;
+            }
+        }
+    }
+
     public void addBlock(ObjPos pos) {
         blockPositions.add(pos.copy());
     }
@@ -28,7 +75,7 @@ public class BlockCollection {
         blockPositions.add(new ObjPos(x, y));
     }
 
-    public BlockCollection generateTopLayers(String blockName, ObjPos origin, ProceduralGenerator gen, boolean removeGenerated, int layers, Supplier<Boolean> extraBlockProbability) {
+    public BlockCollection generateTopLayers(String blockName, ObjPos origin, ProceduralGenerator gen, int layers, Supplier<Boolean> extraBlockProbability) {
         HashSet<ObjPos> blocks = new HashSet<>(blockPositions);
         for (int i = 0; i < layers + 1; i++) {
             HashMap<Integer, ObjPos> topLayer = new HashMap<>();
@@ -182,10 +229,24 @@ public class BlockCollection {
         return blockHeights;
     }
 
-    public BlockCollection join(BlockCollection other, int xOffset, int yOffset) {
+    public BlockCollection joinAndCopy(BlockCollection other, int xOffset, int yOffset) {
         BlockCollection c = new BlockCollection().setBound(bound.copy().expandToFit(other.bound.copy().offset(xOffset, yOffset)));
         forEachBlockPos(c::addBlock);
         other.forEachBlockPos(pos -> c.addBlock(pos.copy().add(xOffset, yOffset)));
         return c;
+    }
+
+    public BlockCollection join(BlockCollection other, ObjPos pos) {
+        return join(other, pos.xInt(), pos.yInt());
+    }
+
+    public BlockCollection join(BlockCollection other, int xOffset, int yOffset) {
+        StaticHitBox otherBound = other.bound.copy().offset(xOffset, yOffset);
+        if (bound == null)
+            bound = otherBound;
+        else
+            bound.expandToFit(otherBound);
+        other.forEachBlockPos(pos -> addBlock(pos.copy().add(xOffset, yOffset)));
+        return this;
     }
 }

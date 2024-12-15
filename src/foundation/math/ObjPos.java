@@ -119,6 +119,14 @@ public class ObjPos {
         return this;
     }
 
+    public int xInt() {
+        return ((int) x);
+    }
+
+    public int yInt() {
+        return ((int) y);
+    }
+
     public ObjPos setRotated(float value, float radians) {
         x = ((float) (Math.cos(radians) * value));
         y = ((float) (Math.sin(radians) * value));

@@ -1,4 +1,4 @@
-package level.procedural;
+package level.procedural.jump;
 
 import foundation.Deletable;
 import foundation.Direction;

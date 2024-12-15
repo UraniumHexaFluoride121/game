@@ -1,0 +1,6 @@
+{
+  "forceAwayFromBorderProximity": 20,
+  "block": "stone_grey",
+  "generateNextPlatformAs": "platform",
+  "generateExtraPlatformAs": "forest_island_extra"
+}

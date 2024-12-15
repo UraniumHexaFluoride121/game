@@ -1,5 +1,7 @@
-package level.procedural.generator;
+package level.procedural.collections;
 
+import level.procedural.generator.GeneratorType;
+import level.procedural.generator.ProceduralGenerator;
 import level.procedural.marker.LayoutMarker;
 
 @FunctionalInterface

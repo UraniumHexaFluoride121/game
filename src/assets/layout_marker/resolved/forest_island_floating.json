@@ -6,7 +6,11 @@
     },
     {
       "name": "forest_island_default",
-      "condition": "rand[0.75]"
+      "condition": "rand[0.68]"
+    },
+    {
+      "name": "forest_island_cluster",
+      "condition": "rand[0.35]"
     },
     {
       "name": "forest_island_default_small",

@@ -4,7 +4,7 @@ import foundation.Deletable;
 import foundation.Main;
 import foundation.MainPanel;
 import level.procedural.Layout;
-import level.procedural.generator.BlockCollection;
+import level.procedural.collections.BlockCollection;
 import physics.StaticHitBox;
 import render.BoundedRenderable;
 import render.RenderOrder;

@@ -1,7 +1,8 @@
-package level.procedural;
+package level.procedural.jump;
 
 import foundation.Deletable;
 import foundation.math.ObjPos;
+import level.procedural.Layout;
 import level.procedural.generator.BoundType;
 import level.procedural.marker.LayoutMarker;
 import physics.HitBox;

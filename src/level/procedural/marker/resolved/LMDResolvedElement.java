@@ -1,6 +1,6 @@
 package level.procedural.marker.resolved;
 
-import level.procedural.JumpSimGroup;
+import level.procedural.jump.JumpSimGroup;
 import level.procedural.generator.GeneratorType;
 import level.procedural.generator.ProceduralGenerator;
 import level.procedural.marker.LMData;

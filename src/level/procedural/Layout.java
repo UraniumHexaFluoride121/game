@@ -2,6 +2,8 @@ package level.procedural;
 
 import foundation.MainPanel;
 import level.procedural.generator.ProceduralGenerator;
+import level.procedural.jump.JumpSimGroup;
+import level.procedural.jump.JumpSimulation;
 import level.procedural.marker.LayoutMarker;
 import level.procedural.marker.resolved.LMDResolvedElement;
 
@@ -13,9 +15,9 @@ import java.util.function.Consumer;
 public class Layout {
     public static final boolean DEBUG_RENDER = false;
 
-    public static final boolean DEBUG_RENDER_LM_BOUNDS = false;
+    public static final boolean DEBUG_RENDER_LM_BOUNDS = true;
 
-    public static final boolean DEBUG_RENDER_SIM = true;
+    public static final boolean DEBUG_RENDER_SIM = false;
     public static final boolean DEBUG_RENDER_VALIDATION_BOUNDS = true;
     public static final boolean DEBUG_RENDER_JUMP_BOUNDS = false;
 

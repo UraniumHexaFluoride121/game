@@ -1,6 +1,8 @@
 package level.procedural.generator;
 
-import foundation.MainPanel;
+import level.procedural.collections.BlockCollection;
+import level.procedural.collections.BlockCollectionAction;
+import level.procedural.collections.IslandCluster;
 import level.procedural.marker.GeneratorLMFunction;
 import level.procedural.types.ForestTypes;
 import loader.AssetManager;
@@ -16,6 +18,7 @@ public class GeneratorType {
     public static final HashSet<GeneratorType> values = new HashSet<>();
     public static final GeneratorType[] types = new GeneratorType[]{
             ForestTypes.FOREST_BRANCH,
+            ForestTypes.FOREST_ISLAND_CLUSTER,
             ForestTypes.FOREST_ISLAND_DEFAULT,
             ForestTypes.FOREST_ISLAND_DEFAULT_SMALL,
             ForestTypes.FOREST_ISLAND_DEFAULT_SMALL_EXTRA,
@@ -88,10 +91,21 @@ public class GeneratorType {
         return (gen, lm, type) -> {
             String blockName = type.getString(blockNameIndex);
             BlockCollection blocks = gen.getData(collectionDataName, BlockCollection.class);
-            GenUtil.generateJumpValidation(blocks.getBlockHeights(lm.pos), gen, lm,
+            BlockCollection.generateJumpValidation(blocks.getBlockHeights(lm.pos), gen, lm,
                     AssetManager.blockHitBoxes.get(blockName),
                     AssetManager.blockFriction.get(blockName)
             );
+        };
+    }
+
+    public static GeneratorLMFunction generateIslandClusterValidation(int blockNameIndex, String islandClusterName) {
+        return (gen, lm, type) -> {
+            String blockName = type.getString(blockNameIndex);
+            IslandCluster blocks = gen.getData(islandClusterName, IslandCluster.class);
+            blocks.forEachIsland((island, offset) -> BlockCollection.generateJumpValidation(island.getBlockHeights(lm.pos.copy().add(offset)), gen, lm,
+                    AssetManager.blockHitBoxes.get(blockName),
+                    AssetManager.blockFriction.get(blockName)
+            ));
         };
     }
 
@@ -103,37 +117,11 @@ public class GeneratorType {
 
     public static BlockCollectionAction topLayers(int blockNameIndex, int layers, float extraLayerProbability) {
         return (gen, lm, type, collection) ->
-                collection.generateTopLayers(type.getString(blockNameIndex), lm.pos, gen, true, layers, gen.probability(extraLayerProbability));
+                collection.generateTopLayers(type.getString(blockNameIndex), lm.pos, gen, layers, gen.probability(extraLayerProbability));
     }
 
     public static BlockCollectionAction allBlocks(int blockNameIndex) {
         return (gen, lm, type, collection) ->
                 collection.generateBlocks(type.getString(blockNameIndex), lm.pos, gen);
-    }
-
-    public static GeneratorLMFunction generateDefault(int borderProximityIndex, int platformNameIndex) {
-        return generateAbove(borderProximityIndex, platformNameIndex, 0.2f, 1.6f, 6, 15, 2.5f);
-    }
-
-    public static GeneratorLMFunction generateAround(int borderProximityIndex, int platformNameIndex, int maxLength, float probability) {
-        return (gen, lm, type) -> {
-            if (gen.randomBoolean(probability) && lm.pos.y > 30)
-                generateAbove(borderProximityIndex, platformNameIndex, -1f, 1.6f, 7, maxLength, 1f).generateMarkers(gen, lm, type);
-        };
-    }
-
-    public static GeneratorLMFunction generateAbove(int borderProximityIndex, int platformNameIndex, float minAngle, float maxAngle, float minLength, float maxLength, float xLengthMultiplier) {
-        return (gen, lm, type) -> {
-            if (lm.pos.y < MainPanel.level.getRegionTop()) {
-                int borderProximityLimit = type.getInt(borderProximityIndex);
-                gen.addMarker(type.getString(platformNameIndex), gen.randomPosAbove(lm, minAngle, maxAngle, minLength, maxLength, xLengthMultiplier, borderProximityLimit));
-            }
-        };
-    }
-
-    public static GeneratorLMFunction generateNothing() {
-        return (gen, lm, type) -> {
-
-        };
     }
 }
