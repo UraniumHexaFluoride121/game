@@ -70,7 +70,7 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
         }
     }
 
-    public void addBound(HitBox bound, BoundType type) {
+    public synchronized void addBound(HitBox bound, BoundType type) {
         if (!bounds.containsKey(type))
             bounds.put(type, new HashSet<>());
         bounds.get(type).add(bound);
@@ -199,7 +199,7 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
     }
 
     @Override
-    public void render(Graphics2D g) {
+    public synchronized void render(Graphics2D g) {
         AffineTransform prev = g.getTransform();
         g.translate(pos.x, pos.y);
         type.debugRenderable.render(g);

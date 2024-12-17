@@ -20,6 +20,7 @@ public class GeneratorType {
     public static final GeneratorType[] types = new GeneratorType[]{
             ForestTypes.FOREST_BRANCH,
             ForestTypes.FOREST_ISLAND_CLUSTER,
+            ForestTypes.FOREST_ISLAND_CLUSTER_LARGE,
             ForestTypes.FOREST_ISLAND_DEFAULT,
             ForestTypes.FOREST_ISLAND_DEFAULT_SMALL,
             ForestTypes.FOREST_ISLAND_DEFAULT_SMALL_EXTRA,

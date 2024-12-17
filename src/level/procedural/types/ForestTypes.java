@@ -101,13 +101,32 @@ public abstract class ForestTypes {
                     .andThen(storeString("generateNextPlatformAs")),
             genCollection("blocks", allBlocks(0)),
             GeneratorLMFunction.generateAbove(0, 1)
-                    .setTopOffsetFromCollection("blocks", 0.8f)
+                    .setTopOffsetFromCollection("blocks", 0.5f)
                     .setMinLength(8)
                     .setMaxLength(23).finalise(),
             new FunctionalWeightedRandom<Integer, StackRandomData>()
                     .add(0, s -> s.lastSize() <= 1 ? 0 : s.lastValue() == 0 ? 2f : 8f)
                     .add(1, s -> 8f)
                     .add(2, s -> s.lastValue() > 1 ? 5f : 1)
+    );
+    public static final GeneratorType FOREST_ISLAND_CLUSTER_LARGE = PresetTypes.islandCluster("forest_island_cluster_large", 12, 5, 10,
+            new WeightedRandom<Integer>()
+                    .add(4, 3)
+                    .add(5, 7)
+                    .add(6, 6)
+                    .add(7, 4),
+            storeInt("forceAwayFromBorderProximity")
+                    .andThen(storeString("block"))
+                    .andThen(storeString("generateNextPlatformAs")),
+            genCollection("blocks", allBlocks(0)),
+            GeneratorLMFunction.generateAbove(0, 1)
+                    .setTopOffsetFromCollection("blocks", 0.5f)
+                    .setMinLength(10)
+                    .setMaxLength(25).finalise(),
+            new FunctionalWeightedRandom<Integer, StackRandomData>()
+                    .add(0, s -> s.lastSize() <= 1 ? 0 : s.lastValue() == 0 ? 2f : 8f)
+                    .add(1, s -> 7f)
+                    .add(2, s -> 2f)
     );
     public static final GeneratorType FOREST_ISLAND_DEFAULT = PresetTypes.defaultIsland("forest_island_default", 3, 6,
             storeInt("forceAwayFromBorderProximity")

@@ -71,6 +71,7 @@ public class ProceduralGenerator implements Deletable {
     public static int generationAttempts = 0, generatedMarkers = 0;
 
     public void generateMarkers(LayoutMarker marker, GeneratorType type) {
+        //System.out.println(((LMDResolvedElement) marker.data).genType.s);
         generatedMarkers++;
         //Validation markers will have been generated on this marker's behalf by the previous loop iteration,
         //and we don't want to revert their generation
