@@ -41,6 +41,11 @@ public class RenderTextDynamic extends RenderGameElement implements BoundedRende
         boolean specialChar = false;
         StringBuilder s = new StringBuilder();
         for (char c : chars) {
+            if (c == ' ' && !specialChar) {
+                totalWidth += AssetManager.SPACE_WIDTH;
+                glyphs.add(null);
+                continue;
+            }
             if (c == '*') {
                 if (specialChar) {
                     GlyphData e = AssetManager.specialGlyphs.get(s.toString());
@@ -72,6 +77,10 @@ public class RenderTextDynamic extends RenderGameElement implements BoundedRende
             case CENTER -> -totalWidth / 2f;
         } / 16, 0);
         for (GlyphData glyph : glyphs) {
+            if (glyph == null) {
+                g.translate(AssetManager.SPACE_WIDTH / 16d, 0);
+                continue;
+            }
             glyph.asset().render(g);
             g.translate(glyph.width() / 16d, 0);
         }

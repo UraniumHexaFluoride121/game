@@ -57,12 +57,12 @@ public class Tick extends Thread {
             float deltaTime = (newTime - time) / 1000f;
             time = newTime;
 
-            //add and remove tickables
-            processQueued();
 
             //tick tickable objects
             deltaTime = Math.min(deltaTime, TOTAL_DELTA_TIME_CAP);
             do {
+                //add and remove tickables
+                processQueued();
                 float finalDT = deltaTime;
                 deltaTime -= MAX_DELTA_TIME;
                 tickables.forEach((order, set) -> set.forEach(t -> t.tick(Math.min(finalDT, MAX_DELTA_TIME))));

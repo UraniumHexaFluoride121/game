@@ -20,6 +20,7 @@ import render.event.RenderEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -71,15 +72,24 @@ public class ProceduralGenerator implements Deletable {
     public static int generationAttempts = 0, generatedMarkers = 0;
 
     public void generateMarkers(LayoutMarker marker, GeneratorType type) {
+        level.updateBlocks(RenderEvent.ON_GAME_INIT, marker);
+        level.collisionHandler.qRemove.addAll(overwrittenBlocks);
+        level.collisionHandler.qAdd.addAll(generatedBlocks);
         //System.out.println(((LMDResolvedElement) marker.data).genType.s);
         generatedMarkers++;
         //Validation markers will have been generated on this marker's behalf by the previous loop iteration,
         //and we don't want to revert their generation
         generatedLayoutMarkers.clear();
 
+        while (level.generateTo.get() != -1 && marker.pos.y > level.generateTo.get()) {
+            try {
+                TimeUnit.MILLISECONDS.sleep(50);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
         for (int i = 0; i < 500; i++) {
             if (level.interruptGeneration.get()) {
-                level.interruptGeneration.set(false);
                 return;
             }
             generationAttempts++;
@@ -142,11 +152,8 @@ public class ProceduralGenerator implements Deletable {
                 }
             }
             if (validated.get()) {
-                level.updateBlocks(RenderEvent.ON_GAME_INIT, marker);
-                level.collisionHandler.qRemove.addAll(overwrittenBlocks);
-                level.collisionHandler.qAdd.addAll(generatedBlocks);
                 generatedLayoutMarkers.forEach(level.layout::addProceduralLM); //Repeat the cycle for the newly validated markers
-                break;
+                return;
             } else {
                 addedJumps.forEach(j -> j.from.jumps.remove(j));
                 generatedLayoutMarkers.forEach(lm -> {

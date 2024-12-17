@@ -27,6 +27,7 @@
   ],
   "layoutMarkerData": {
     "platform": "layout_marker/unresolved/platform.json",
+    "initial_island": "layout_marker/resolved/initial_island.json",
     "forest_island_attached": "layout_marker/resolved/forest_island_attached.json",
     "forest_island_floating": "layout_marker/resolved/forest_island_floating.json",
     "forest_island_extra": "layout_marker/resolved/forest_island_extra.json"

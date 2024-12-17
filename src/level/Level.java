@@ -33,6 +33,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static foundation.MainPanel.*;
 
@@ -42,7 +43,7 @@ public class Level implements Deletable {
     public final InputHandler inputHandler;
     public final CollisionHandler collisionHandler;
     public static final int SECTION_SIZE = 16;
-    public final int seed;
+    public final long seed;
     public final RandomHandler randomHandler;
 
     //All BlockLikes inserted as static MUST NOT have their positions modified, otherwise
@@ -70,7 +71,7 @@ public class Level implements Deletable {
 
     public boolean deleted = false;
 
-    public Level(int seed) {
+    public Level(long seed) {
         this.seed = seed;
         gameRenderer = new GameRenderer(gameTransform, MainPanel::getCameraTransform, this);
         randomHandler = new RandomHandler(seed);
@@ -107,11 +108,14 @@ public class Level implements Deletable {
     }
 
     public AtomicBoolean interruptGeneration = new AtomicBoolean(false);
-    private Thread generationThread;
+    public AtomicBoolean doneGenerating = new AtomicBoolean(false);
+    public AtomicInteger generateTo = new AtomicInteger(((int) (BLOCK_DIMENSIONS.y + 20)));
 
     public void init() {
         AssetManager.createAllLevelSections(LEVEL_PATH, this);
-        generationThread = new Thread(() -> {
+        Thread generationThread = new Thread(() -> {
+            ProceduralGenerator.generatedMarkers = 0;
+            ProceduralGenerator.generationAttempts = 0;
             long time = System.currentTimeMillis();
             updatePool = Executors.newCachedThreadPool();
             layout.generateMarkers();
@@ -131,10 +135,22 @@ public class Level implements Deletable {
             }
             System.out.println("generated markers: " + ProceduralGenerator.generatedMarkers);
             updatePool.shutdown();
+            try {
+                updatePool.awaitTermination(30, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            doneGenerating.set(true);
         });
         generationThread.start();
+    }
+
+    public void generateFull() {
+        generateTo.set(-1);
+    }
+
+    public void createUI() {
         gameRenderer.registerUI(new UIProgressTracker(0, gameRenderer, this).startTime());
-        //GAME_RENDERER.register(new RenderText(RenderOrder.DEBUG, () -> new ObjPos(5, 5), "TES*time*TING", 2, TextAlign.LEFT));
     }
 
     public BlockLike getBlock(ObjectLayer layer, int x, int y) {
@@ -270,7 +286,8 @@ public class Level implements Deletable {
     public void delete() {
         deleted = true;
         interruptGeneration.set(true);
-        while (interruptGeneration.get()) {
+        generateFull();
+        while (!doneGenerating.get()) {
             try {
                 TimeUnit.MILLISECONDS.sleep(10);
             } catch (InterruptedException e) {

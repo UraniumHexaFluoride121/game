@@ -5,11 +5,11 @@ import java.util.Random;
 import java.util.function.Supplier;
 
 public class RandomHandler {
-    private final int seed;
+    private final long seed;
     private final Random mainRandom;
     private final HashMap<RandomType, Random> randoms = new HashMap<>();
 
-    public RandomHandler(int seed) {
+    public RandomHandler(long seed) {
         this.seed = seed;
         mainRandom = new Random(seed);
         for (RandomType type : RandomType.values()) {

@@ -14,6 +14,7 @@ public abstract class LMType {
     public static final HashSet<LMType> values = new HashSet(List.of(
             LMTDebugElement.DEBUG_ELEMENT,
             LMTUnresolvedElement.PLATFORM,
+            LMTResolvedElement.ISLAND_INITIAL,
             LMTResolvedElement.ISLAND_FLOATING, LMTResolvedElement.ISLAND_SIDE_ATTACHED, LMTResolvedElement.ISLAND_DOT,
             LMTPlayerMovement.STATIC_JUMP
     ));

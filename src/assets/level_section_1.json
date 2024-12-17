@@ -35,7 +35,7 @@
     },
     "markerKey": {
       "M": {
-        "type": "platform"
+        "type": "initial_island"
       }
     }
   }

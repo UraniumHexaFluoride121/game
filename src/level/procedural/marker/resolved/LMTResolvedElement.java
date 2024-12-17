@@ -20,6 +20,9 @@ import java.util.function.Predicate;
 public class LMTResolvedElement extends LMType {
     private static final HashMap<String, LMTResolvedElement> elements = new HashMap<>();
 
+    public static final LMTResolvedElement ISLAND_INITIAL = new LMTResolvedElement(
+            "initial_island",
+            new RenderGameSquare(RenderOrder.DEBUG, Color.BLUE, 0.5f, () -> new ObjPos(0.5f, 0.5f)));
     public static final LMTResolvedElement ISLAND_FLOATING = new LMTResolvedElement(
             "forest_island_floating",
             new RenderGameSquare(RenderOrder.DEBUG, Color.BLUE, 0.5f, () -> new ObjPos(0.5f, 0.5f)));

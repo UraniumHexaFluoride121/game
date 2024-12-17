@@ -32,7 +32,7 @@
   ".": {
     "path": "symbols/_textures.json#period.png",
     "type": "TextureAsset",
-    "width": 6
+    "width": 4
   },
   "0": {
     "path": "symbols/_textures.json#0.png",

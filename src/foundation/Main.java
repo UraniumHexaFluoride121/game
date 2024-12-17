@@ -28,6 +28,7 @@ public class Main {
             }
         });
         window.addKeyListener(window);
+        window.addMouseListener(window);
         //MainPanel.DEVICE_WINDOW_SIZE = new ObjPos(1000, 400);
         MainPanel.DEVICE_WINDOW_SIZE = new ObjPos(Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height);
         MainPanel.RENDER_WINDOW_SIZE = MainPanel.DEVICE_WINDOW_SIZE.copy();
