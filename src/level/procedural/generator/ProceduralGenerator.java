@@ -2,10 +2,10 @@ package level.procedural.generator;
 
 import foundation.Deletable;
 import foundation.Main;
-import foundation.MainPanel;
 import foundation.math.MathUtil;
 import foundation.math.ObjPos;
 import foundation.math.RandomType;
+import level.Level;
 import level.objects.BlockLike;
 import level.procedural.jump.JumpSimGroup;
 import level.procedural.jump.JumpSimulation;
@@ -42,14 +42,15 @@ public class ProceduralGenerator implements Deletable {
     private final GeneratorFunction function, blockGenerator;
     private final GeneratorLMFunction markerFunction, validatorMarkerFunction;
     private final GeneratorValidation validation;
+    public Level level;
 
-
-    public ProceduralGenerator(GeneratorFunction boundsGenerator, GeneratorValidation validation, GeneratorFunction blockGenerator, GeneratorLMFunction validatorMarkerFunction, GeneratorLMFunction markerFunction) {
+    public ProceduralGenerator(Level level, GeneratorFunction boundsGenerator, GeneratorValidation validation, GeneratorFunction blockGenerator, GeneratorLMFunction validatorMarkerFunction, GeneratorLMFunction markerFunction) {
         this.function = boundsGenerator;
         this.validation = validation;
         this.blockGenerator = blockGenerator;
         this.validatorMarkerFunction = validatorMarkerFunction;
         this.markerFunction = markerFunction;
+        this.level = level;
     }
 
     public void generate(LayoutMarker marker, GeneratorType type) {
@@ -76,13 +77,17 @@ public class ProceduralGenerator implements Deletable {
         generatedLayoutMarkers.clear();
 
         for (int i = 0; i < 500; i++) {
+            if (level.interruptGeneration.get()) {
+                level.interruptGeneration.set(false);
+                return;
+            }
             generationAttempts++;
             markerFunction.generateMarkers(this, marker, type); //Generate new markers
             generatedLayoutMarkers.forEach(LayoutMarker::generate); //Generate bounds for those markers
             AtomicBoolean validated = new AtomicBoolean(true);
             //Test bounds for new markers
             for (LayoutMarker lm : generatedLayoutMarkers) {
-                if (lm.data instanceof LMDResolvedElement data && !GeneratorValidation.validate(lm, data.gen.validation)) {
+                if (lm.data instanceof LMDResolvedElement data && !GeneratorValidation.validate(lm, data.gen.validation, lm.level)) {
                     validated.set(false);
                     break;
                 }
@@ -96,15 +101,15 @@ public class ProceduralGenerator implements Deletable {
                 for (LayoutMarker lm : generatedLayoutMarkers) {
                     if (lm.data instanceof LMDResolvedElement data) {
                         data.forEachJumpSimGroup(group -> {
-                            MainPanel.level.layout.forEachJumpSimGroup(lm.pos.y, 1, otherGroup -> {
+                            level.layout.forEachJumpSimGroup(lm.pos.y, 1, otherGroup -> {
                                 if (!otherGroup.equals(group)) {
                                     JumpSimulation jumpSimulationFrom = new JumpSimulation(otherGroup, group, otherGroup.movementMarkers, group.movementMarkers);
-                                    jumpSimulationFrom.validateJump();
+                                    jumpSimulationFrom.validateJump(level);
                                     jumpSimulationFrom.addFromGroup();
                                     addedJumps.add(jumpSimulationFrom);
 
                                     JumpSimulation jumpSimulationTo = new JumpSimulation(group, otherGroup, group.movementMarkers, otherGroup.movementMarkers);
-                                    jumpSimulationTo.validateJump();
+                                    jumpSimulationTo.validateJump(level);
                                     jumpSimulationTo.addFromGroup();
                                     addedJumps.add(jumpSimulationTo);
                                 }
@@ -116,11 +121,11 @@ public class ProceduralGenerator implements Deletable {
                 for (LayoutMarker lm : generatedLayoutMarkers) {
                     if (!(lm.type instanceof LMTResolvedElement))
                         continue;
-                    MainPanel.level.layout.forEachJumpSimGroup(lm.pos.y, 2, otherGroup -> {
+                    level.layout.forEachJumpSimGroup(lm.pos.y, 2, otherGroup -> {
                         if (!((LMDResolvedElement) lm.data).jumps.contains(otherGroup)) {
                             for (JumpSimulation jump : otherGroup.jumps.keySet()) {
                                 if (jump.bound != null && lm.isBoxColliding(jump.bound, BoundType.COLLISION)) {
-                                    jump.validateJump();
+                                    jump.validateJump(level);
                                     revalidatedJumps.add(jump);
                                 }
                             }
@@ -130,16 +135,16 @@ public class ProceduralGenerator implements Deletable {
                 for (LayoutMarker lm : generatedLayoutMarkers) {
                     if (!(lm.type instanceof LMTResolvedElement))
                         continue;
-                    HashSet<JumpSimGroup> jumpSimGroups = MainPanel.level.layout.nonReachable(lm);
+                    HashSet<JumpSimGroup> jumpSimGroups = level.layout.nonReachable(lm);
                     if (!jumpSimGroups.isEmpty())
                         validated.set(false);
                 }
             }
             if (validated.get()) {
-                MainPanel.level.updateBlocks(RenderEvent.ON_GAME_INIT, marker);
-                MainPanel.level.collisionHandler.qRemove.addAll(overwrittenBlocks);
-                MainPanel.level.collisionHandler.qAdd.addAll(generatedBlocks);
-                generatedLayoutMarkers.forEach(MainPanel.level.layout::addProceduralLM); //Repeat the cycle for the newly validated markers
+                level.updateBlocks(RenderEvent.ON_GAME_INIT, marker);
+                level.collisionHandler.qRemove.addAll(overwrittenBlocks);
+                level.collisionHandler.qAdd.addAll(generatedBlocks);
+                generatedLayoutMarkers.forEach(level.layout::addProceduralLM); //Repeat the cycle for the newly validated markers
                 break;
             } else {
                 addedJumps.forEach(j -> j.from.jumps.remove(j));
@@ -153,15 +158,15 @@ public class ProceduralGenerator implements Deletable {
                 generatedLayoutMarkers.clear();
                 revalidatedJumps.forEach(j -> {
                     if (j.validatedJumpHadCollision)
-                        j.validateJump();
+                        j.validateJump(level);
                 });
             }
         }
     }
 
     public void revertGeneration() {
-        MainPanel.level.removeBlocks(false, generatedBlocks.toArray(new BlockLike[0]));
-        overwrittenBlocks.forEach(b -> MainPanel.level.addBlocks(false, true, AssetManager.createBlock(b.name, b.pos)));
+        level.removeBlocks(false, generatedBlocks.toArray(new BlockLike[0]));
+        overwrittenBlocks.forEach(b -> level.addBlocks(false, true, AssetManager.createBlock(b.name, b.pos, level)));
 
         generatedLayoutMarkers.forEach(LayoutMarker::delete);
         overwrittenBlocks.clear();
@@ -174,10 +179,10 @@ public class ProceduralGenerator implements Deletable {
     }
 
     public void addBlock(String blockName, ObjPos pos) {
-        if (MainPanel.level.outOfBounds(pos))
+        if (level.outOfBounds(pos))
             return;
-        BlockLike block = AssetManager.createBlock(blockName, pos);
-        BlockLike removed = MainPanel.level.addProceduralBlock(false, true, block);
+        BlockLike block = AssetManager.createBlock(blockName, pos, level);
+        BlockLike removed = level.addProceduralBlock(false, true, block);
         if (removed != null) {
             if (!generatedBlocks.remove(removed))
                 overwrittenBlocks.add(removed);
@@ -186,32 +191,32 @@ public class ProceduralGenerator implements Deletable {
     }
 
     public void addMarker(String name, ObjPos pos) {
-        if (MainPanel.level.outOfBounds(pos))
+        if (level.outOfBounds(pos))
             return;
-        LayoutMarker marker = new LayoutMarker(name, pos);
+        LayoutMarker marker = new LayoutMarker(name, pos, level);
         generatedLayoutMarkers.add(marker);
-        MainPanel.level.layout.addMarker(marker);
+        level.layout.addMarker(marker);
     }
 
     public JumpSimGroup newJumpSimGroup(LayoutMarker lm) {
         JumpSimGroup group = new JumpSimGroup(lm.pos);
         ((LMDResolvedElement) lm.data).jumps.add(group);
-        MainPanel.level.layout.addJumpGroup(group);
+        lm.level.layout.addJumpGroup(group);
         return group;
     }
 
     public LMDPlayerMovement addJumpMarker(String name, JumpSimGroup group, ObjPos pos) {
-        if (MainPanel.level.outOfBounds(pos))
+        if (level.outOfBounds(pos))
             return null;
-        LayoutMarker marker = new LayoutMarker(name, pos);
+        LayoutMarker marker = new LayoutMarker(name, pos, level);
         group.movementMarkers.add(marker);
         return (LMDPlayerMovement) marker.data;
     }
 
     public LMDPlayerMovement addJumpMarker(String name, JumpSimGroup group, ObjPos pos, Consumer<LMDPlayerMovement> action) {
-        if (MainPanel.level.outOfBounds(pos))
+        if (level.outOfBounds(pos))
             return null;
-        LayoutMarker marker = new LayoutMarker(name, pos);
+        LayoutMarker marker = new LayoutMarker(name, pos, level);
         group.movementMarkers.add(marker);
         LMDPlayerMovement data = (LMDPlayerMovement) marker.data;
         action.accept(data);
@@ -237,7 +242,7 @@ public class ProceduralGenerator implements Deletable {
             else if (origin.x < borderProximityLimit)
                 isRight = true;
             pos = new ObjPos(origin.x + Math.cos(angle) * length * xLengthMultiplier * (isRight ? 1 : -1), origin.y + Math.sin(angle) * length).toInt();
-        } while (MainPanel.level.outOfBounds(pos));
+        } while (level.outOfBounds(pos));
         return pos;
     }
 
@@ -253,7 +258,7 @@ public class ProceduralGenerator implements Deletable {
             else if (origin.x < borderProximityLimit)
                 isRight = true;
             pos = new ObjPos(origin.x + Math.cos(angle) * length * xLengthMultiplier * (isRight ? 1 : -1), origin.y + Math.sin(angle) * length).toInt();
-        } while (MainPanel.level.outOfBounds(pos));
+        } while (level.outOfBounds(pos));
         return pos;
     }
 
@@ -289,7 +294,7 @@ public class ProceduralGenerator implements Deletable {
     }
 
     public Supplier<Double> random() {
-        return MainPanel.level.randomHandler.getDoubleSupplier(RandomType.PROCEDURAL);
+        return level.randomHandler.getDoubleSupplier(RandomType.PROCEDURAL);
     }
 
     public Supplier<Boolean> probability(float probability) {

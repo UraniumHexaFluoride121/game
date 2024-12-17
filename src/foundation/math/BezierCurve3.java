@@ -2,7 +2,7 @@ package foundation.math;
 
 import foundation.Deletable;
 import foundation.Main;
-import foundation.MainPanel;
+import level.Level;
 import level.procedural.Layout;
 import level.procedural.collections.BlockCollection;
 import physics.StaticHitBox;
@@ -21,7 +21,8 @@ public class BezierCurve3 implements BoundedRenderable, Deletable {
     private final StaticHitBox box;
     private final float debugBoundTop, debugBoundBottom;
     private Renderable debugRenderable = null;
-    private final Renderable[] renderPoints;
+    private Renderable[] renderPoints;
+    private Level level;
 
     public BezierCurve3(ObjPos p1, ObjPos p2, ObjPos p3) {
         this(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
@@ -48,7 +49,11 @@ public class BezierCurve3 implements BoundedRenderable, Deletable {
         debugBoundTop = Math.max(Math.max(py1, py2), py3);
         debugBoundBottom = Math.min(Math.min(py1, py2), py3);
 
-        if (Layout.DEBUG_RENDER && Layout.DEBUG_RENDER_BEZIER_CURVES) {
+        renderPoints = new Renderable[0];
+    }
+
+    public BezierCurve3 setLevel(Level level) {
+        if (Layout.DEBUG_RENDER && Layout.DEBUG_RENDER_BEZIER_CURVES && this.level == null) {
             renderPoints = new Renderable[40 + 3];
             for (int i = 0; i < 40; i++) {
                 float t = i / 39f;
@@ -58,9 +63,10 @@ public class BezierCurve3 implements BoundedRenderable, Deletable {
             renderPoints[40] = new RenderGameCircle(RenderOrder.BLOCK, Color.RED, 0.3f, () -> new ObjPos(px1, py1));
             renderPoints[41] = new RenderGameCircle(RenderOrder.BLOCK, Color.RED, 0.3f, () -> new ObjPos(px2, py2));
             renderPoints[42] = new RenderGameCircle(RenderOrder.BLOCK, Color.RED, 0.3f, () -> new ObjPos(px3, py3));
-            MainPanel.GAME_RENDERER.register(this);
-        } else
-            renderPoints = new Renderable[0];
+            level.gameRenderer.register(this);
+            this.level = level;
+        }
+        return this;
     }
 
     public ObjPos sampleCurve(float t) {
@@ -227,8 +233,9 @@ public class BezierCurve3 implements BoundedRenderable, Deletable {
 
     @Override
     public void delete() {
-        if (Layout.DEBUG_RENDER) {
-            MainPanel.GAME_RENDERER.remove(this);
+        if (Layout.DEBUG_RENDER && level != null) {
+            level.gameRenderer.remove(this);
+            level = null;
         }
     }
 

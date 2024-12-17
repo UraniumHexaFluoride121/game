@@ -1,7 +1,7 @@
 package render.renderables;
 
-import foundation.MainPanel;
 import foundation.math.ObjPos;
+import level.Level;
 import loader.AssetManager;
 import loader.GlyphData;
 import render.BoundedRenderable;
@@ -22,11 +22,15 @@ public class RenderText extends RenderGameElement implements BoundedRenderable {
 
     private int totalWidth = 0;
 
-    public RenderText(RenderOrder renderOrder, Supplier<ObjPos> gamePos, String text, float scale, TextAlign textAlign) {
+    public RenderText(RenderOrder renderOrder, Supplier<ObjPos> gamePos, String text, float scale, TextAlign textAlign, Level level) {
+        this(renderOrder, gamePos, text, scale, textAlign, level.gameRenderer.getNextZOrder());
+    }
+
+    public RenderText(RenderOrder renderOrder, Supplier<ObjPos> gamePos, String text, float scale, TextAlign textAlign, int zOrder) {
         super(renderOrder, gamePos);
         this.scale = scale;
         this.textAlign = textAlign;
-        zOrder = MainPanel.GAME_RENDERER.getNextZOrder();
+        this.zOrder = zOrder;
         char[] chars = text.toCharArray();
         boolean specialChar = false;
         StringBuilder s = new StringBuilder();

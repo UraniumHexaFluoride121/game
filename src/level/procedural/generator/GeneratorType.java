@@ -1,5 +1,6 @@
 package level.procedural.generator;
 
+import level.Level;
 import level.procedural.collections.BlockCollection;
 import level.procedural.collections.BlockCollectionAction;
 import level.procedural.collections.IslandCluster;
@@ -12,7 +13,7 @@ import loader.JsonType;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 public class GeneratorType {
     public static final HashSet<GeneratorType> values = new HashSet<>();
@@ -27,14 +28,14 @@ public class GeneratorType {
     };
 
     public final String s;
-    public final Supplier<ProceduralGenerator> generator;
+    public final Function<Level, ProceduralGenerator> generator;
     public final BiConsumer<GeneratorType, JsonObject> jsonDataParser;
     public final boolean hasData;
 
     public final ArrayList<Integer> intValues = new ArrayList<>();
     public final ArrayList<String> stringValues = new ArrayList<>();
 
-    public GeneratorType(String s, Supplier<ProceduralGenerator> generator, BiConsumer<GeneratorType, JsonObject> jsonDataParser, boolean hasData) {
+    public GeneratorType(String s, Function<Level, ProceduralGenerator> generator, BiConsumer<GeneratorType, JsonObject> jsonDataParser, boolean hasData) {
         values.add(this);
         this.s = s;
         this.generator = generator;

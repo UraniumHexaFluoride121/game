@@ -1,10 +1,10 @@
 package level.objects;
 
 import foundation.Direction;
-import foundation.MainPanel;
 import foundation.VelocityHandler;
 import foundation.math.MathUtil;
 import foundation.math.ObjPos;
+import level.Level;
 import level.ObjectLayer;
 import physics.*;
 import render.event.RenderEvent;
@@ -21,8 +21,8 @@ public abstract class PhysicsObject extends BlockLike {
     public static final ObjPos DEFAULT_GRAVITY = new ObjPos(0, -30);
     public static final float EXP_X_DECAY = 3f, EXP_Y_DECAY = .5f, LINEAR_X_DECAY = 1.5f;
 
-    public PhysicsObject(ObjPos pos, String name, float mass) {
-        super(pos, name);
+    public PhysicsObject(ObjPos pos, String name, float mass, Level level) {
+        super(pos, name, level);
         prevPos = pos.copy();
         this.mass = mass;
     }
@@ -101,7 +101,7 @@ public abstract class PhysicsObject extends BlockLike {
         float blockBelowFriction = 0;
         int blockBelowCount = 0;
         for (int i = 0; i < 5; i++) {
-            CollisionObject objectBelow = MainPanel.level.collisionHandler.getObjectAt(new ObjPos(MathUtil.lerp(hitBox.getLeft(), hitBox.getRight(), MathUtil.normalise(0, 4, i)), hitBox.getBottom() - 0.05f));
+            CollisionObject objectBelow = level.collisionHandler.getObjectAt(new ObjPos(MathUtil.lerp(hitBox.getLeft(), hitBox.getRight(), MathUtil.normalise(0, 4, i)), hitBox.getBottom() - 0.05f));
             if (objectBelow != null) {
                 blockBelowCount++;
                 blockBelowFriction += objectBelow.getFriction();
@@ -126,7 +126,7 @@ public abstract class PhysicsObject extends BlockLike {
                 case RIGHT ->
                         new ObjPos(hitBox.getRight() + 0.05f, MathUtil.lerp(hitBox.getBottom(), hitBox.getTop(), MathUtil.normalise(0, 4, i)));
             };
-            CollisionObject object = MainPanel.level.collisionHandler.getObjectAt(samplePos);
+            CollisionObject object = level.collisionHandler.getObjectAt(samplePos);
             if (object != null) {
                 blockCount++;
                 blockBounciness += object.getBounciness();

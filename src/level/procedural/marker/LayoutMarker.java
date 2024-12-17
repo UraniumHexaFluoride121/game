@@ -1,8 +1,8 @@
 package level.procedural.marker;
 
 import foundation.Deletable;
-import foundation.MainPanel;
 import foundation.math.ObjPos;
+import level.Level;
 import level.procedural.Layout;
 import level.procedural.RegionType;
 import level.procedural.generator.BoundType;
@@ -37,32 +37,34 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
     public final ObjPos pos;
 
     public LMData data = new LMData(this);
+    public Level level;
 
-    public LayoutMarker(LMType type, ObjPos pos) {
+    public LayoutMarker(LMType type, ObjPos pos, Level level) {
+        this.level = level;
         this.type = type;
         this.pos = pos;
         if (type instanceof LMTPlayerMovement) {
             data = new LMDPlayerMovement(this);
         }
         if (Layout.DEBUG_RENDER)
-            MainPanel.GAME_RENDERER.register(this);
+            level.gameRenderer.register(this);
     }
 
-    public LayoutMarker(String type, ObjPos pos) {
-        this(LMType.getLayoutMarker(type), pos);
+    public LayoutMarker(String type, ObjPos pos, Level level) {
+        this(LMType.getLayoutMarker(type), pos, level);
     }
 
     public void generate() {
         if (type instanceof LMTUnresolvedElement t) {
             type = t.resolve(new ResolverConditionData(
-                    MainPanel.level.getRegion(pos), t, this, MainPanel.level
+                    level.getRegion(pos), t, this, level
             ));
             generate();
         } else if (type instanceof LMTResolvedElement t) {
             GeneratorType genType = t.getGenerator(new GeneratorConditionData(
-                    MainPanel.level.getRegion(pos), t, this, MainPanel.level
+                    level.getRegion(pos), t, this, level
             ));
-            ProceduralGenerator gen = genType.generator.get();
+            ProceduralGenerator gen = genType.generator.apply(level);
             data = new LMDResolvedElement(this, gen, genType);
             gen.generate(this, genType);
         }
@@ -180,7 +182,7 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
     }
 
     public RegionType getRegion() {
-        return MainPanel.level.getRegion(pos);
+        return level.getRegion(pos);
     }
 
     @Override
@@ -242,8 +244,9 @@ public class LayoutMarker implements BoundedRenderable, Deletable {
 
     @Override
     public void delete() {
-        MainPanel.level.layout.removeMarker(this);
+        level.layout.removeMarker(this);
         if (Layout.DEBUG_RENDER)
-            MainPanel.GAME_RENDERER.remove(this);
+            level.gameRenderer.remove(this);
+        level = null;
     }
 }

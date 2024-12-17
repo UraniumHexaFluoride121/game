@@ -1,6 +1,5 @@
 package level.procedural.marker;
 
-import foundation.MainPanel;
 import foundation.math.ObjPos;
 import level.procedural.collections.BlockCollection;
 import level.procedural.generator.GeneratorType;
@@ -58,7 +57,7 @@ public interface GeneratorLMFunction {
                     if (probability != 1 && !gen.randomBoolean(probability))
                         return;
                     ObjPos origin = offset.copy().add(lm.pos);
-                    if (origin.y < MainPanel.level.getRegionTop() && origin.y > minHeight) {
+                    if (origin.y < lm.level.getRegionTop() && origin.y > minHeight) {
                         int borderProximityLimit = type.getInt(borderProximityIndex);
                         gen.addMarker(type.getString(platformNameIndex), gen.randomPosAbove(origin, minAngle, maxAngle, minLength, maxLength, xLengthMultiplier, borderProximityLimit));
                     }
@@ -69,7 +68,7 @@ public interface GeneratorLMFunction {
                         return;
                     BlockCollection blocks = gen.getData(topOffsetCollection, BlockCollection.class);
                     ObjPos origin = offset.copy().add(lm.pos).addY(blocks.bound.up * topOffsetMultiplier).toInt();
-                    if (origin.y < MainPanel.level.getRegionTop() && origin.y > minHeight) {
+                    if (origin.y < lm.level.getRegionTop() && origin.y > minHeight) {
                         int borderProximityLimit = type.getInt(borderProximityIndex);
                         gen.addMarker(type.getString(platformNameIndex), gen.randomPosAbove(origin, minAngle, maxAngle, minLength, maxLength, xLengthMultiplier, borderProximityLimit));
                     }

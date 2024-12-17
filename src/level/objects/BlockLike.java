@@ -1,9 +1,9 @@
 package level.objects;
 
 import foundation.Deletable;
-import foundation.MainPanel;
 import foundation.math.ObjPos;
 import foundation.tick.RegisteredTickable;
+import level.Level;
 import level.ObjectLayer;
 import physics.*;
 import render.BoundedRenderable;
@@ -23,9 +23,13 @@ public abstract class BlockLike implements RegisteredTickable, BoundedRenderable
     public final String name;
     public int zOrder;
 
-    public BlockLike(ObjPos pos, String name) {
+    public Level level;
+
+
+    public BlockLike(ObjPos pos, String name, Level level) {
         this.pos = pos;
         this.name = name;
+        this.level = level;
     }
 
     //init MUST be called after object creation
@@ -33,8 +37,8 @@ public abstract class BlockLike implements RegisteredTickable, BoundedRenderable
         this.renderElement = renderElement;
         if (blockRequiresTick())
             registerTickable();
-        zOrder = MainPanel.GAME_RENDERER.getNextZOrder();
-        MainPanel.GAME_RENDERER.register(this);
+        zOrder = level.gameRenderer.getNextZOrder();
+        level.gameRenderer.register(this);
         return this;
     }
 
@@ -73,9 +77,10 @@ public abstract class BlockLike implements RegisteredTickable, BoundedRenderable
     public void delete() {
         renderElement.delete();
         removeTickable();
-        MainPanel.GAME_RENDERER.remove(this);
+        level.gameRenderer.remove(this);
         if (hitBox instanceof Deletable d)
             d.delete();
+        level = null;
     }
 
     @Override

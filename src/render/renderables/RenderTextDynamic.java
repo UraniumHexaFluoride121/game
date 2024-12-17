@@ -1,7 +1,7 @@
 package render.renderables;
 
-import foundation.MainPanel;
 import foundation.math.ObjPos;
+import level.Level;
 import loader.AssetManager;
 import loader.GlyphData;
 import render.BoundedRenderable;
@@ -19,12 +19,16 @@ public class RenderTextDynamic extends RenderGameElement implements BoundedRende
     private final TextAlign textAlign;
     private final Supplier<String> text;
 
-    public RenderTextDynamic(RenderOrder renderOrder, Supplier<ObjPos> gamePos, Supplier<String> text, float scale, TextAlign textAlign) {
+    public RenderTextDynamic(RenderOrder renderOrder, Supplier<ObjPos> gamePos, Supplier<String> text, float scale, TextAlign textAlign, Level level) {
+        this(renderOrder, gamePos, text, scale, textAlign, level.gameRenderer.getNextZOrder());
+    }
+
+    public RenderTextDynamic(RenderOrder renderOrder, Supplier<ObjPos> gamePos, Supplier<String> text, float scale, TextAlign textAlign, int zOrder) {
         super(renderOrder, gamePos);
         this.scale = scale;
         this.textAlign = textAlign;
         this.text = text;
-        zOrder = MainPanel.GAME_RENDERER.getNextZOrder();
+        this.zOrder = zOrder;
     }
 
     @Override

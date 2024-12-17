@@ -1,12 +1,11 @@
 package loader;
 
 import foundation.Main;
-import foundation.MainPanel;
 import foundation.math.MathUtil;
 import foundation.math.ObjPos;
+import foundation.math.RandomType;
 import level.Level;
 import level.ObjectLayer;
-import foundation.math.RandomType;
 import level.objects.*;
 import level.procedural.RegionType;
 import level.procedural.generator.GeneratorType;
@@ -26,8 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 //Utility class to store any assets needed for the game. All asset loading requests
 //must go through the AssetManager, so that already loaded assets don't get loaded
@@ -37,22 +36,22 @@ public abstract class AssetManager {
     private static final String ASSETS_PATH = "../assets/";
 
     private static final HashMap<ResourceLocation, BufferedImage> textures = new HashMap<>();
-    public static final HashMap<String, Function<ObjPos, ? extends BlockLike>> blocks = new HashMap<>();
+    public static final HashMap<String, BiFunction<ObjPos, Level, ? extends BlockLike>> blocks = new HashMap<>();
     public static final HashMap<String, StaticHitBox> blockHitBoxes = new HashMap<>();
     public static final HashMap<String, Float> blockFriction = new HashMap<>(), blockBounciness = new HashMap<>();
 
     public static final HashMap<Character, GlyphData> glyphs = new HashMap<>();
     public static final HashMap<String, GlyphData> specialGlyphs = new HashMap<>();
 
-    public static BlockLike createBlock(String s, ObjPos pos) {
-        return blocks.get(s).apply(pos);
+    public static BlockLike createBlock(String s, ObjPos pos, Level level) {
+        return blocks.get(s).apply(pos, level);
     }
 
     public static void readGlyphs(ResourceLocation resource) {
         JsonObject dataElements = (JsonObject) JsonLoader.readJsonResource(new ResourceLocation(((JsonObject) JsonLoader.readJsonResource(resource))
                 .get("glyphs", JsonType.STRING_JSON_TYPE)));
         dataElements.forEach(JsonType.JSON_OBJECT_TYPE, (k, v) -> {
-            GlyphData data = new GlyphData(v.get("width", JsonType.INTEGER_JSON_TYPE), deserializeRenderable(v).get());
+            GlyphData data = new GlyphData(v.get("width", JsonType.INTEGER_JSON_TYPE), deserializeRenderable(v).apply(null));
             if (k.length() == 1) {
                 glyphs.put(k.charAt(0), data);
             } else {
@@ -100,17 +99,17 @@ public abstract class AssetManager {
         }, JsonType.JSON_OBJECT_TYPE);
     }
 
-    public static void createAllLevelSections(ResourceLocation resource) {
+    public static void createAllLevelSections(ResourceLocation resource, Level level) {
         JsonArray sections = ((JsonObject) JsonLoader.readJsonResource(resource))
                 .getOrDefault("insertedSections", new JsonArray(), JsonType.JSON_ARRAY_TYPE);
         sections.forEach(section -> {
             createLevelSection(
                     new ResourceLocation(section.get("path", JsonType.STRING_JSON_TYPE)),
-                    section.get("heightOffset", JsonType.INTEGER_JSON_TYPE));
+                    section.get("heightOffset", JsonType.INTEGER_JSON_TYPE), level);
         }, JsonType.JSON_OBJECT_TYPE);
     }
 
-    public static void createLevelSection(ResourceLocation resource, int heightOffset) {
+    public static void createLevelSection(ResourceLocation resource, int heightOffset, Level level) {
         if (heightOffset < 0)
             throw new IllegalArgumentException("Level section " + resource.toString() + " was created with negative height offset");
         JsonArray pages = ((JsonArray) JsonLoader.readJsonResource(resource));
@@ -132,13 +131,13 @@ public abstract class AssetManager {
 
                         if (key != null && key.containsName(s)) {
                             String name = key.get(s, JsonType.STRING_JSON_TYPE);
-                            Function<ObjPos, ? extends BlockLike> blockCreationFunction = blocks.get(name);
+                            BiFunction<ObjPos, Level, ? extends BlockLike> blockCreationFunction = blocks.get(name);
                             if (blockCreationFunction == null)
                                 throw new RuntimeException("Level section was created with unrecognised block \"" + name + "\"");
-                            BlockLike block = blockCreationFunction.apply(new ObjPos(j, yOffset));
-                            MainPanel.level.addBlocks(true, true, block);
+                            BlockLike block = blockCreationFunction.apply(new ObjPos(j, yOffset), level);
+                            level.addBlocks(true, true, block);
                             if (block instanceof Player p)
-                                MainPanel.level.cameraPlayer = p;
+                                level.cameraPlayer = p;
                         }
                         if (markerKey != null && markerKey.containsName(s)) {
                             JsonObject markerObj = markerKey.get(s, JsonType.JSON_OBJECT_TYPE);
@@ -148,15 +147,15 @@ public abstract class AssetManager {
                             int right = markerObj.getOrDefault("right", 0, JsonType.INTEGER_JSON_TYPE);
 
                             int x = MathUtil.clampInt(0, Main.BLOCKS_X - 1, MathUtil.randIntBetween(j - left, j + right,
-                                    MainPanel.level.randomHandler.getRandom(RandomType.PROCEDURAL)::nextDouble));
+                                    level.randomHandler.getRandom(RandomType.PROCEDURAL)::nextDouble));
                             int y = MathUtil.clampInt(0, Main.BLOCKS_X - 1, MathUtil.randIntBetween(yOffset - down, yOffset + up,
-                                    MainPanel.level.randomHandler.getRandom(RandomType.PROCEDURAL)::nextDouble));
+                                    level.randomHandler.getRandom(RandomType.PROCEDURAL)::nextDouble));
 
                             LayoutMarker marker = new LayoutMarker(
                                     markerObj.get("type", JsonType.STRING_JSON_TYPE),
-                                    new ObjPos(x, y)
+                                    new ObjPos(x, y), level
                             );
-                            MainPanel.level.layout.addMarker(marker);
+                            level.layout.addMarker(marker);
                         }
                     }
                 }
@@ -206,53 +205,53 @@ public abstract class AssetManager {
             blockHitBoxes.put(blockName, new StaticHitBox(hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight));
             switch (type) {
                 case PLAYER -> {
-                    Supplier<? extends TickedRenderable> textureSupplier = deserializeRenderable(texture);
-                    blocks.put(blockName, pos -> {
+                    Function<Level, ? extends TickedRenderable> textureSupplier = deserializeRenderable(texture);
+                    blocks.put(blockName, (pos, level) -> {
                         Player player = new Player(pos, blockName,
                                 blockObj.getOrDefault("mass", 1f, JsonType.FLOAT_JSON_TYPE),
-                                hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, MainPanel.getInputHandler());
+                                hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, level.inputHandler, level);
                         player.setFriction(friction);
                         player.setBounciness(bounciness);
                         return player.init(new RenderTexture(
                                 RenderOrder.getRenderOrder(texture.getOrDefault("order", "player", JsonType.STRING_JSON_TYPE)), player::getPos,
-                                textureSupplier.get()));
+                                textureSupplier.apply(level)));
                     });
                 }
                 case STATIC_BLOCK -> {
                     if (layer.addToDynamic)
                         throw new IllegalArgumentException("staticBlocks type " + blockName + " was placed into a dynamic object layer " + layer);
-                    Supplier<? extends TickedRenderable> textureSupplier = deserializeRenderable(texture);
-                    blocks.put(blockName, pos -> {
-                        StaticBlock staticBlock = new StaticBlock(pos, blockName, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.STATIC, layer, hasCollision);
+                    Function<Level, ? extends TickedRenderable> textureSupplier = deserializeRenderable(texture);
+                    blocks.put(blockName, (pos, level) -> {
+                        StaticBlock staticBlock = new StaticBlock(pos, blockName, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.STATIC, layer, hasCollision, level);
                         staticBlock.setFriction(friction);
                         staticBlock.setBounciness(bounciness);
                         return staticBlock.init(new RenderTexture(
                                 RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), staticBlock::getPos,
-                                textureSupplier.get()));
+                                textureSupplier.apply(level)));
                     });
                 }
                 case MOVABLE_BLOCK -> {
-                    Supplier<? extends TickedRenderable> textureSupplier = deserializeRenderable(texture);
-                    blocks.put(blockName, pos -> {
-                        StaticBlock staticBlock = new StaticBlock(pos, blockName, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.MOVABLE, ObjectLayer.DYNAMIC, hasCollision);
+                    Function<Level, ? extends TickedRenderable> textureSupplier = deserializeRenderable(texture);
+                    blocks.put(blockName, (pos, level) -> {
+                        StaticBlock staticBlock = new StaticBlock(pos, blockName, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, CollisionType.MOVABLE, ObjectLayer.DYNAMIC, hasCollision, level);
                         staticBlock.setFriction(friction);
                         staticBlock.setBounciness(bounciness);
                         return staticBlock.init(new RenderTexture(
                                 RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), staticBlock::getPos,
-                                textureSupplier.get()));
+                                textureSupplier.apply(level)));
                     });
                 }
                 case PHYSICS_BLOCK -> {
-                    Supplier<? extends TickedRenderable> textureSupplier = deserializeRenderable(texture);
-                    blocks.put(blockName, pos -> {
+                    Function<Level, ? extends TickedRenderable> textureSupplier = deserializeRenderable(texture);
+                    blocks.put(blockName, (pos, level) -> {
                         PhysicsBlock physicsBlock = new PhysicsBlock(pos, blockName,
                                 blockObj.getOrDefault("mass", 1f, JsonType.FLOAT_JSON_TYPE),
-                                hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
+                                hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, level);
                         physicsBlock.setFriction(friction);
                         physicsBlock.setBounciness(bounciness);
                         return physicsBlock.init(new RenderTexture(
                                 RenderOrder.getRenderOrder(texture.getOrDefault("order", "block", JsonType.STRING_JSON_TYPE)), physicsBlock::getPos,
-                                textureSupplier.get()));
+                                textureSupplier.apply(level)));
                     });
                 }
             }
@@ -285,37 +284,37 @@ public abstract class AssetManager {
     }
 
     private static final HashMap<ResourceLocation, TextureAsset> textureAssets = new HashMap<>();
-    private static final HashMap<ResourceLocation, Supplier<AnimatedTexture>> animatedTextures = new HashMap<>();
-    private static final HashMap<ResourceLocation, Supplier<LayeredTexture>> layeredTextures = new HashMap<>();
-    private static final HashMap<ResourceLocation, Supplier<EventSwitcherTexture>> eventSwitcherTextures = new HashMap<>();
-    private static final HashMap<ResourceLocation, Supplier<RandomTexture>> randomTextures = new HashMap<>();
-    private static final HashMap<ResourceLocation, Supplier<ConnectedTexture>> connectedTextures = new HashMap<>();
+    private static final HashMap<ResourceLocation, Function<Level, AnimatedTexture>> animatedTextures = new HashMap<>();
+    private static final HashMap<ResourceLocation, Function<Level, LayeredTexture>> layeredTextures = new HashMap<>();
+    private static final HashMap<ResourceLocation, Function<Level, EventSwitcherTexture>> eventSwitcherTextures = new HashMap<>();
+    private static final HashMap<ResourceLocation, Function<Level, RandomTexture>> randomTextures = new HashMap<>();
+    private static final HashMap<ResourceLocation, Function<Level, ConnectedTexture>> connectedTextures = new HashMap<>();
 
-    public static Supplier<? extends TickedRenderable> deserializeRenderable(JsonObject object) {
+    public static Function<Level, ? extends TickedRenderable> deserializeRenderable(JsonObject object) {
         String type = object.get("type", JsonType.STRING_JSON_TYPE);
         ResourceLocation resource = new ResourceLocation(object.get("path", JsonType.STRING_JSON_TYPE));
         return switch (type) {
             case "TextureAsset" -> {
                 if (textureAssets.containsKey(resource)) {
                     TextureAsset asset = textureAssets.get(resource);
-                    yield () -> asset;
+                    yield level -> asset;
                 }
                 if (resource.relativePath.contains("#")) {
                     ArrayList<TextureAsset> assets = TextureAsset.getMultiTextureAsset(resource);
                     assets.forEach(a -> textureAssets.put(a.resource, a));
                     TextureAsset asset = textureAssets.get(resource);
-                    yield () -> asset;
+                    yield level -> asset;
                 } else {
                     TextureAsset asset = TextureAsset.getTextureAsset(resource);
                     textureAssets.put(resource, asset);
-                    yield () -> asset;
+                    yield level -> asset;
                 }
             }
             case "AnimatedTexture" -> {
                 if (animatedTextures.containsKey(resource)) {
                     yield animatedTextures.get(resource);
                 }
-                Supplier<AnimatedTexture> t = AnimatedTexture.getAnimatedTexture(resource);
+                Function<Level, AnimatedTexture> t = AnimatedTexture.getAnimatedTexture(resource);
                 animatedTextures.put(resource, t);
                 yield t;
             }
@@ -323,7 +322,7 @@ public abstract class AssetManager {
                 if (layeredTextures.containsKey(resource)) {
                     yield layeredTextures.get(resource);
                 }
-                Supplier<LayeredTexture> t = LayeredTexture.getLayeredTexture(resource);
+                Function<Level, LayeredTexture> t = LayeredTexture.getLayeredTexture(resource);
                 layeredTextures.put(resource, t);
                 yield t;
             }
@@ -331,7 +330,7 @@ public abstract class AssetManager {
                 if (eventSwitcherTextures.containsKey(resource)) {
                     yield eventSwitcherTextures.get(resource);
                 }
-                Supplier<EventSwitcherTexture> t = EventSwitcherTexture.getEventSwitcherTexture(resource);
+                Function<Level, EventSwitcherTexture> t = EventSwitcherTexture.getEventSwitcherTexture(resource);
                 eventSwitcherTextures.put(resource, t);
                 yield t;
             }
@@ -339,7 +338,7 @@ public abstract class AssetManager {
                 if (randomTextures.containsKey(resource)) {
                     yield randomTextures.get(resource);
                 }
-                Supplier<RandomTexture> t = RandomTexture.getRandomTexture(resource);
+                Function<Level, RandomTexture> t = RandomTexture.getRandomTexture(resource);
                 randomTextures.put(resource, t);
                 yield t;
             }
@@ -347,7 +346,7 @@ public abstract class AssetManager {
                 if (connectedTextures.containsKey(resource)) {
                     yield connectedTextures.get(resource);
                 }
-                Supplier<ConnectedTexture> t = ConnectedTexture.getConnectedTexture(resource);
+                Function<Level, ConnectedTexture> t = ConnectedTexture.getConnectedTexture(resource);
                 connectedTextures.put(resource, t);
                 yield t;
             }

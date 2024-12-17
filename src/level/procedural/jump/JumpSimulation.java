@@ -2,11 +2,10 @@ package level.procedural.jump;
 
 import foundation.Deletable;
 import foundation.Direction;
-import foundation.MainPanel;
 import foundation.VelocityHandler;
 import foundation.math.MathUtil;
 import foundation.math.ObjPos;
-import level.procedural.generator.BoundType;
+import level.Level;
 import level.procedural.marker.LayoutMarker;
 import level.procedural.marker.movement.LMDPlayerMovement;
 import loader.AssetManager;
@@ -59,16 +58,11 @@ public class JumpSimulation implements Deletable, Renderable {
         from.jumps.put(this, to);
     }
 
-    public boolean validateJump() {
+    public boolean validateJump(Level level) {
         validatedJumpHadCollision = true;
         if (DEBUG_RENDER_SIM && DEBUG_RENDER) clearDebugRender();
         hasValidJump = false;
         bound = null;
-        HashSet<LayoutMarker> collisionMarkers = new HashSet<>();
-        MainPanel.level.layout.forEachMarker(from.pos.y, 2, lm -> {
-            if (lm.hasBoundType(BoundType.COLLISION))
-                collisionMarkers.add(lm);
-        });
         StaticHitBox playerStaticBox = AssetManager.blockHitBoxes.get("player");
         DynamicHitBox playerBox = new DynamicHitBox(playerStaticBox.up, playerStaticBox.down, playerStaticBox.left, playerStaticBox.right, this::getSimPos);
         validatedCount = 0;
@@ -81,7 +75,7 @@ public class JumpSimulation implements Deletable, Renderable {
                     for (float holdJump : HOLD_JUMP) {
                         for (ProfileType profileType : ProfileType.values()) {
                             JumpProfile profile = new JumpProfile(holdJump, v, profileType);
-                            ValidationResult validationResult = validateJumpProfile(fromLM, toLM, playerBox.centerOrigin().originToBottom(), collisionMarkers, profile);
+                            ValidationResult validationResult = validateJumpProfile(fromLM, toLM, playerBox.centerOrigin().originToBottom(), profile, level);
                             if (validationResult.validated) {
                                 if (!hasValidJump) {
                                     bound = validationResult.bound;
@@ -114,7 +108,7 @@ public class JumpSimulation implements Deletable, Renderable {
     private static final Color color3 = new Color(24, 111, 225);
     private static final Color color4 = new Color(24, 225, 208);
 
-    private ValidationResult validateJumpProfile(LayoutMarker fromLM, LayoutMarker toLM, DynamicHitBox playerBox, HashSet<LayoutMarker> collisionMarkers, JumpProfile profile) {
+    private ValidationResult validateJumpProfile(LayoutMarker fromLM, LayoutMarker toLM, DynamicHitBox playerBox, JumpProfile profile, Level level) {
         if (!hasValidJump && DEBUG_RENDER && DEBUG_RENDER_SIM) clearDebugRender();
 
         LMDPlayerMovement data = ((LMDPlayerMovement) toLM.data);
@@ -129,7 +123,7 @@ public class JumpSimulation implements Deletable, Renderable {
         boolean forwardEnabled = false;
         StaticHitBox bound = new StaticHitBox(playerBox);
 
-        if (!MainPanel.level.collisionHandler.getBoxCollidingWith(playerBox).isEmpty())
+        if (!level.collisionHandler.getBoxCollidingWith(playerBox).isEmpty())
             return FAIL;
 
         boolean hasHadCollision = false;
@@ -181,7 +175,7 @@ public class JumpSimulation implements Deletable, Renderable {
             }
             simTick(direction, simVelocity.y > profile.holdJump);
 
-            HashSet<Direction> collisionDirections = simCollision(playerBox, collisionMarkers);
+            HashSet<Direction> collisionDirections = simCollision(playerBox, level);
 
             bound.expandToFit(playerBox);
 
@@ -201,9 +195,9 @@ public class JumpSimulation implements Deletable, Renderable {
         return FAIL;
     }
 
-    private HashSet<Direction> simCollision(DynamicHitBox playerBox, HashSet<LayoutMarker> collisionMarkers) {
+    private HashSet<Direction> simCollision(DynamicHitBox playerBox, Level level) {
         HashSet<Direction> directions = new HashSet<>();
-        HashSet<CollisionObject> objects = MainPanel.level.collisionHandler.getBoxCollidingWith(playerBox);
+        HashSet<CollisionObject> objects = level.collisionHandler.getBoxCollidingWith(playerBox);
         for (CollisionObject object : objects) {
             HitBox otherBox = object.getHitBox();
             if (!playerBox.isColliding(otherBox))

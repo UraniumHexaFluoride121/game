@@ -8,10 +8,12 @@ import java.util.function.Supplier;
 
 public abstract class UIElement implements UIRenderable, Deletable {
     private final int zOrder;
+    protected UIRegister register;
 
-    public UIElement(int zOrder) {
+    public UIElement(int zOrder, UIRegister register) {
         this.zOrder = zOrder;
-        MainPanel.GAME_RENDERER.registerUI(this);
+        this.register = register;
+        register.registerUI(this);
     }
 
     @Override
@@ -21,7 +23,7 @@ public abstract class UIElement implements UIRenderable, Deletable {
 
     @Override
     public void delete() {
-        MainPanel.GAME_RENDERER.removeUI(this);
+        register.removeUI(this);
     }
 
     public Supplier<ObjPos> relativeToCamera(float xOffset, float yOffset) {

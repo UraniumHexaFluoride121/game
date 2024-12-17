@@ -1,16 +1,17 @@
 package render.texture;
 
 import foundation.tick.Tickable;
+import level.Level;
 import loader.*;
+import render.Renderable;
 import render.TickedRenderable;
 import render.event.RenderEvent;
 import render.event.RenderEventListener;
-import render.Renderable;
 
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 public class EventSwitcherTexture implements TickedRenderable, Tickable, RenderEventListener {
     private final HashMap<RenderEvent, TickedRenderable> textures = new HashMap<>();
@@ -55,19 +56,19 @@ public class EventSwitcherTexture implements TickedRenderable, Tickable, RenderE
         activeTexture.render(g);
     }
 
-    public static Supplier<EventSwitcherTexture> getEventSwitcherTexture(ResourceLocation resource) {
+    public static Function<Level, EventSwitcherTexture> getEventSwitcherTexture(ResourceLocation resource) {
         JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(resource));
         JsonArray renderables = obj.get("renderables", JsonType.JSON_ARRAY_TYPE);
 
-        HashMap<RenderEvent, Supplier<? extends TickedRenderable>> textures = new HashMap<>();
+        HashMap<RenderEvent, Function<Level, ? extends TickedRenderable>> textures = new HashMap<>();
         renderables.forEach(o -> {
             textures.put(RenderEvent.getRenderEvent(o.get("event", JsonType.STRING_JSON_TYPE)), AssetManager.deserializeRenderable(o));
         }, JsonType.JSON_OBJECT_TYPE);
 
-        return () -> {
+        return level -> {
             EventSwitcherTexture texture = new EventSwitcherTexture();
-            for (Map.Entry<RenderEvent, Supplier<? extends TickedRenderable>> entry : textures.entrySet()) {
-                texture.add(entry.getKey(), entry.getValue().get());
+            for (Map.Entry<RenderEvent, Function<Level, ? extends TickedRenderable>> entry : textures.entrySet()) {
+                texture.add(entry.getKey(), entry.getValue().apply(level));
             }
             return texture;
         };

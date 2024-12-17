@@ -1,6 +1,6 @@
 package level.procedural.generator;
 
-import foundation.MainPanel;
+import level.Level;
 import level.procedural.marker.LayoutMarker;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -13,10 +13,10 @@ public interface GeneratorValidation {
         return (lm, otherLM, data) -> validate(lm, otherLM, data) && other.validate(lm, otherLM, data);
     }
 
-    static boolean validate(LayoutMarker marker, GeneratorValidation validation) {
+    static boolean validate(LayoutMarker marker, GeneratorValidation validation, Level level) {
         ValidationData data = new ValidationData();
         AtomicBoolean validated = new AtomicBoolean(true);
-        MainPanel.level.layout.forEachMarker(marker.pos.y, 3, lm -> {
+        level.layout.forEachMarker(marker.pos.y, 3, lm -> {
             if (!validation.validate(marker, lm, data))
                 validated.set(false);
         });/*

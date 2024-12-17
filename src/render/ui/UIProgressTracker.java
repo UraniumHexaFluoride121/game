@@ -1,7 +1,7 @@
 package render.ui;
 
-import foundation.MainPanel;
 import foundation.math.MathUtil;
+import level.Level;
 import render.RenderOrder;
 import render.renderables.RenderTextDynamic;
 import render.renderables.TextAlign;
@@ -11,11 +11,13 @@ import java.awt.*;
 public class UIProgressTracker extends UIElement {
     private RenderTextDynamic timeText, heightText;
     private long startTime = 0;
+    protected Level level;
 
-    public UIProgressTracker(int zOrder) {
-        super(zOrder);
-        timeText = new RenderTextDynamic(RenderOrder.UI, relativeToCamera(right() - 1, top() - 2), this::getTime, 2, TextAlign.RIGHT);
-        heightText = new RenderTextDynamic(RenderOrder.UI, relativeToCamera(right() - 1, top() - 3.5f), this::getHeight, 2, TextAlign.RIGHT);
+    public UIProgressTracker(int zOrder, UIRegister register, Level level) {
+        super(zOrder, register);
+        this.level = level;
+        timeText = new RenderTextDynamic(RenderOrder.UI, relativeToCamera(right() - 1, top() - 2), this::getTime, 2, TextAlign.RIGHT, zOrder);
+        heightText = new RenderTextDynamic(RenderOrder.UI, relativeToCamera(right() - 1, top() - 3.5f), this::getHeight, 2, TextAlign.RIGHT, zOrder);
     }
 
     public UIProgressTracker startTime() {
@@ -28,7 +30,7 @@ public class UIProgressTracker extends UIElement {
     }
 
     public String getHeight() {
-        int height = Math.round(MainPanel.level.cameraPlayer.pos.y);
+        int height = Math.round(level.cameraPlayer.pos.y);
         return "*height*" + height;
     }
 

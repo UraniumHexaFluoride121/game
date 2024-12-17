@@ -271,7 +271,7 @@ public class CollisionHandler implements RegisteredTickable {
     }
 
     @Override
-    public void delete() {
+    public synchronized void delete() {
         //It's possible for this class to receive a tick after being deleted
         //due to deletion not immediately removing it from the tickables list.
         //We mark ourselves as deleted, so we know whether to cancel a tick if

@@ -1,6 +1,7 @@
 package level.procedural.collections;
 
 import foundation.math.FunctionalWeightedRandom;
+import foundation.math.MathUtil;
 import foundation.math.ObjPos;
 import physics.StaticHitBox;
 
@@ -32,8 +33,20 @@ public class HorizontalStackData extends BlockCollection {
             int lastLeftElement = left.get(left.size() - 1);
             int lastRightElement = right.get(right.size() - 1);
 
-            left.add(lastLeftElement - inward.getValue(random, new StackRandomData(left.size(), left.size() == 1 ? 0 : left.get(right.size() - 2) - lastLeftElement, lastLeftElement + lastRightElement + 1)));
-            right.add(lastRightElement - inward.getValue(random, new StackRandomData(right.size(), right.size() == 1 ? 0 : right.get(right.size() - 2) - lastRightElement, lastLeftElement + lastRightElement + 1)));
+            int in1, in2;
+            if (MathUtil.randBoolean(0.5f, random)) {
+                in1 = inward.getValue(random, new StackRandomData(left.size(), left.size() == 1 ? 0 : left.get(right.size() - 2) - lastLeftElement, lastLeftElement + lastRightElement + 1));
+                do {
+                    in2 = inward.getValue(random, new StackRandomData(right.size(), right.size() == 1 ? 0 : right.get(right.size() - 2) - lastRightElement, lastLeftElement + lastRightElement + 1));
+                } while (in1 == in2);
+            } else {
+                in2 = inward.getValue(random, new StackRandomData(right.size(), right.size() == 1 ? 0 : right.get(right.size() - 2) - lastRightElement, lastLeftElement + lastRightElement + 1));
+                do {
+                    in1 = inward.getValue(random, new StackRandomData(left.size(), left.size() == 1 ? 0 : left.get(right.size() - 2) - lastLeftElement, lastLeftElement + lastRightElement + 1));
+                } while (in1 == in2);
+            }
+            left.add(lastLeftElement - in1);
+            right.add(lastRightElement - in2);
         }
         left.remove(left.size() - 1);
         right.remove(right.size() - 1);

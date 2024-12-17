@@ -18,7 +18,7 @@ import static level.procedural.generator.GeneratorType.*;
 
 public abstract class PresetTypes {
     public static GeneratorType islandCluster(String name, int maxDistance, int minIslands, int maxIslands, WeightedRandom<Integer> width, BiConsumer<GeneratorType, JsonObject> jsonParser, GeneratorFunction blockGeneration, GeneratorLMFunction lmGeneration, FunctionalWeightedRandom<Integer, StackRandomData> weights) {
-        return new GeneratorType(name, () -> new ProceduralGenerator((gen, lm, type) -> {
+        return new GeneratorType(name, level -> new ProceduralGenerator(level, (gen, lm, type) -> {
             IslandCluster blocks = new IslandCluster(maxDistance, minIslands, maxIslands, gen.random(), width, weights);
             StaticHitBox blocksBound = blocks.getBound(lm.pos);
             lm.addBound(blocksBound, BoundType.BLOCKS);
@@ -39,7 +39,7 @@ public abstract class PresetTypes {
     }
 
     public static GeneratorType verticalIsland(String name, int obstructionWidth, int upwardOffset, int minSize, int maxSize, BiConsumer<GeneratorType, JsonObject> jsonParser, GeneratorFunction blockGeneration, GeneratorLMFunction lmGeneration, FunctionalWeightedRandom<Integer, StackRandomData> weights, FunctionalWeightedRandom<Integer, StackRandomData> offset) {
-        return new GeneratorType(name, () -> new ProceduralGenerator((gen, lm, type) -> {
+        return new GeneratorType(name, level -> new ProceduralGenerator(level, (gen, lm, type) -> {
             int sizeUp = gen.randomInt(minSize, maxSize) + upwardOffset;
             int sizeDown = gen.randomInt(minSize, maxSize) - upwardOffset;
             VerticalStackData verticalStack = new VerticalStackData(sizeUp, sizeDown, gen.random(), weights, offset);
@@ -59,7 +59,7 @@ public abstract class PresetTypes {
     }
 
     public static GeneratorType defaultIsland(String name, int minSize, int maxSize, BiConsumer<GeneratorType, JsonObject> jsonParser, GeneratorFunction blockGeneration, GeneratorLMFunction lmGeneration, FunctionalWeightedRandom<Integer, StackRandomData> weightsLower, FunctionalWeightedRandom<Integer, StackRandomData> weightsUpper) {
-        return new GeneratorType(name, () -> new ProceduralGenerator((gen, lm, type) -> {
+        return new GeneratorType(name, level -> new ProceduralGenerator(level, (gen, lm, type) -> {
             int sizeLeft = gen.randomInt(minSize, maxSize);
             int sizeRight = gen.randomInt(minSize, maxSize);
 

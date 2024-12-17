@@ -1,6 +1,5 @@
 package level.procedural.marker.resolved;
 
-import foundation.MainPanel;
 import foundation.expression.*;
 import foundation.math.MathUtil;
 import foundation.math.ObjPos;
@@ -18,7 +17,7 @@ public class GeneratorCondition extends Expression<GeneratorConditionData> {
     protected GeneratorCondition() {
         super();
         addValue(new ExpressionValue<>("this", new ExpressionObject<>(LayoutMarker.class, o -> o.marker)));
-        addValue(new ExpressionValue<>("region", new ExpressionObject<>(String.class, o -> MainPanel.level.getRegion(o.marker.pos).toString())));
+        addValue(new ExpressionValue<>("region", new ExpressionObject<>(String.class, o -> o.l.getRegion(o.marker.pos).toString())));
 
         addFunction(new ExpressionFunction<>("posOffset", args -> {
             if (!args.get(0).returnType.equals(Number.class))
@@ -60,14 +59,14 @@ public class GeneratorCondition extends Expression<GeneratorConditionData> {
                 return new ExpressionObject<>(Boolean.class, o -> {
                     ObjPos from = getArg(0, args, o, ObjPos.class), to = getArg(1, args, o, ObjPos.class);
                     StaticHitBox box = new StaticHitBox(from, to);
-                    return GeneratorValidation.validate(o.marker, LayoutMarker.isNotColliding(box, type));
+                    return GeneratorValidation.validate(o.marker, LayoutMarker.isNotColliding(box, type), o.l);
                 });
             } else {
                 return new ExpressionObject<>(Boolean.class, o -> {
                     ObjPos from = getArg(0, args, o, ObjPos.class), to = getArg(1, args, o, ObjPos.class);
                     BoundType type = BoundType.getBoundType(getArg(2, args, o, String.class));
                     StaticHitBox box = new StaticHitBox(from, to);
-                    return GeneratorValidation.validate(o.marker, LayoutMarker.isNotColliding(box, type));
+                    return GeneratorValidation.validate(o.marker, LayoutMarker.isNotColliding(box, type), o.l);
                 });
             }
         }));

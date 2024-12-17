@@ -2,6 +2,7 @@ package level.objects;
 
 import foundation.math.ObjPos;
 import foundation.tick.TickOrder;
+import level.Level;
 import level.ObjectLayer;
 import physics.CollisionBehaviour;
 import physics.CollisionType;
@@ -13,8 +14,8 @@ public class StaticBlock extends BlockLike {
     public final ObjectLayer objectLayer;
     public final boolean hasCollision;
 
-    public StaticBlock(ObjPos pos, String name, float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight, CollisionType collisionType, ObjectLayer objectLayer, boolean hasCollision) {
-        super(pos, name);
+    public StaticBlock(ObjPos pos, String name, float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight, CollisionType collisionType, ObjectLayer objectLayer, boolean hasCollision, Level level) {
+        super(pos, name, level);
         this.collisionType = collisionType;
         this.objectLayer = objectLayer;
         this.hasCollision = hasCollision;

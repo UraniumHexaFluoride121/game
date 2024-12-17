@@ -2,6 +2,7 @@ package level;
 
 import foundation.Deletable;
 import foundation.Main;
+import foundation.MainPanel;
 import foundation.input.InputHandler;
 import foundation.input.InputHandlingOrder;
 import foundation.input.InputType;
@@ -18,6 +19,7 @@ import level.procedural.marker.resolved.LMTResolvedElement;
 import loader.AssetManager;
 import physics.CollisionHandler;
 import physics.StaticHitBox;
+import render.GameRenderer;
 import render.event.RenderBlockUpdate;
 import render.event.RenderEvent;
 import render.renderables.RenderBackground;
@@ -29,15 +31,18 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static foundation.MainPanel.*;
 
 public class Level implements Deletable {
+    public GameRenderer gameRenderer;
     public final int maximumHeight;
     public final InputHandler inputHandler;
     public final CollisionHandler collisionHandler;
     public static final int SECTION_SIZE = 16;
-    public final int seed = 0;
+    public final int seed;
     public final RandomHandler randomHandler;
 
     //All BlockLikes inserted as static MUST NOT have their positions modified, otherwise
@@ -63,7 +68,11 @@ public class Level implements Deletable {
     public Player cameraPlayer = null;
     public final RenderBackground background = new RenderBackground(Color.WHITE);
 
-    public Level() {
+    public boolean deleted = false;
+
+    public Level(int seed) {
+        this.seed = seed;
+        gameRenderer = new GameRenderer(gameTransform, MainPanel::getCameraTransform, this);
         randomHandler = new RandomHandler(seed);
         AssetManager.readLayout(LEVEL_PATH, this);
 
@@ -83,7 +92,7 @@ public class Level implements Deletable {
         for (int i = 0; i < sectionCount; i++) {
             allStaticBlocks[i] = ConcurrentHashMap.newKeySet();
         }
-        GAME_RENDERER.createStaticsSet(sectionCount);
+        gameRenderer.createStaticsSet(sectionCount);
 
         inputHandler = new InputHandler();
         inputHandler.addInput(InputType.KEY_PRESSED, e -> upCamera = true, e -> e.getKeyCode() == KeyEvent.VK_PAGE_UP, InputHandlingOrder.CAMERA_UP, false);
@@ -94,12 +103,15 @@ public class Level implements Deletable {
         collisionHandler = new CollisionHandler(maximumHeight, SECTION_SIZE, 2);
         this.maximumHeight = maximumHeight;
 
-        layout = new Layout(maximumHeight, SECTION_SIZE, 1);
+        layout = new Layout(maximumHeight, SECTION_SIZE, 1, this);
     }
 
+    public AtomicBoolean interruptGeneration = new AtomicBoolean(false);
+    private Thread generationThread;
+
     public void init() {
-        AssetManager.createAllLevelSections(LEVEL_PATH);
-        new Thread(() -> {
+        AssetManager.createAllLevelSections(LEVEL_PATH, this);
+        generationThread = new Thread(() -> {
             long time = System.currentTimeMillis();
             updatePool = Executors.newCachedThreadPool();
             layout.generateMarkers();
@@ -119,8 +131,9 @@ public class Level implements Deletable {
             }
             System.out.println("generated markers: " + ProceduralGenerator.generatedMarkers);
             updatePool.shutdown();
-        }).start();
-        GAME_RENDERER.registerUI(new UIProgressTracker(0).startTime());
+        });
+        generationThread.start();
+        gameRenderer.registerUI(new UIProgressTracker(0, gameRenderer, this).startTime());
         //GAME_RENDERER.register(new RenderText(RenderOrder.DEBUG, () -> new ObjPos(5, 5), "TES*time*TING", 2, TextAlign.LEFT));
     }
 
@@ -255,6 +268,15 @@ public class Level implements Deletable {
 
     @Override
     public void delete() {
+        deleted = true;
+        interruptGeneration.set(true);
+        while (interruptGeneration.get()) {
+            try {
+                TimeUnit.MILLISECONDS.sleep(10);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
         for (ObjectLayer layer : ObjectLayer.values()) {
             if (!layer.addToStatic)
                 continue;
@@ -269,8 +291,10 @@ public class Level implements Deletable {
                 }
             }
         }
+        dynamicBlocks.forEach(BlockLike::delete);
         dynamicBlocks.clear();
         inputHandler.delete();
         collisionHandler.delete();
+        gameRenderer.delete();
     }
 }

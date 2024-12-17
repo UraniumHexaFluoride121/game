@@ -1,8 +1,11 @@
 package render;
 
+import foundation.Deletable;
 import foundation.MainPanel;
 import foundation.math.RandomType;
+import level.Level;
 import level.objects.StaticBlock;
+import render.ui.UIRegister;
 import render.ui.UIRenderable;
 
 import java.awt.*;
@@ -16,7 +19,7 @@ import java.util.function.Supplier;
 
 import static level.Level.*;
 
-public class GameRenderer implements Renderable {
+public class GameRenderer implements Renderable, Deletable, UIRegister {
     public final AffineTransform transform;
     private final Supplier<AffineTransform> cameraTransform;
     private final Set<BoundedRenderable>
@@ -29,8 +32,10 @@ public class GameRenderer implements Renderable {
     private Set<BoundedRenderable>[] statics;
     private TreeMap<RenderOrder, TreeMap<Integer, HashSet<BoundedRenderable>>> renderables = new TreeMap<>();
     private TreeMap<Integer, HashSet<UIRenderable>> uiElements = new TreeMap<>();
+    private Level level;
 
-    public GameRenderer(AffineTransform transform, Supplier<AffineTransform> cameraTransform) {
+    public GameRenderer(AffineTransform transform, Supplier<AffineTransform> cameraTransform, Level level) {
+        this.level = level;
         this.transform = transform;
         this.cameraTransform = cameraTransform;
     }
@@ -42,10 +47,12 @@ public class GameRenderer implements Renderable {
         }
     }
 
+    @Override
     public synchronized void registerUI(UIRenderable r) {
         qRegisterUI.add(r);
     }
 
+    @Override
     public synchronized void removeUI(UIRenderable r) {
         qRemoveUI.add(r);
     }
@@ -124,8 +131,8 @@ public class GameRenderer implements Renderable {
     }
 
     public synchronized void rebuildRenderMap() {
-        int bottom = MainPanel.level.yPosToSection(-MainPanel.cameraY);
-        int top = MainPanel.level.yPosToSection(-MainPanel.cameraY + MainPanel.BLOCK_DIMENSIONS.y);
+        int bottom = level.yPosToSection(-MainPanel.cameraY);
+        int top = level.yPosToSection(-MainPanel.cameraY + MainPanel.BLOCK_DIMENSIONS.y);
         renderables = new TreeMap<>();
         for (RenderOrder value : RenderOrder.values()) {
             renderables.put(value, new TreeMap<>());
@@ -148,11 +155,16 @@ public class GameRenderer implements Renderable {
 
     public synchronized int getNextZOrder() {
         if (zOrderSource == null)
-            zOrderSource = MainPanel.level.randomHandler.getRandom(RandomType.Z_ORDER);
+            zOrderSource = level.randomHandler.getRandom(RandomType.Z_ORDER);
         return zOrderSource.nextInt();
     }
 
     public int yPosToSection(float y) {
         return ((int) (y / SECTION_SIZE));
+    }
+
+    @Override
+    public synchronized void delete() {
+        level = null;
     }
 }

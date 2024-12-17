@@ -5,6 +5,7 @@ import foundation.input.InputHandler;
 import foundation.input.InputHandlingOrder;
 import foundation.input.InputType;
 import foundation.math.ObjPos;
+import level.Level;
 import render.event.RenderEvent;
 
 import java.awt.event.KeyEvent;
@@ -13,8 +14,8 @@ public class Player extends PhysicsBlock {
     private boolean space, left, right;
     private boolean isLongJump = false;
 
-    public Player(ObjPos pos, String name, float mass, float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight, InputHandler handler) {
-        super(pos, name, mass, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
+    public Player(ObjPos pos, String name, float mass, float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight, InputHandler handler, Level level) {
+        super(pos, name, mass, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, level);
         //jump
         handler.addInput(InputType.KEY_PRESSED, e -> {
             space = true;

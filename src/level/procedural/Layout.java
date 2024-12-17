@@ -1,6 +1,6 @@
 package level.procedural;
 
-import foundation.MainPanel;
+import level.Level;
 import level.procedural.generator.ProceduralGenerator;
 import level.procedural.jump.JumpSimGroup;
 import level.procedural.jump.JumpSimulation;
@@ -28,7 +28,10 @@ public class Layout {
     public final ArrayList<JumpSimGroup>[] jumpSimGroups;
     public final HashSet<JumpSimGroup> roots = new HashSet<>();
 
-    public Layout(int maxHeight, int sectionSize, int bufferSections) {
+    private Level level;
+
+    public Layout(int maxHeight, int sectionSize, int bufferSections, Level level) {
+        this.level = level;
         this.maxHeight = maxHeight;
         this.sectionSize = sectionSize;
         sectionCount = ((int) Math.ceil((double) maxHeight / sectionSize)) + bufferSections;
@@ -131,7 +134,7 @@ public class Layout {
     public void addMarker(LayoutMarker marker) {
         int xPos = ((int) marker.pos.x);
         int yPos = ((int) marker.pos.y);
-        if (MainPanel.level.outOfBounds(xPos, yPos))
+        if (level.outOfBounds(xPos, yPos))
             return;
         markerSections[yPosToSection(yPos)].add(marker);
     }
@@ -139,7 +142,7 @@ public class Layout {
     public void addJumpGroup(JumpSimGroup group) {
         int xPos = ((int) group.pos.x);
         int yPos = ((int) group.pos.y);
-        if (MainPanel.level.outOfBounds(xPos, yPos))
+        if (level.outOfBounds(xPos, yPos))
             return;
         jumpSimGroups[yPosToSection(yPos)].add(group);
     }
@@ -147,7 +150,7 @@ public class Layout {
     public void removeMarker(LayoutMarker marker) {
         int xPos = ((int) marker.pos.x);
         int yPos = ((int) marker.pos.y);
-        if (MainPanel.level.outOfBounds(xPos, yPos))
+        if (level.outOfBounds(xPos, yPos))
             return;
         markerSections[yPosToSection(yPos)].remove(marker);
         if (marker.data instanceof LMDResolvedElement rData) {
@@ -159,7 +162,7 @@ public class Layout {
     public void removeJumpGroup(JumpSimGroup group) {
         int xPos = ((int) group.pos.x);
         int yPos = ((int) group.pos.y);
-        if (MainPanel.level.outOfBounds(xPos, yPos))
+        if (level.outOfBounds(xPos, yPos))
             return;
         jumpSimGroups[yPosToSection(yPos)].remove(group);
     }

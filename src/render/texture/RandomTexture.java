@@ -1,9 +1,9 @@
 package render.texture;
 
-import foundation.MainPanel;
 import foundation.math.MathUtil;
-import foundation.tick.Tickable;
 import foundation.math.RandomType;
+import foundation.tick.Tickable;
+import level.Level;
 import loader.*;
 import render.Renderable;
 import render.TickedRenderable;
@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Vector;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class RandomTexture implements TickedRenderable, RenderEventListener, Tickable {
@@ -34,13 +35,13 @@ public class RandomTexture implements TickedRenderable, RenderEventListener, Tic
     private final float xPivot, yPivot;
     private AffineTransform transform = null, prevTransform = null;
 
-    public RandomTexture(HashSet<RenderEvent> events, boolean guaranteeUnique, boolean isRandomlyRotated, RotationType rotationType, float xPivot, float yPivot) {
+    public RandomTexture(HashSet<RenderEvent> events, boolean guaranteeUnique, boolean isRandomlyRotated, RotationType rotationType, float xPivot, float yPivot, Level level) {
         this.events = events;
         this.isRandomlyRotated = isRandomlyRotated;
         this.rotationType = rotationType;
         this.xPivot = xPivot;
         this.yPivot = yPivot;
-        randomSeed = MainPanel.level.randomHandler.generateNewRandomSeed(RandomType.TEXTURE);
+        randomSeed = level.randomHandler.generateNewRandomSeed(RandomType.TEXTURE);
         textureRandom = new Random(randomSeed);
         this.guaranteeUnique = guaranteeUnique;
     }
@@ -111,12 +112,12 @@ public class RandomTexture implements TickedRenderable, RenderEventListener, Tic
             activeTexture.render(g);
     }
 
-    public static Supplier<RandomTexture> getRandomTexture(ResourceLocation resource) {
+    public static Function<Level, RandomTexture> getRandomTexture(ResourceLocation resource) {
         JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(resource));
         JsonArray renderables = obj.get("renderables", JsonType.JSON_ARRAY_TYPE);
         Boolean guaranteeUnique = obj.getOrDefault("guaranteeUnique", false, JsonType.BOOLEAN_JSON_TYPE);
 
-        ArrayList<Supplier<? extends TickedRenderable>> elements = new ArrayList<>();
+        ArrayList<Function<Level, ? extends TickedRenderable>> elements = new ArrayList<>();
         renderables.forEach(o -> {
             elements.add(AssetManager.deserializeRenderable(o));
         }, JsonType.JSON_OBJECT_TYPE);
@@ -139,10 +140,10 @@ public class RandomTexture implements TickedRenderable, RenderEventListener, Tic
             float xPivot = rotationObj.getOrDefault("xPivot", 8f, JsonType.FLOAT_JSON_TYPE) / 16;
             float yPivot = rotationObj.getOrDefault("yPivot", 8f, JsonType.FLOAT_JSON_TYPE) / 16;
 
-            return () -> {
-                RandomTexture texture = new RandomTexture(eventSet, guaranteeUnique, true, type, xPivot, yPivot);
-                for (Supplier<? extends TickedRenderable> element : elements) {
-                    texture.add(element.get());
+            return level -> {
+                RandomTexture texture = new RandomTexture(eventSet, guaranteeUnique, true, type, xPivot, yPivot, level);
+                for (Function<Level, ? extends TickedRenderable> element : elements) {
+                    texture.add(element.apply(level));
                 }
                 return texture;
             };
@@ -151,10 +152,10 @@ public class RandomTexture implements TickedRenderable, RenderEventListener, Tic
         if (guaranteeUnique && elements.size() == 1)
             throw new RuntimeException("Random list with resource " + resource.toString() + " has only one item, and can therefore not guarantee unique");
 
-        return () -> {
-            RandomTexture texture = new RandomTexture(eventSet, guaranteeUnique, false, null, 0, 0);
-            for (Supplier<? extends TickedRenderable> element : elements) {
-                texture.add(element.get());
+        return level -> {
+            RandomTexture texture = new RandomTexture(eventSet, guaranteeUnique, false, null, 0, 0, level);
+            for (Function<Level, ? extends TickedRenderable> element : elements) {
+                texture.add(element.apply(level));
             }
             return texture;
         };

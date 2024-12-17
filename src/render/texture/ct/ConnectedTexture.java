@@ -1,6 +1,5 @@
 package render.texture.ct;
 
-import foundation.MainPanel;
 import foundation.tick.Tickable;
 import level.Level;
 import level.objects.BlockLike;
@@ -14,7 +13,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Vector;
 import java.util.function.BiPredicate;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 public class ConnectedTexture implements TickedRenderable, Tickable, RenderEventListener {
     private final Vector<CTElement> textures = new Vector<>();
@@ -52,7 +51,7 @@ public class ConnectedTexture implements TickedRenderable, Tickable, RenderEvent
         activeTextures.clear();
         activeTickables.clear();
         textures.forEach((element) -> {
-            if (element.condition.test(parent, MainPanel.level)) {
+            if (element.condition.test(parent, parent.level)) {
                 activeTextures.add(element.renderable);
                 if (element.renderable instanceof Tickable t)
                     activeTickables.add(t);
@@ -60,7 +59,7 @@ public class ConnectedTexture implements TickedRenderable, Tickable, RenderEvent
         });
     }
 
-    public static Supplier<ConnectedTexture> getConnectedTexture(ResourceLocation resource) {
+    public static Function<Level, ConnectedTexture> getConnectedTexture(ResourceLocation resource) {
         JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(resource));
         JsonArray renderables = obj.get("renderables", JsonType.JSON_ARRAY_TYPE);
 
@@ -69,10 +68,10 @@ public class ConnectedTexture implements TickedRenderable, Tickable, RenderEvent
             elements.add(new CTElementSupplier(AssetManager.deserializeRenderable(o), o.getOrDefault("condition", "true", JsonType.STRING_JSON_TYPE)));
         }, JsonType.JSON_OBJECT_TYPE);
 
-        return () -> {
+        return level -> {
             ConnectedTexture texture = new ConnectedTexture();
             for (CTElementSupplier element : elements) {
-                texture.addTexture(element.get());
+                texture.addTexture(element.get(level));
             }
             return texture;
         };
@@ -89,15 +88,15 @@ public class ConnectedTexture implements TickedRenderable, Tickable, RenderEvent
 
     private static class CTElementSupplier {
         public final BiPredicate<BlockLike, Level> condition;
-        public final Supplier<? extends TickedRenderable> renderable;
+        public final Function<Level, ? extends TickedRenderable> renderable;
 
-        private CTElementSupplier(Supplier<? extends TickedRenderable> renderable, String string) {
+        private CTElementSupplier(Function<Level, ? extends TickedRenderable> renderable, String string) {
             this.condition = (b, l) -> (boolean) CTExpression.parser.parseExpression(string).apply(new CTExpressionData(b, l));
             this.renderable = renderable;
         }
 
-        public CTElement get() {
-            return new CTElement(condition, renderable.get());
+        public CTElement get(Level level) {
+            return new CTElement(condition, renderable.apply(level));
         }
     }
 }

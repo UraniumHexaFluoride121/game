@@ -1,6 +1,7 @@
 package render.texture;
 
 import foundation.tick.Tickable;
+import level.Level;
 import loader.*;
 import render.TickedRenderable;
 import render.event.RenderEvent;
@@ -9,7 +10,7 @@ import render.event.RenderEventListener;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Vector;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 public class LayeredTexture implements TickedRenderable, Tickable, RenderEventListener {
     private final Vector<TickedRenderable> textures = new Vector<>();
@@ -42,19 +43,19 @@ public class LayeredTexture implements TickedRenderable, Tickable, RenderEventLi
         textures.forEach(r -> r.render(g));
     }
 
-    public static Supplier<LayeredTexture> getLayeredTexture(ResourceLocation resource) {
+    public static Function<Level, LayeredTexture> getLayeredTexture(ResourceLocation resource) {
         JsonObject obj = ((JsonObject) JsonLoader.readJsonResource(resource));
         JsonArray renderables = obj.get("renderables", JsonType.JSON_ARRAY_TYPE);
 
-        ArrayList<Supplier<? extends TickedRenderable>> textures = new ArrayList<>();
+        ArrayList<Function<Level, ? extends TickedRenderable>> textures = new ArrayList<>();
         renderables.forEach(o -> {
             textures.add(AssetManager.deserializeRenderable(o));
         }, JsonType.JSON_OBJECT_TYPE);
 
-        return () -> {
+        return level -> {
             LayeredTexture texture = new LayeredTexture();
-            for (Supplier<? extends TickedRenderable> supplier : textures) {
-                texture.add(supplier.get());
+            for (Function<Level, ? extends TickedRenderable> supplier : textures) {
+                texture.add(supplier.apply(level));
             }
             return texture;
         };
