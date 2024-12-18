@@ -11,6 +11,7 @@
     "staticblock.json",
     "staticblock2.json",
     "block/stone/grey/stone_grey.json",
+    "block/stone/green/stone_green.json",
     "block/wood/red/wood_red.json"
   ],
   "regionTypes": [

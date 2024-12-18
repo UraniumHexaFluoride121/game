@@ -1,0 +1,8 @@
+{
+  "renderables": [
+    {
+      "type": "ConnectedTexture",
+      "path": "block/stone/green/_texture/stone_green_connected_texture_1.json"
+    }
+  ]
+}

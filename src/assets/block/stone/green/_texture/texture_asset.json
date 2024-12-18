@@ -1,0 +1,34 @@
+{
+  "paths": [
+    "block/stone/green/middle/stone_green_middle_1.png",
+    "block/stone/green/middle/stone_green_middle_2.png",
+    "block/stone/green/middle/stone_green_middle_3.png",
+    "block/stone/green/middle/stone_green_middle_4.png",
+    "block/stone/green/middle/stone_green_middle_5.png",
+    "block/stone/green/middle/stone_green_middle_6.png",
+    "block/stone/green/middle/stone_green_middle_7.png",
+    "block/stone/green/middle/stone_green_middle_8.png",
+
+    "block/stone/green/top/stone_green_top_1.png",
+
+    "block/stone/green/bottom/stone_green_bottom_1.png",
+
+    "block/stone/green/left/stone_green_left_1.png",
+
+    "block/stone/green/right/stone_green_right_1.png",
+
+    "block/stone/green/top_right/stone_green_top_right_1.png",
+
+    "block/stone/green/top_left/stone_green_top_left_1.png",
+
+    "block/stone/green/bottom_right/stone_green_bottom_right_1.png",
+
+    "block/stone/green/bottom_left/stone_green_bottom_left_1.png"
+
+  ],
+  "colorFactor": {
+    "g": 1.22,
+    "r": 1.2,
+    "b": 1.2
+  }
+}

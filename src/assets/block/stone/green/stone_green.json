@@ -1,0 +1,15 @@
+
+{
+  "name": "stone_green",
+  "texture": {
+    "path": "block/stone/green/_texture/stone_green_random.json",
+    "type": "RandomTexture",
+    "order": "block"
+  },
+  "hitBox": {
+    "right": 15,
+    "left": -1,
+    "up": 15,
+    "down": -1
+  }
+}
