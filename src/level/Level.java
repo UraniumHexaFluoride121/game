@@ -13,7 +13,6 @@ import level.objects.Player;
 import level.procedural.Layout;
 import level.procedural.RegionType;
 import level.procedural.generator.BoundType;
-import level.procedural.generator.ProceduralGenerator;
 import level.procedural.marker.LayoutMarker;
 import level.procedural.marker.resolved.LMTResolvedElement;
 import loader.AssetManager;
@@ -38,6 +37,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static foundation.MainPanel.*;
 
 public class Level implements Deletable {
+    public int generationAttempts = 0;
+    public int generatedMarkers = 0;
     public GameRenderer gameRenderer;
     public final int maximumHeight;
     public final InputHandler inputHandler;
@@ -114,14 +115,18 @@ public class Level implements Deletable {
     public void init() {
         AssetManager.createAllLevelSections(LEVEL_PATH, this);
         Thread generationThread = new Thread(() -> {
-            ProceduralGenerator.generatedMarkers = 0;
-            ProceduralGenerator.generationAttempts = 0;
             long time = System.currentTimeMillis();
             updatePool = Executors.newCachedThreadPool();
             layout.generateMarkers();
             collisionHandler.clearProcedural();
+            if (generateTo.get() == -1)
+                System.out.println("-------------------[ Level fully generated ]-------------------");
+            else
+                System.out.println("-----------------[ Level partially generated ]-----------------");
+
+            System.out.println("seed: " + seed);
             System.out.println("generation time: " + ((System.currentTimeMillis() - time) / 1000f));
-            System.out.println("average generation attempts: " + ((float) ProceduralGenerator.generationAttempts) / ProceduralGenerator.generatedMarkers);
+            System.out.println("average generation attempts: " + ((float) generationAttempts) / generatedMarkers);
             for (int i = layout.markerSections.length - 1; i >= 0; i--) {
                 float height = -1;
                 for (LayoutMarker lm : layout.markerSections[i]) {
@@ -133,7 +138,8 @@ public class Level implements Deletable {
                     break;
                 }
             }
-            System.out.println("generated markers: " + ProceduralGenerator.generatedMarkers);
+            System.out.println("generated markers: " + generatedMarkers);
+            System.out.println("---------------------------------------------------------------");
             updatePool.shutdown();
             try {
                 updatePool.awaitTermination(30, TimeUnit.SECONDS);
@@ -286,7 +292,7 @@ public class Level implements Deletable {
     public void delete() {
         deleted = true;
         interruptGeneration.set(true);
-        generateFull();
+        generateTo.set(-2);
         while (!doneGenerating.get()) {
             try {
                 TimeUnit.MILLISECONDS.sleep(10);

@@ -15,7 +15,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 public class UISeedSelector extends UIElement implements Tickable, Clickable {
-    private static final int REFRESH_TIME = 500;
+    private static final int REFRESH_TIME = 0;
 
     private static final Color backgroundInactive = new Color(163, 163, 163);
     private static final Color borderInactive = new Color(117, 117, 117);

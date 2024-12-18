@@ -69,19 +69,17 @@ public class ProceduralGenerator implements Deletable {
         }
     }
 
-    public static int generationAttempts = 0, generatedMarkers = 0;
-
     public void generateMarkers(LayoutMarker marker, GeneratorType type) {
         level.updateBlocks(RenderEvent.ON_GAME_INIT, marker);
         level.collisionHandler.qRemove.addAll(overwrittenBlocks);
         level.collisionHandler.qAdd.addAll(generatedBlocks);
         //System.out.println(((LMDResolvedElement) marker.data).genType.s);
-        generatedMarkers++;
+        level.generatedMarkers++;
         //Validation markers will have been generated on this marker's behalf by the previous loop iteration,
         //and we don't want to revert their generation
         generatedLayoutMarkers.clear();
 
-        while (level.generateTo.get() != -1 && marker.pos.y > level.generateTo.get()) {
+        while (level.generateTo.get() >= 0 && marker.pos.y > level.generateTo.get()) {
             try {
                 TimeUnit.MILLISECONDS.sleep(50);
             } catch (InterruptedException e) {
@@ -92,7 +90,7 @@ public class ProceduralGenerator implements Deletable {
             if (level.interruptGeneration.get()) {
                 return;
             }
-            generationAttempts++;
+            marker.level.generationAttempts++;
             markerFunction.generateMarkers(this, marker, type); //Generate new markers
             generatedLayoutMarkers.forEach(LayoutMarker::generate); //Generate bounds for those markers
             AtomicBoolean validated = new AtomicBoolean(true);
@@ -118,11 +116,6 @@ public class ProceduralGenerator implements Deletable {
                                     jumpSimulationFrom.validateJump(level);
                                     jumpSimulationFrom.addFromGroup();
                                     addedJumps.add(jumpSimulationFrom);
-
-                                    JumpSimulation jumpSimulationTo = new JumpSimulation(group, otherGroup, group.movementMarkers, otherGroup.movementMarkers);
-                                    jumpSimulationTo.validateJump(level);
-                                    jumpSimulationTo.addFromGroup();
-                                    addedJumps.add(jumpSimulationTo);
                                 }
                             });
                         });
@@ -147,7 +140,18 @@ public class ProceduralGenerator implements Deletable {
                     if (!(lm.type instanceof LMTResolvedElement))
                         continue;
                     HashSet<JumpSimGroup> jumpSimGroups = level.layout.nonReachable(lm);
-                    if (!jumpSimGroups.isEmpty())
+                    for (JumpSimGroup group : jumpSimGroups) {
+                        level.layout.forEachJumpSimGroup(lm.pos.y, 1, otherGroup -> {
+                            if (!otherGroup.equals(group)) {
+                                JumpSimulation jumpSimulationFrom = new JumpSimulation(otherGroup, group, otherGroup.movementMarkers, group.movementMarkers);
+                                jumpSimulationFrom.validateJump(level);
+                                jumpSimulationFrom.addFromGroup();
+                                addedJumps.add(jumpSimulationFrom);
+                            }
+                        });
+
+                    }
+                    if (!level.layout.nonReachable(lm).isEmpty())
                         validated.set(false);
                 }
             }
