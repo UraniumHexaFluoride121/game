@@ -42,6 +42,7 @@ public abstract class AssetManager {
 
     public static final HashMap<Character, GlyphData> glyphs = new HashMap<>();
     public static final HashMap<String, GlyphData> specialGlyphs = new HashMap<>();
+    public static final int SPACE_WIDTH = 5;
 
     public static BlockLike createBlock(String s, ObjPos pos, Level level) {
         return blocks.get(s).apply(pos, level);

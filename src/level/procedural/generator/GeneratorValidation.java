@@ -21,11 +21,8 @@ public interface GeneratorValidation {
                 validated.set(false);
         });/*
         if (validated.get() && marker.data instanceof LMDResolvedElement d) {
+            System.out.println(d.genType.s);
             System.out.println(marker.pos.y);
-            if (d.genType == GeneratorType.ISLAND_TEST)
-                System.out.println("#");
-            if (d.genType == GeneratorType.FOREST_BRANCH)
-                System.out.println("@");
         }*/
         return validated.get();
     }

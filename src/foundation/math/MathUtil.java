@@ -28,6 +28,13 @@ public abstract class MathUtil {
         return Math.min(max, Math.max(min, value));
     }
 
+    public static float linearTo(float from, float to, float v, float deltaTime) {
+        float newValue = from + deltaTime * v;
+        if (Math.signum(from - to) != Math.signum(newValue - to))
+            return to;
+        return newValue;
+    }
+
     public static int randIntBetween(int min, int max, Supplier<Double> random) {
         int realMin = Math.min(min, max), realMax = Math.max(min, max);
         return ((int) Math.floor(lerp(realMin, realMax + 1, random.get().floatValue())));

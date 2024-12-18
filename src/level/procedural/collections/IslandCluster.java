@@ -18,7 +18,7 @@ public class IslandCluster extends BlockCollection {
     public final int yOffset;
 
     public IslandCluster(int maxDistance, int minIslands, int maxIslands, Supplier<Double> random, WeightedRandom<Integer> widthSupplier, FunctionalWeightedRandom<Integer, StackRandomData> weights) {
-        yOffset = maxDistance * 2 / 3;
+        yOffset = maxDistance;
         int islandCount = MathUtil.randIntBetween(minIslands, maxIslands, random);
         setBound(null);
         for (int i = 0; i < islandCount; i++) {

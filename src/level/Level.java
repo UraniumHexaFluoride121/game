@@ -13,7 +13,6 @@ import level.objects.Player;
 import level.procedural.Layout;
 import level.procedural.RegionType;
 import level.procedural.generator.BoundType;
-import level.procedural.generator.ProceduralGenerator;
 import level.procedural.marker.LayoutMarker;
 import level.procedural.marker.resolved.LMTResolvedElement;
 import loader.AssetManager;
@@ -33,16 +32,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static foundation.MainPanel.*;
 
 public class Level implements Deletable {
+    public int generationAttempts = 0;
+    public int generatedMarkers = 0;
     public GameRenderer gameRenderer;
     public final int maximumHeight;
     public final InputHandler inputHandler;
     public final CollisionHandler collisionHandler;
     public static final int SECTION_SIZE = 16;
-    public final int seed;
+    public final long seed;
     public final RandomHandler randomHandler;
 
     //All BlockLikes inserted as static MUST NOT have their positions modified, otherwise
@@ -70,7 +72,7 @@ public class Level implements Deletable {
 
     public boolean deleted = false;
 
-    public Level(int seed) {
+    public Level(long seed) {
         this.seed = seed;
         gameRenderer = new GameRenderer(gameTransform, MainPanel::getCameraTransform, this);
         randomHandler = new RandomHandler(seed);
@@ -107,17 +109,24 @@ public class Level implements Deletable {
     }
 
     public AtomicBoolean interruptGeneration = new AtomicBoolean(false);
-    private Thread generationThread;
+    public AtomicBoolean doneGenerating = new AtomicBoolean(false);
+    public AtomicInteger generateTo = new AtomicInteger(((int) (BLOCK_DIMENSIONS.y + 20)));
 
     public void init() {
         AssetManager.createAllLevelSections(LEVEL_PATH, this);
-        generationThread = new Thread(() -> {
+        Thread generationThread = new Thread(() -> {
             long time = System.currentTimeMillis();
             updatePool = Executors.newCachedThreadPool();
             layout.generateMarkers();
             collisionHandler.clearProcedural();
+            if (generateTo.get() == -1)
+                System.out.println("-------------------[ Level fully generated ]-------------------");
+            else
+                System.out.println("-----------------[ Level partially generated ]-----------------");
+
+            System.out.println("seed: " + seed);
             System.out.println("generation time: " + ((System.currentTimeMillis() - time) / 1000f));
-            System.out.println("average generation attempts: " + ((float) ProceduralGenerator.generationAttempts) / ProceduralGenerator.generatedMarkers);
+            System.out.println("average generation attempts: " + ((float) generationAttempts) / generatedMarkers);
             for (int i = layout.markerSections.length - 1; i >= 0; i--) {
                 float height = -1;
                 for (LayoutMarker lm : layout.markerSections[i]) {
@@ -129,12 +138,25 @@ public class Level implements Deletable {
                     break;
                 }
             }
-            System.out.println("generated markers: " + ProceduralGenerator.generatedMarkers);
+            System.out.println("generated markers: " + generatedMarkers);
+            System.out.println("---------------------------------------------------------------");
             updatePool.shutdown();
+            try {
+                updatePool.awaitTermination(30, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            doneGenerating.set(true);
         });
         generationThread.start();
+    }
+
+    public void generateFull() {
+        generateTo.set(-1);
+    }
+
+    public void createUI() {
         gameRenderer.registerUI(new UIProgressTracker(0, gameRenderer, this).startTime());
-        //GAME_RENDERER.register(new RenderText(RenderOrder.DEBUG, () -> new ObjPos(5, 5), "TES*time*TING", 2, TextAlign.LEFT));
     }
 
     public BlockLike getBlock(ObjectLayer layer, int x, int y) {
@@ -270,7 +292,8 @@ public class Level implements Deletable {
     public void delete() {
         deleted = true;
         interruptGeneration.set(true);
-        while (interruptGeneration.get()) {
+        generateTo.set(-2);
+        while (!doneGenerating.get()) {
             try {
                 TimeUnit.MILLISECONDS.sleep(10);
             } catch (InterruptedException e) {

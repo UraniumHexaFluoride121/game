@@ -28,6 +28,7 @@
   ],
   "layoutMarkerData": {
     "platform": "layout_marker/unresolved/platform.json",
+    "initial_island": "layout_marker/resolved/initial_island.json",
     "forest_island_attached": "layout_marker/resolved/forest_island_attached.json",
     "forest_island_floating": "layout_marker/resolved/forest_island_floating.json",
     "forest_island_extra": "layout_marker/resolved/forest_island_extra.json"
@@ -36,6 +37,7 @@
     "forest_branch": "generator_types/forest_branch.json",
     "forest_island_default": "generator_types/forest_island_default.json",
     "forest_island_cluster": "generator_types/forest_island_cluster.json",
+    "forest_island_cluster_large": "generator_types/forest_island_cluster_large.json",
     "forest_island_default_small": "generator_types/forest_island_default.json",
     "forest_island_default_small_extra": "generator_types/forest_island_default_small_extra.json",
     "forest_island_vertical": "generator_types/forest_island_vertical.json",
