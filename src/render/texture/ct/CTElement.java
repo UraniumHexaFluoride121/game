@@ -14,4 +14,9 @@ public class CTElement {
         this.condition = condition;
         this.renderable = renderable;
     }
+
+    @Override
+    public String toString() {
+        return renderable.toString();
+    }
 }

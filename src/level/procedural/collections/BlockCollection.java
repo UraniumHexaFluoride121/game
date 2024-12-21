@@ -10,9 +10,7 @@ import level.procedural.marker.movement.LMDPlayerMovement;
 import loader.AssetManager;
 import physics.StaticHitBox;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -77,6 +75,7 @@ public class BlockCollection {
 
     public BlockCollection generateTopLayers(String blockName, ObjPos origin, ProceduralGenerator gen, int layers, Supplier<Boolean> extraBlockProbability) {
         HashSet<ObjPos> blocks = new HashSet<>(blockPositions);
+        HashSet<ObjPos> toBeGenerated = new HashSet<>();
         for (int i = 0; i < layers + 1; i++) {
             HashMap<Integer, ObjPos> topLayer = new HashMap<>();
             blocks.forEach(pos -> {
@@ -93,24 +92,37 @@ public class BlockCollection {
                         lastLayer.add(entry.getValue());
                     }
                 }
-                lastLayer.forEach(pos -> gen.addBlock(blockName, pos.copy().add(origin)));
+                toBeGenerated.addAll(lastLayer);
                 blocks.removeIf(lastLayer::contains);
                 break;
             }
-            topLayer.forEach((height, pos) -> gen.addBlock(blockName, pos.copy().add(origin)));
+            topLayer.forEach((height, pos) -> toBeGenerated.add(pos));
             blocks.removeIf(topLayer::containsValue);
         }
+        generateSet(blockName, origin, gen, toBeGenerated);
         return new BlockCollection(blocks);
     }
 
     public BlockCollection generateBlocks(String blockName, ProceduralGenerator gen) {
-        blockPositions.forEach(pos -> gen.addBlock(blockName, pos.copy()));
+        generateBlocks(blockName, new ObjPos(), gen);
         return null;
     }
 
     public BlockCollection generateBlocks(String blockName, ObjPos origin, ProceduralGenerator gen) {
-        blockPositions.forEach(pos -> gen.addBlock(blockName, pos.copy().add(origin)));
+        generateSet(blockName, origin, gen, blockPositions);
         return null;
+    }
+
+    public void generateSet(String blockName, ObjPos origin, ProceduralGenerator gen, HashSet<ObjPos> positions) {
+        TreeMap<Integer, TreeSet<ObjPos>> sortedPositions = new TreeMap<>();
+        positions.forEach(pos -> {
+            if (!sortedPositions.containsKey(pos.xInt()))
+                sortedPositions.put(pos.xInt(), new TreeSet<>(Comparator.comparingInt(ObjPos::yInt)));
+            sortedPositions.get(pos.xInt()).add(pos);
+        });
+        sortedPositions.forEach((x, row) -> {
+            row.forEach(pos -> gen.addBlock(blockName, pos.copy().add(origin)));
+        });
     }
 
     public BlockCollection setBound(StaticHitBox bound) {

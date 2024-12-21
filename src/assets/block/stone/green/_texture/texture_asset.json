@@ -87,5 +87,9 @@
     "g": 1.22,
     "r": 1.2,
     "b": 1.2
+  },
+  "transform": {
+    "xOffset": -2,
+    "yOffset": -2
   }
 }

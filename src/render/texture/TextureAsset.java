@@ -129,4 +129,9 @@ public class TextureAsset implements TickedRenderable {
         }, JsonType.STRING_JSON_TYPE);
         return assets;
     }
+
+    @Override
+    public String toString() {
+        return resource.toString();
+    }
 }

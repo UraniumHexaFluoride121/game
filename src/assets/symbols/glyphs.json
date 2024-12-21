@@ -12,7 +12,7 @@
   "!": {
     "path": "symbols/_textures.json#!.png",
     "type": "TextureAsset",
-    "width": 6
+    "width": 5
   },
   "?": {
     "path": "symbols/_textures.json#question_mark.png",
@@ -84,6 +84,11 @@
     "type": "TextureAsset",
     "width": 6
   },
+  "A": {
+    "path": "alphabet/_textures.json#A.png",
+    "type": "TextureAsset",
+    "width": 6
+  },
   "B": {
     "path": "alphabet/_textures.json#B.png",
     "type": "TextureAsset",
@@ -142,7 +147,7 @@
   "M": {
     "path": "alphabet/_textures.json#M.png",
     "type": "TextureAsset",
-    "width": 6
+    "width": 8
   },
   "N": {
     "path": "alphabet/_textures.json#N.png",
@@ -192,7 +197,7 @@
   "W": {
     "path": "alphabet/_textures.json#W.png",
     "type": "TextureAsset",
-    "width": 6
+    "width": 8
   },
   "X": {
     "path": "alphabet/_textures.json#X.png",

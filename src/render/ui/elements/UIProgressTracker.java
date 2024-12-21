@@ -1,10 +1,12 @@
-package render.ui;
+package render.ui.elements;
 
 import foundation.math.MathUtil;
 import level.Level;
 import render.RenderOrder;
 import render.renderables.RenderTextDynamic;
 import render.renderables.TextAlign;
+import render.ui.UIElement;
+import render.ui.UIRegister;
 
 import java.awt.*;
 

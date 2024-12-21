@@ -3,7 +3,6 @@ package foundation.input;
 import foundation.tick.RegisteredTickable;
 import foundation.tick.TickOrder;
 
-import java.awt.event.InputEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,7 +18,7 @@ public class InputHandler implements RegisteredTickable {
     //order can only have one event per input type. This is because each event type
     //has its own separate TreeMap, so for two events with the same order but different
     //input types, they won't be stored in the same TreeMap.
-    HashMap<InputType<?>, TreeMap<InputHandlingOrder, HashSet<InputListenerEventData<?>>>> eventListeners = new HashMap<>();
+    HashMap<InputType<?>, TreeMap<InputEvent, HashSet<InputListenerEventData<?>>>> eventListeners = new HashMap<>();
 
     public InputHandler() {
         for (InputType<?> type : InputType.values()) {
@@ -28,27 +27,27 @@ public class InputHandler implements RegisteredTickable {
         registerTickable();
     }
 
-    synchronized public <T extends InputEvent> void addInput(InputType<T> type, Consumer<T> event, Predicate<T> condition, InputHandlingOrder order, boolean blocking) {
+    synchronized public <T extends java.awt.event.InputEvent> void addInput(InputType<T> type, Consumer<T> event, Predicate<T> condition, InputEvent order, boolean blocking) {
         if (!eventListeners.get(type).containsKey(order))
             eventListeners.get(type).put(order, new HashSet<>());
         eventListeners.get(type).get(order).add(new InputListenerEventData<>(event, condition, blocking));
     }
 
-    synchronized public <T extends InputEvent> void queueInput(InputType<T> type, T event) {
+    synchronized public <T extends java.awt.event.InputEvent> void queueInput(InputType<T> type, T event) {
         queuedInputs.add(new InputData<>(type, event));
     }
 
     @Override
     synchronized public void tick(float deltaTime) {
-        for (InputData<? extends InputEvent> input : queuedInputs) {
+        for (InputData<? extends java.awt.event.InputEvent> input : queuedInputs) {
             processInput(input);
         }
         queuedInputs.clear();
     }
 
-    private <T extends InputEvent> void processInput(InputData<T> inputData) {
+    private <T extends java.awt.event.InputEvent> void processInput(InputData<T> inputData) {
         for (HashSet<InputListenerEventData<?>> set : eventListeners.get(inputData.type).values()) {
-            for (InputListenerEventData<? extends InputEvent> listenerEventData : set) {
+            for (InputListenerEventData<? extends java.awt.event.InputEvent> listenerEventData : set) {
                 //Safe cast as we know that all values inserted into the TreeMap must be of type
                 //InputListenerEventData<T> because of how they're added in the addInput method.
                 //The unchecked cast is there to hide the fact that we're storing multiple TreeMaps
@@ -74,7 +73,7 @@ public class InputHandler implements RegisteredTickable {
     }
 
     //The data used to store queued up inputs
-    private static class InputData<T extends InputEvent> {
+    private static class InputData<T extends java.awt.event.InputEvent> {
         public InputType<T> type;
         public T event;
 
@@ -85,7 +84,7 @@ public class InputHandler implements RegisteredTickable {
     }
 
     //The data used to store the Consumers we run when an input is received
-    private static class InputListenerEventData<T extends InputEvent> {
+    private static class InputListenerEventData<T extends java.awt.event.InputEvent> {
         public Consumer<T> event;
         public Predicate<T> condition;
         public boolean blocking; //Do we block the input from reaching events lower on the input order? Only applies if condition is true

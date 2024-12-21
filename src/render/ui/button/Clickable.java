@@ -1,4 +1,4 @@
-package render.ui;
+package render.ui.button;
 
 import foundation.math.ObjPos;
 import physics.HitBox;

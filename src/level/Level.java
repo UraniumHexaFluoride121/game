@@ -3,8 +3,8 @@ package level;
 import foundation.Deletable;
 import foundation.Main;
 import foundation.MainPanel;
+import foundation.input.InputEvent;
 import foundation.input.InputHandler;
-import foundation.input.InputHandlingOrder;
 import foundation.input.InputType;
 import foundation.math.ObjPos;
 import foundation.math.RandomHandler;
@@ -19,10 +19,9 @@ import loader.AssetManager;
 import physics.CollisionHandler;
 import physics.StaticHitBox;
 import render.GameRenderer;
-import render.event.RenderBlockUpdate;
 import render.event.RenderEvent;
 import render.renderables.RenderBackground;
-import render.ui.UIProgressTracker;
+import render.ui.elements.UIProgressTracker;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -37,6 +36,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static foundation.MainPanel.*;
 
 public class Level implements Deletable {
+    public static int levelIndexCounter = 0;
+    public final int levelIndex;
     public int generationAttempts = 0;
     public int generatedMarkers = 0;
     public GameRenderer gameRenderer;
@@ -67,12 +68,15 @@ public class Level implements Deletable {
     //the height that the region starts at
     private final TreeMap<Integer, RegionType> regionLayout = new TreeMap<>();
 
+    public ObjPos spawnLocation = null;
     public Player cameraPlayer = null;
+    public final HashMap<Integer, Player> players = new HashMap<>();
     public final RenderBackground background = new RenderBackground(Color.WHITE);
 
     public boolean deleted = false;
 
     public Level(long seed) {
+        levelIndex = levelIndexCounter++;
         this.seed = seed;
         gameRenderer = new GameRenderer(gameTransform, MainPanel::getCameraTransform, this);
         randomHandler = new RandomHandler(seed);
@@ -97,10 +101,10 @@ public class Level implements Deletable {
         gameRenderer.createStaticsSet(sectionCount);
 
         inputHandler = new InputHandler();
-        inputHandler.addInput(InputType.KEY_PRESSED, e -> upCamera = true, e -> e.getKeyCode() == KeyEvent.VK_PAGE_UP, InputHandlingOrder.CAMERA_UP, false);
-        inputHandler.addInput(InputType.KEY_RELEASED, e -> upCamera = false, e -> e.getKeyCode() == KeyEvent.VK_PAGE_UP, InputHandlingOrder.CAMERA_UP, false);
-        inputHandler.addInput(InputType.KEY_PRESSED, e -> downCamera = true, e -> e.getKeyCode() == KeyEvent.VK_PAGE_DOWN, InputHandlingOrder.CAMERA_DOWN, false);
-        inputHandler.addInput(InputType.KEY_RELEASED, e -> downCamera = false, e -> e.getKeyCode() == KeyEvent.VK_PAGE_DOWN, InputHandlingOrder.CAMERA_DOWN, false);
+        inputHandler.addInput(InputType.KEY_PRESSED, e -> upCamera = true, e -> e.getKeyCode() == KeyEvent.VK_PAGE_UP, InputEvent.CAMERA_UP, false);
+        inputHandler.addInput(InputType.KEY_RELEASED, e -> upCamera = false, e -> e.getKeyCode() == KeyEvent.VK_PAGE_UP, InputEvent.CAMERA_UP, false);
+        inputHandler.addInput(InputType.KEY_PRESSED, e -> downCamera = true, e -> e.getKeyCode() == KeyEvent.VK_PAGE_DOWN, InputEvent.CAMERA_DOWN, false);
+        inputHandler.addInput(InputType.KEY_RELEASED, e -> downCamera = false, e -> e.getKeyCode() == KeyEvent.VK_PAGE_DOWN, InputEvent.CAMERA_DOWN, false);
 
         collisionHandler = new CollisionHandler(maximumHeight, SECTION_SIZE, 2);
         this.maximumHeight = maximumHeight;
@@ -114,6 +118,7 @@ public class Level implements Deletable {
 
     public void init() {
         AssetManager.createAllLevelSections(LEVEL_PATH, this);
+        spawnLocation = AssetManager.getSpawnLocation(LEVEL_PATH);
         Thread generationThread = new Thread(() -> {
             long time = System.currentTimeMillis();
             updatePool = Executors.newCachedThreadPool();
@@ -149,6 +154,27 @@ public class Level implements Deletable {
             doneGenerating.set(true);
         });
         generationThread.start();
+    }
+
+    public void spawnPlayers(HashSet<Integer> clientIDs) {
+        HashSet<Integer> remove = new HashSet<>();
+        players.forEach((id, player) -> {
+            if (!clientIDs.contains(id))
+                remove.add(id);
+            clientIDs.remove(id);
+        });
+        remove.forEach(id -> {
+            removeBlocks(true, players.get(id));
+            players.remove(id);
+        });
+        clientIDs.forEach(id -> {
+            Player player = (Player) AssetManager.createBlock("player", spawnLocation.copy(), this);
+            players.put(id, player);
+            addBlocks(true, false, player);
+        });
+        Player activePlayer = players.get(getClientID());
+        activePlayer.addInput(inputHandler);
+        cameraPlayer = activePlayer;
     }
 
     public void generateFull() {
@@ -253,7 +279,7 @@ public class Level implements Deletable {
             for (int i = yPosToSection(updateBounds.getBottom()); i <= yPosToSection(updateBounds.getTop()); i++) {
                 Set<BlockLike> sectionSet = allStaticBlocks[i];
                 for (BlockLike b : sectionSet) {
-                    b.renderUpdateBlock(new RenderBlockUpdate(type, b));
+                    b.renderUpdateBlock(type);
                 }
             }
         });

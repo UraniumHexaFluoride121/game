@@ -34,7 +34,6 @@ public class ProceduralGenerator implements Deletable {
     //All layout markers added by the marker generation function must be added to this set
     //The markerFunction is the only function allowed to add LayoutMarkers
     private final ArrayList<LayoutMarker> generatedLayoutMarkers = new ArrayList<>();
-    private final ArrayList<LayoutMarker> playerMovementMarkers = new ArrayList<>();
 
     //Data that the generator stores for use in validation
     private final HashMap<String, Object> generationData = new HashMap<>();

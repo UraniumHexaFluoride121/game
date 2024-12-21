@@ -5,6 +5,10 @@
       "heightOffset": 0
     }
   ],
+  "spawnLocation": {
+    "x": 29,
+    "y": 0
+  },
   "blocks": [
     "player.json",
     "testblock.json",

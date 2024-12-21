@@ -4,6 +4,7 @@ import foundation.Main;
 import foundation.math.ObjPos;
 import foundation.tick.RegisteredTickable;
 import foundation.tick.TickOrder;
+import level.objects.Player;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -200,12 +201,16 @@ public class CollisionHandler implements RegisteredTickable {
                 if (!dynamic.hasCollision())
                     return;
                 HitBox dynamicBox = dynamic.getHitBox();
+                boolean isPlayer = dynamic instanceof Player;
                 objects.forEach(otherObj -> {
                     if (dynamic == otherObj)
                         return;
                     if (!otherObj.hasCollision())
                         return;
                     if (dynamic.getCollisionData().collidedWith.contains(otherObj))
+                        return;
+
+                    if (isPlayer && otherObj instanceof Player)
                         return;
 
                     HitBox otherBox = otherObj.getHitBox();

@@ -100,6 +100,12 @@ public abstract class AssetManager {
         }, JsonType.JSON_OBJECT_TYPE);
     }
 
+    public static ObjPos getSpawnLocation(ResourceLocation resource) {
+        JsonObject spawnLocation = ((JsonObject) JsonLoader.readJsonResource(resource))
+                .get("spawnLocation", JsonType.JSON_OBJECT_TYPE);
+        return new ObjPos(spawnLocation.get("x", JsonType.FLOAT_JSON_TYPE), spawnLocation.get("y", JsonType.FLOAT_JSON_TYPE));
+    }
+
     public static void createAllLevelSections(ResourceLocation resource, Level level) {
         JsonArray sections = ((JsonObject) JsonLoader.readJsonResource(resource))
                 .getOrDefault("insertedSections", new JsonArray(), JsonType.JSON_ARRAY_TYPE);
@@ -210,7 +216,7 @@ public abstract class AssetManager {
                     blocks.put(blockName, (pos, level) -> {
                         Player player = new Player(pos, blockName,
                                 blockObj.getOrDefault("mass", 1f, JsonType.FLOAT_JSON_TYPE),
-                                hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, level.inputHandler, level);
+                                hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, level);
                         player.setFriction(friction);
                         player.setBounciness(bounciness);
                         return player.init(new RenderTexture(

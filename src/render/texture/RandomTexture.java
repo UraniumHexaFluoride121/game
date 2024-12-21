@@ -1,7 +1,6 @@
 package render.texture;
 
 import foundation.math.MathUtil;
-import foundation.math.RandomType;
 import foundation.tick.Tickable;
 import level.Level;
 import loader.*;
@@ -28,7 +27,7 @@ public class RandomTexture implements TickedRenderable, RenderEventListener, Tic
     private final boolean guaranteeUnique;
     //Used for deterministic texture randomisation. Should only be used for block updates
     private Random textureRandom;
-    private final int randomSeed;
+    private int randomSeed;
 
     private final boolean isRandomlyRotated;
     private final RotationType rotationType;
@@ -41,14 +40,13 @@ public class RandomTexture implements TickedRenderable, RenderEventListener, Tic
         this.rotationType = rotationType;
         this.xPivot = xPivot;
         this.yPivot = yPivot;
-        randomSeed = level.randomHandler.generateNewRandomSeed(RandomType.TEXTURE);
-        textureRandom = new Random(randomSeed);
         this.guaranteeUnique = guaranteeUnique;
     }
 
     private void add(TickedRenderable r) {
         textures.add(r);
-        switchToNewTexture(textureRandom::nextDouble);
+        if (textureRandom != null)
+            switchToNewTexture(textureRandom::nextDouble);
     }
 
     private void switchToNewTexture(Supplier<Double> random) {
@@ -89,6 +87,7 @@ public class RandomTexture implements TickedRenderable, RenderEventListener, Tic
     public void onEvent(RenderEvent event) {
         //Randomise the initial texture
         if (event instanceof RenderBlockUpdate u && u.type == RenderEvent.ON_GAME_INIT) {
+            randomSeed = u.block.randomSeed;
             textureRandom = new Random(randomSeed);
             switchToNewTexture(textureRandom::nextDouble);
         }
@@ -103,6 +102,8 @@ public class RandomTexture implements TickedRenderable, RenderEventListener, Tic
 
     @Override
     public void render(Graphics2D g) {
+        if (activeTexture == null)
+            return;
         if (isRandomlyRotated) {
             AffineTransform prevRenderTransform = g.getTransform();
             g.transform(transform);

@@ -86,6 +86,10 @@ public class ConnectedTexture implements TickedRenderable, Tickable, RenderEvent
         return false;
     }
 
+    public Vector<CTElement> getTextures() {
+        return textures;
+    }
+
     private static class CTElementSupplier {
         public final BiPredicate<BlockLike, Level> condition;
         public final Function<Level, ? extends TickedRenderable> renderable;

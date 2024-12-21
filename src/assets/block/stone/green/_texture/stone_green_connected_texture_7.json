@@ -2,26 +2,6 @@
   "renderables": [
     {
       "type": "TextureAsset",
-      "path": "block/stone/green/_texture/texture_asset.json#stone_green_bottom_left_7.png",
-      "condition": "existsBlock[d, this.layer] and existsBlock[l, this.layer] and existsBlock[dl, this.layer]"
-    },
-    {
-      "type": "TextureAsset",
-      "path": "block/stone/green/_texture/texture_asset.json#stone_green_bottom_right_7.png",
-      "condition": "existsBlock[d, this.layer] and existsBlock[r, this.layer] and existsBlock[dr, this.layer]"
-    },
-    {
-      "type": "TextureAsset",
-      "path": "block/stone/green/_texture/texture_asset.json#stone_green_top_right_7.png",
-      "condition": "existsBlock[u, this.layer] and existsBlock[r, this.layer] and existsBlock[ur, this.layer]"
-    },
-    {
-      "type": "TextureAsset",
-      "path": "block/stone/green/_texture/texture_asset.json#stone_green_top_left_7.png",
-      "condition": "existsBlock[u, this.layer] and existsBlock[l, this.layer] and existsBlock[ul, this.layer]"
-    },
-    {
-      "type": "TextureAsset",
       "path": "block/stone/green/_texture/texture_asset.json#stone_green_top_7.png",
       "condition": "existsBlock[u, this.layer]"
     },

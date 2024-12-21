@@ -26,11 +26,10 @@
       "                                                            ",
       "                                                            ",
       "                                                            ",
-      "                         p                                  "
+      "                                                            "
     ],
     "key": {
       "-": "test",
-      "p": "player",
       "#": "static_example"
     },
     "markerKey": {

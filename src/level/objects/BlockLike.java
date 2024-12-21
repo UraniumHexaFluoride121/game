@@ -2,6 +2,7 @@ package level.objects;
 
 import foundation.Deletable;
 import foundation.math.ObjPos;
+import foundation.math.RandomType;
 import foundation.tick.RegisteredTickable;
 import level.Level;
 import level.ObjectLayer;
@@ -25,11 +26,13 @@ public abstract class BlockLike implements RegisteredTickable, BoundedRenderable
 
     public Level level;
 
+    public final int randomSeed;
 
     public BlockLike(ObjPos pos, String name, Level level) {
         this.pos = pos;
         this.name = name;
         this.level = level;
+        randomSeed = level.randomHandler.generateNewRandomSeed(RandomType.TEXTURE);
     }
 
     //init MUST be called after object creation
