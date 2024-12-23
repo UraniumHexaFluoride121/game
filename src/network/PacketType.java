@@ -1,5 +1,5 @@
 package network;
 
 public enum PacketType {
-    PLAYER_MOVEMENT, CLIENT_ID, LEVEL_UPDATE
+    PLAYER_MOVEMENT, CLIENT_ID, LEVEL_UPDATE, PHYSICS_UPDATE
 }

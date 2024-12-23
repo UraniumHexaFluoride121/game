@@ -2,6 +2,9 @@ package foundation;
 
 import foundation.math.ObjPos;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+
 public class VelocityHandler extends ObjPos {
     public VelocityHandler() {
 
@@ -135,5 +138,13 @@ public class VelocityHandler extends ObjPos {
 
     public VelocityHandler copyAsVelocityHandler() {
         return new VelocityHandler(x, y);
+    }
+
+    public static VelocityHandler read(DataInputStream reader) {
+        try {
+            return new VelocityHandler(reader.readFloat(), reader.readFloat());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

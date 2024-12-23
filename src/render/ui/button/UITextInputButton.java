@@ -12,8 +12,8 @@ public abstract class UITextInputButton extends UIButton implements KeyListener 
     private final TextInputType inputType;
     private final int maxLength;
 
-    public UITextInputButton(int zOrder, UIRegister register, ButtonState initialState, float x, float y, float width, float height, TextInputType inputType, int maxLength, String initialText) {
-        super(zOrder, register, initialState, x, y, width, height);
+    public UITextInputButton(int zOrder, UIRegister register, ClickableRegister clickableRegister, ButtonState initialState, float x, float y, float width, float height, TextInputType inputType, int maxLength, String initialText) {
+        super(zOrder, register, clickableRegister, initialState, x, y, width, height);
         s.append(initialText);
         this.inputType = inputType;
         this.maxLength = maxLength;
@@ -24,7 +24,7 @@ public abstract class UITextInputButton extends UIButton implements KeyListener 
     private boolean initial = true;
 
     public String getText() {
-        return s.toString();
+        return s.toString().toUpperCase();
     }
 
     @Override

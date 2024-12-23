@@ -1,6 +1,5 @@
 package render.ui.elements;
 
-import foundation.Main;
 import foundation.MainPanel;
 import foundation.math.ObjPos;
 import render.RenderOrder;
@@ -8,6 +7,7 @@ import render.renderables.RenderTextDynamic;
 import render.renderables.TextAlign;
 import render.ui.UIRegister;
 import render.ui.button.ButtonState;
+import render.ui.button.ClickableRegister;
 import render.ui.button.UIButton;
 
 import java.awt.*;
@@ -16,8 +16,8 @@ import java.awt.event.MouseEvent;
 public class UIHostServer extends UIButton {
     private final RenderTextDynamic text;
 
-    public UIHostServer(int zOrder, UIRegister register) {
-        super(zOrder, register, ButtonState.INACTIVE, MainPanel.BLOCK_DIMENSIONS.x - 5, MainPanel.BLOCK_DIMENSIONS.y / 2 + 3, 9, 2f);
+    public UIHostServer(int zOrder, UIRegister register, ClickableRegister clickableRegister) {
+        super(zOrder, register, clickableRegister, ButtonState.INACTIVE, MainPanel.BLOCK_DIMENSIONS.x - 7, MainPanel.BLOCK_DIMENSIONS.y / 2 + 4f, 12, 2f);
         ObjPos pos = getCenter().addY(-0.25f);
         text = new RenderTextDynamic(RenderOrder.UI, () -> pos, this::getText, 1, TextAlign.CENTER, 0);
     }
@@ -39,6 +39,6 @@ public class UIHostServer extends UIButton {
 
     @Override
     protected void buttonClicked() {
-        Main.window.startServer();
+        MainPanel.startServer();
     }
 }

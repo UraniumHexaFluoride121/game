@@ -104,7 +104,7 @@ public class BlockCollection {
     }
 
     public BlockCollection generateBlocks(String blockName, ProceduralGenerator gen) {
-        generateBlocks(blockName, new ObjPos(), gen);
+        generateSet(blockName, new ObjPos(), gen, blockPositions);
         return null;
     }
 

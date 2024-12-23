@@ -6,8 +6,12 @@ import level.Level;
 import physics.HitBox;
 
 public class PhysicsBlock extends PhysicsObject {
+    private static int indexCounter = 0;
+    public int index;
+
     public PhysicsBlock(ObjPos pos, String name, float mass, float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight, Level level) {
         super(pos, name, mass, level);
+        index = indexCounter++;
         createHitBox(hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight);
     }
 

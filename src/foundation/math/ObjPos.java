@@ -1,8 +1,13 @@
 package foundation.math;
 
-import java.awt.*;
+import network.Writable;
 
-public class ObjPos {
+import java.awt.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
+public class ObjPos implements Writable {
     public float x;
     public float y;
 
@@ -389,5 +394,23 @@ public class ObjPos {
     @Override
     public String toString() {
         return "[" + x + ", " + y + "]";
+    }
+
+    @Override
+    public void write(DataOutputStream writer) {
+        try {
+            writer.writeFloat(x);
+            writer.writeFloat(y);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static ObjPos read(DataInputStream reader) {
+        try {
+            return new ObjPos(reader.readFloat(), reader.readFloat());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

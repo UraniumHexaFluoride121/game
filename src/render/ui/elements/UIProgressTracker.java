@@ -12,7 +12,7 @@ import java.awt.*;
 
 public class UIProgressTracker extends UIElement {
     private RenderTextDynamic timeText, heightText, maxHeightText;
-    private long startTime = 0;
+    public long startTime = 0;
     private int maxHeight = 0;
     protected Level level;
 
@@ -34,7 +34,9 @@ public class UIProgressTracker extends UIElement {
     }
 
     public String getHeight() {
-        int height = Math.round(level.cameraPlayer.pos.y);
+        if (level.cameraPlayer == null)
+            return "0";
+        int height = Math.max(0, Math.round(level.cameraPlayer.pos.y));
         maxHeight = Math.max(maxHeight, height);
         return "*height*" + height;
     }

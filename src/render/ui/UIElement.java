@@ -13,7 +13,8 @@ public abstract class UIElement implements UIRenderable, Deletable {
     public UIElement(int zOrder, UIRegister register) {
         this.zOrder = zOrder;
         this.register = register;
-        register.registerUI(this);
+        if (register != null)
+            register.registerUI(this);
     }
 
     @Override
@@ -23,7 +24,10 @@ public abstract class UIElement implements UIRenderable, Deletable {
 
     @Override
     public void delete() {
-        register.removeUI(this);
+        if (register != null) {
+            register.removeUI(this);
+            register = null;
+        }
     }
 
     public Supplier<ObjPos> relativeToCamera(float xOffset, float yOffset) {

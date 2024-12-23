@@ -8,7 +8,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class InputType<T extends InputEvent> implements Writable<InputType<T>> {
+public class InputType<T extends InputEvent> implements Writable {
     public static final InputType<KeyEvent> KEY_PRESSED = new InputType<>(0, "KEY_PRESSED");
     public static final InputType<KeyEvent> KEY_RELEASED = new InputType<>(1, "KEY_RELEASED");
 

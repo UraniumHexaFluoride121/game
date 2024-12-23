@@ -45,7 +45,6 @@ public abstract class PhysicsObject extends BlockLike {
 
     @Override
     public void tick(float deltaTime) {
-
         if (velocity.y < 0 && !previouslyFalling)
             renderElement.onEvent(RenderEvent.ON_BLOCK_FALLING);
         previouslyFalling = velocity.y < 0;

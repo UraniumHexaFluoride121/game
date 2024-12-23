@@ -13,14 +13,12 @@ import java.util.ArrayList;
 import java.util.function.Supplier;
 
 public class RenderText extends RenderGameElement implements BoundedRenderable {
-    public static final float TEXT_SCALE_DEFAULT = 2;
-
     private ArrayList<GlyphData> glyphs = new ArrayList<>();
     private final int zOrder;
     private final float scale;
     private final TextAlign textAlign;
 
-    private int totalWidth = 0;
+    private int totalWidth = -1;
 
     public RenderText(RenderOrder renderOrder, Supplier<ObjPos> gamePos, String text, float scale, TextAlign textAlign, Level level) {
         this(renderOrder, gamePos, text, scale, textAlign, level.gameRenderer.getNextZOrder());

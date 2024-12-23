@@ -7,82 +7,81 @@ import foundation.input.InputHandler;
 import foundation.input.InputType;
 import foundation.math.ObjPos;
 import level.Level;
-import network.NetworkState;
 import network.PacketType;
 import network.PacketWriter;
 import render.event.RenderEvent;
 
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 
 public class Player extends PhysicsBlock {
-    private boolean space, left, right;
+    public boolean space, left, right;
+    public long timeSpace = 0, timeLeft = 0, timeRight = 0;
     private boolean isLongJump = false;
+
+    private boolean hasInput = false;
 
     public Player(ObjPos pos, String name, float mass, float hitBoxUp, float hitBoxDown, float hitBoxLeft, float hitBoxRight, Level level) {
         super(pos, name, mass, hitBoxUp, hitBoxDown, hitBoxLeft, hitBoxRight, level);
     }
 
     public Player addInput(InputHandler handler) {
+        if (hasInput)
+            return this;
+        hasInput = true;
         //jump
         handler.addInput(InputType.KEY_PRESSED, e -> {
-            if (MainPanel.networkState == NetworkState.CLIENT)
-                MainPanel.sendClientPacket(new PacketWriter(PacketType.PLAYER_MOVEMENT, w -> {
-                    PacketWriter.writeEnum(InputEvent.MOVEMENT_UP, w);
-                    InputType.KEY_PRESSED.write(w);
-                }));
-            else
-                onSpacePressed();
+            handleInput(InputEvent.MOVEMENT_UP, InputType.KEY_PRESSED);
         }, e -> e.getKeyCode() == KeyEvent.VK_SPACE || e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_UP, InputEvent.MOVEMENT_UP, false);
         handler.addInput(InputType.KEY_RELEASED, e -> {
-            if (MainPanel.networkState == NetworkState.CLIENT)
-                MainPanel.sendClientPacket(new PacketWriter(PacketType.PLAYER_MOVEMENT, w -> {
-                    PacketWriter.writeEnum(InputEvent.MOVEMENT_UP, w);
-                    InputType.KEY_RELEASED.write(w);
-                }));
-            else
-                onSpaceReleased();
+            handleInput(InputEvent.MOVEMENT_UP, InputType.KEY_RELEASED);
         }, e -> e.getKeyCode() == KeyEvent.VK_SPACE || e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_UP, InputEvent.MOVEMENT_UP, false);
 
         //left
         handler.addInput(InputType.KEY_PRESSED, e -> {
-            if (MainPanel.networkState == NetworkState.CLIENT)
-                MainPanel.sendClientPacket(new PacketWriter(PacketType.PLAYER_MOVEMENT, w -> {
-                    PacketWriter.writeEnum(InputEvent.MOVEMENT_LEFT, w);
-                    InputType.KEY_PRESSED.write(w);
-                }));
-            else
-                onLeftPressed();
+            handleInput(InputEvent.MOVEMENT_LEFT, InputType.KEY_PRESSED);
         }, e -> e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT, InputEvent.MOVEMENT_LEFT, false);
         handler.addInput(InputType.KEY_RELEASED, e -> {
-            if (MainPanel.networkState == NetworkState.CLIENT)
-                MainPanel.sendClientPacket(new PacketWriter(PacketType.PLAYER_MOVEMENT, w -> {
-                    PacketWriter.writeEnum(InputEvent.MOVEMENT_LEFT, w);
-                    InputType.KEY_RELEASED.write(w);
-                }));
-            else
-                onLeftReleased();
+            handleInput(InputEvent.MOVEMENT_LEFT, InputType.KEY_RELEASED);
         }, e -> e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT, InputEvent.MOVEMENT_LEFT, false);
 
         //right
         handler.addInput(InputType.KEY_PRESSED, e -> {
-            if (MainPanel.networkState == NetworkState.CLIENT)
-                MainPanel.sendClientPacket(new PacketWriter(PacketType.PLAYER_MOVEMENT, w -> {
-                    PacketWriter.writeEnum(InputEvent.MOVEMENT_RIGHT, w);
-                    InputType.KEY_PRESSED.write(w);
-                }));
-            else
-                onRightPressed();
+            handleInput(InputEvent.MOVEMENT_RIGHT, InputType.KEY_PRESSED);
         }, e -> e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT, InputEvent.MOVEMENT_RIGHT, false);
         handler.addInput(InputType.KEY_RELEASED, e -> {
-            if (MainPanel.networkState == NetworkState.CLIENT)
-                MainPanel.sendClientPacket(new PacketWriter(PacketType.PLAYER_MOVEMENT, w -> {
-                    PacketWriter.writeEnum(InputEvent.MOVEMENT_RIGHT, w);
-                    InputType.KEY_RELEASED.write(w);
-                }));
-            else
-                onRightReleased();
+            handleInput(InputEvent.MOVEMENT_RIGHT, InputType.KEY_RELEASED);
         }, e -> e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT, InputEvent.MOVEMENT_RIGHT, false);
         return this;
+    }
+
+    public static void sendClientInput(InputType type, KeyEvent event) {
+        switch (event.getKeyCode()) {
+            case KeyEvent.VK_SPACE, KeyEvent.VK_W, KeyEvent.VK_UP -> sendMovementPacket(type, InputEvent.MOVEMENT_UP);
+            case KeyEvent.VK_A, KeyEvent.VK_LEFT -> sendMovementPacket(type, InputEvent.MOVEMENT_LEFT);
+            case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> sendMovementPacket(type, InputEvent.MOVEMENT_RIGHT);
+        }
+    }
+
+    public void sendMovementPacketUpdate(InputEvent event) {
+        sendMovementPacket(switch (event) {
+            case MOVEMENT_UP -> space;
+            case MOVEMENT_LEFT -> left;
+            case MOVEMENT_RIGHT -> right;
+            default -> throw new RuntimeException();
+        } ? InputType.KEY_PRESSED : InputType.KEY_RELEASED, event);
+    }
+
+    public static void sendMovementPacket(InputType type, InputEvent event) {
+        MainPanel.sendClientPacket(new PacketWriter(PacketType.PLAYER_MOVEMENT, false, w -> {
+            try {
+                w.writeLong(System.currentTimeMillis());
+                PacketWriter.writeEnum(event, w);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            type.write(w);
+        }));
     }
 
     public void handleInput(InputEvent event, InputType type) {
@@ -109,15 +108,17 @@ public class Player extends PhysicsBlock {
     }
 
     private void onSpacePressed() {
+        timeSpace = System.currentTimeMillis();
         space = true;
     }
 
     private void onSpaceReleased() {
+        timeSpace = System.currentTimeMillis();
         space = false;
-        isLongJump = false;
     }
 
     private void onLeftPressed() {
+        timeLeft = System.currentTimeMillis();
         if (!left) {
             if (right)
                 renderElement.onEvent(RenderEvent.ON_PLAYER_INPUT_STANDING_STILL);
@@ -128,6 +129,7 @@ public class Player extends PhysicsBlock {
     }
 
     private void onLeftReleased() {
+        timeLeft = System.currentTimeMillis();
         if (left) {
             if (right)
                 renderElement.onEvent(RenderEvent.ON_PLAYER_INPUT_RIGHT);
@@ -138,6 +140,7 @@ public class Player extends PhysicsBlock {
     }
 
     private void onRightPressed() {
+        timeRight = System.currentTimeMillis();
         if (!right) {
             if (left)
                 renderElement.onEvent(RenderEvent.ON_PLAYER_INPUT_STANDING_STILL);
@@ -148,6 +151,7 @@ public class Player extends PhysicsBlock {
     }
 
     private void onRightReleased() {
+        timeRight = System.currentTimeMillis();
         if (right) {
             if (left)
                 renderElement.onEvent(RenderEvent.ON_PLAYER_INPUT_LEFT);
@@ -173,6 +177,8 @@ public class Player extends PhysicsBlock {
             applyImpulse(new ObjPos(0, JUMP_IMPULSE));
             renderElement.onEvent(RenderEvent.ON_PLAYER_INPUT_JUMP);
         }
+        if (!space)
+            isLongJump = false;
         if (velocity.y < 0)
             isLongJump = false;
         if (isLongJump)

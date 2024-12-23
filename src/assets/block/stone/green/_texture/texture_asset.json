@@ -43,45 +43,7 @@
     "block/stone/green/right/stone_green_right_5.png",
     "block/stone/green/right/stone_green_right_6.png",
     "block/stone/green/right/stone_green_right_7.png",
-    "block/stone/green/right/stone_green_right_8.png",
-
-    "block/stone/green/top_right/stone_green_top_right_1.png",
-    "block/stone/green/top_right/stone_green_top_right_2.png",
-    "block/stone/green/top_right/stone_green_top_right_3.png",
-    "block/stone/green/top_right/stone_green_top_right_4.png",
-    "block/stone/green/top_right/stone_green_top_right_5.png",
-    "block/stone/green/top_right/stone_green_top_right_6.png",
-    "block/stone/green/top_right/stone_green_top_right_7.png",
-    "block/stone/green/top_right/stone_green_top_right_8.png",
-
-    "block/stone/green/top_left/stone_green_top_left_1.png",
-    "block/stone/green/top_left/stone_green_top_left_2.png",
-    "block/stone/green/top_left/stone_green_top_left_3.png",
-    "block/stone/green/top_left/stone_green_top_left_4.png",
-    "block/stone/green/top_left/stone_green_top_left_5.png",
-    "block/stone/green/top_left/stone_green_top_left_6.png",
-    "block/stone/green/top_left/stone_green_top_left_7.png",
-    "block/stone/green/top_left/stone_green_top_left_8.png",
-
-    "block/stone/green/bottom_right/stone_green_bottom_right_1.png",
-    "block/stone/green/bottom_right/stone_green_bottom_right_2.png",
-    "block/stone/green/bottom_right/stone_green_bottom_right_3.png",
-    "block/stone/green/bottom_right/stone_green_bottom_right_4.png",
-    "block/stone/green/bottom_right/stone_green_bottom_right_5.png",
-    "block/stone/green/bottom_right/stone_green_bottom_right_6.png",
-    "block/stone/green/bottom_right/stone_green_bottom_right_7.png",
-    "block/stone/green/bottom_right/stone_green_bottom_right_8.png",
-
-    "block/stone/green/bottom_left/stone_green_bottom_left_1.png",
-    "block/stone/green/bottom_left/stone_green_bottom_left_2.png",
-    "block/stone/green/bottom_left/stone_green_bottom_left_3.png",
-    "block/stone/green/bottom_left/stone_green_bottom_left_4.png",
-    "block/stone/green/bottom_left/stone_green_bottom_left_5.png",
-    "block/stone/green/bottom_left/stone_green_bottom_left_6.png",
-    "block/stone/green/bottom_left/stone_green_bottom_left_7.png",
-    "block/stone/green/bottom_left/stone_green_bottom_left_8.png"
-
-
+    "block/stone/green/right/stone_green_right_8.png"
   ],
   "colorFactor": {
     "g": 1.22,

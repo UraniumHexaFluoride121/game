@@ -11,15 +11,14 @@ import level.objects.Player;
 import loader.AssetManager;
 import loader.ResourceLocation;
 import network.Client;
-import network.PacketWriter;
 import network.NetworkState;
+import network.PacketWriter;
 import network.Server;
-import render.ui.*;
-import render.ui.button.Clickable;
-import render.ui.elements.UIConnectToClient;
-import render.ui.elements.UIHostServer;
-import render.ui.elements.UIPlayButton;
-import render.ui.elements.UISeedSelector;
+import render.ui.GameState;
+import render.ui.UIRenderer;
+import render.ui.button.ButtonState;
+import render.ui.button.ClickableRegister;
+import render.ui.elements.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,6 +30,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -46,18 +46,24 @@ public class MainPanel extends JFrame implements KeyListener, MouseListener, Reg
 
     public static GameState state = GameState.MAIN_MENU;
 
-    private Level activeLevel;
+    public static int currentLevelIndex = 0;
 
-    private final UIRenderer mainMenuUI = new UIRenderer();
-    private final ArrayList<Clickable> mainMenuClickables = new ArrayList<>();
-    private UISeedSelector seedSelector;
-    private float levelTint = 0.3f;
-    private float mainMenuYOffset = 0f;
+    private static Level mainLevel;
+    public static final HashMap<Integer, Level> loadedLevels = new HashMap<>();
+    public static final HashMap<Integer, Boolean> finalisedLevels = new HashMap<>();
+
+    private static final UIRenderer mainMenuUI = new UIRenderer();
+    private static final ClickableRegister mainMenuClickables = new ClickableRegister();
+    private static UISeedSelector seedSelector;
+    private static float levelTint = 0.3f;
+    private static float mainMenuYOffset = 0f;
 
     public static Server server;
     public static Client client;
 
     public static NetworkState networkState = NetworkState.NONE;
+    private static UIHostServer serverButton;
+    private static UIServerAddressBox serverAddressBox;
 
     public MainPanel() throws HeadlessException {
         super();
@@ -70,52 +76,114 @@ public class MainPanel extends JFrame implements KeyListener, MouseListener, Reg
         AssetManager.readGlyphs(LEVEL_PATH);
         AssetManager.readLayoutMarkerData(LEVEL_PATH);
 
-        seedSelector = new UISeedSelector(0, mainMenuUI);
-        mainMenuClickables.add(seedSelector);
+        seedSelector = new UISeedSelector(0, mainMenuUI, mainMenuClickables);
 
-        UIPlayButton playButton = new UIPlayButton(0, mainMenuUI);
-        mainMenuClickables.add(playButton);
+        UIPlayButton playButton = new UIPlayButton(0, mainMenuUI, mainMenuClickables);
 
-        UIHostServer serverButton = new UIHostServer(0, mainMenuUI);
-        mainMenuClickables.add(serverButton);
+        serverButton = new UIHostServer(0, mainMenuUI, mainMenuClickables);
 
-        UIConnectToClient clientButton = new UIConnectToClient(0, mainMenuUI);
-        mainMenuClickables.add(clientButton);
+        serverAddressBox = new UIServerAddressBox(0, mainMenuUI, mainMenuClickables);
     }
 
     public static AtomicBoolean updatePlayers = new AtomicBoolean(false);
 
-    public void createAndSetNewLevel(long seed) {
-        if (isLevelActive())
-            activeLevel.delete();
-        activeLevel = new Level(seed);
-        activeLevel.init();
+    public static void createNewMainLevel(long seed) {
+        deleteAllLevels();
+        mainLevel = addNewLevel(seed, false);
+        setActiveLevel(mainLevel.levelIndex);
         updatePlayers.set(true);
+        if (networkState == NetworkState.SERVER) {
+            server.clients.forEach((id, c) -> c.setLevel(mainLevel));
+        }
         cameraY = 1;
     }
 
-    public void startLevel() {
-        state = GameState.PLAYING_LEVEL;
-        if (activeLevel.seed != seedSelector.getSeed())
-            createAndSetNewLevel(seedSelector.getSeed());
-        activeLevel.generateFull();
-        activeLevel.createUI();
+    public static Level addNewLevel(long seed, boolean finalise) {
+        Level l = new Level(seed);
+        l.init();
+        loadedLevels.put(l.levelIndex, l);
+        finalisedLevels.put(l.levelIndex, finalise);
+        if (finalise) {
+            l.finalise();
+        }
+        return l;
     }
 
-    public void startServer() {
+    public static Level addNewLevel(long seed, boolean finalise, int index) {
+        Level l = new Level(seed, index);
+        l.init();
+        loadedLevels.put(l.levelIndex, l);
+        finalisedLevels.put(l.levelIndex, finalise);
+        if (finalise) {
+            l.finalise();
+        }
+        return l;
+    }
+
+    public static Level getLevel(int index) {
+        return loadedLevels.get(index);
+    }
+
+    public static void setActiveLevel(int index) {
+        currentLevelIndex = index;
+    }
+
+    public static void deleteAllLevels() {
+        loadedLevels.forEach((i, l) -> l.delete());
+        loadedLevels.clear();
+        finalisedLevels.clear();
+        mainLevel = null;
+    }
+
+    public static void deleteLevel(int index) {
+        if (mainLevel != null && mainLevel.levelIndex == index)
+            mainLevel = null;
+        if (loadedLevels.containsKey(index))
+            loadedLevels.get(index).delete();
+        loadedLevels.remove(index);
+        finalisedLevels.remove(index);
+    }
+
+    public static void startMainLevel() {
+        if (networkState == NetworkState.CLIENT) {
+            if (levelFullyGenerated(currentLevelIndex))
+                state = GameState.PLAYING_LEVEL;
+        } else {
+            state = GameState.PLAYING_LEVEL;
+            if (mainLevel.seed != seedSelector.getSeed())
+                createNewMainLevel(seedSelector.getSeed());
+            mainLevel.finalise();
+            finalisedLevels.put(mainLevel.levelIndex, true);
+        }
+    }
+
+    public static void startServer() {
         if (networkState != NetworkState.NONE)
             return;
         networkState = NetworkState.SERVER;
         server = new Server();
+        serverAddressBox.delete();
+        serverAddressBox.delete();
     }
 
-    public void startClient() {
-        if (networkState != NetworkState.NONE)
-            return;
-        networkState = NetworkState.CLIENT;
-        System.out.println("new client");
-        client = new Client("127.0.0.1");
-        System.out.println("new client");
+    public static void startClient() {
+        new Thread(() -> {
+            if (networkState != NetworkState.NONE)
+                return;
+            UIConnectToClient.setConnectionState(UIClientConnectionState.TRYING_CONNECTION);
+            networkState = NetworkState.CLIENT;
+            client = new Client(serverAddressBox.getText());
+            if (client.failed) {
+                client = null;
+                networkState = NetworkState.NONE;
+                UIConnectToClient.setConnectionState(UIClientConnectionState.CONNECTION_FAILED);
+                serverAddressBox.allowClick();
+                return;
+            }
+            serverButton.delete();
+            MainPanel.addTask(MainPanel::deleteAllLevels);
+            UIConnectToClient.setConnectionState(UIClientConnectionState.CONNECTED);
+        }).start();
     }
 
     public static void sendClientPacket(PacketWriter packet) {
@@ -139,8 +207,8 @@ public class MainPanel extends JFrame implements KeyListener, MouseListener, Reg
         return ids;
     }
 
-    public void handleClientPlayerInput(InputEvent event, InputType type, int clientID) {
-        Player player = activeLevel.players.get(clientID);
+    public static void handleClientPlayerInput(InputEvent event, InputType type, int clientID, int levelIndex) {
+        Player player = getLevel(levelIndex).players.get(clientID);
         if (player != null) {
             player.handleInput(event, type);
         }
@@ -181,13 +249,14 @@ public class MainPanel extends JFrame implements KeyListener, MouseListener, Reg
         g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
         //Render background separately so that it's not affected by camera movement
-        if (isLevelActive()) {
+        Level l = getLevel(currentLevelIndex);
+        if (levelExists(l)) {
             AffineTransform prev = g2d.getTransform();
             g2d.transform(gameTransform);
-            activeLevel.background.render(g2d);
+            l.background.render(g2d);
             g2d.setTransform(prev);
 
-            activeLevel.gameRenderer.render(g2d);
+            l.gameRenderer.render(g2d);
         }
     }
 
@@ -204,12 +273,30 @@ public class MainPanel extends JFrame implements KeyListener, MouseListener, Reg
         return t;
     }
 
+    private static final ArrayList<Runnable> tasks = new ArrayList<>();
+
+    public static void addTask(Runnable r) {
+        synchronized (Main.window) {
+            MainPanel.tasks.add(r);
+        }
+    }
+
+    public static float sendLevelPacketTimer = 0;
+    private static final float sendLevelPacketInterval = 0.03f;
+
     @Override
     public void tick(float deltaTime) {
         processQueuedInputs();
-        if (updatePlayers.get() && isLevelActive()) {
+        if (updatePlayers.get() && mainLevelExists()) {
             updatePlayers.set(false);
-            activeLevel.spawnPlayers(getClientIDs());
+            if (networkState != NetworkState.CLIENT)
+                mainLevel.spawnPlayers(getClientIDs());
+            if (networkState == NetworkState.SERVER) {
+                server.clients.forEach((id, c) -> {
+                    if (c.levelIndex == -1 && mainLevelExists())
+                        c.setLevel(mainLevel);
+                });
+            }
         }
         if (state == GameState.MAIN_MENU) {
             seedSelector.tick(deltaTime);
@@ -219,8 +306,9 @@ public class MainPanel extends JFrame implements KeyListener, MouseListener, Reg
             levelTint = MathUtil.linearTo(levelTint, 1, 3, deltaTime);
             mainMenuYOffset = MathUtil.linearTo(mainMenuYOffset, BLOCK_DIMENSIONS.y, BLOCK_DIMENSIONS.y * 3, deltaTime);
         }
-        if (activeLevel != null && !activeLevel.deleted && activeLevel.cameraPlayer != null) {
-            float y = Math.min(0, -activeLevel.cameraPlayer.pos.y + activeLevel.getCameraOffset());
+        Level l = getLevel(currentLevelIndex);
+        if (levelExists(l) && l.cameraPlayer != null) {
+            float y = Math.min(0, -l.cameraPlayer.pos.y + l.getCameraOffset());
             if (cameraY == 1)
                 cameraY = y;
             else {
@@ -228,13 +316,33 @@ public class MainPanel extends JFrame implements KeyListener, MouseListener, Reg
                 cameraY += Math.min(Math.abs(y - cameraY), 0.3f * deltaTime) * Math.signum(y - cameraY);
             }
         }
+        synchronized (this) {
+            tasks.forEach(Runnable::run);
+            tasks.clear();
+        }
+        if (networkState == NetworkState.SERVER) {
+            sendLevelPacketTimer += deltaTime;
+            if (sendLevelPacketTimer > sendLevelPacketInterval) {
+                sendLevelPacketTimer = 0;
+                server.sendLevelPacket(loadedLevels, finalisedLevels);
+                server.sendPhysicsUpdate(loadedLevels);
+            }
+        }
     }
 
-    private boolean isLevelActive() {
-        return activeLevel != null && !activeLevel.deleted;
+    public static boolean mainLevelExists() {
+        return mainLevel != null && !mainLevel.deleted;
     }
 
-    private Vector<Runnable> qInputs = new Vector<>();
+    public static boolean levelExists(Level l) {
+        return l != null && !l.deleted;
+    }
+
+    public static boolean levelFullyGenerated(int index) {
+        return levelExists(getLevel(index)) && finalisedLevels.get(index);
+    }
+
+    private final Vector<Runnable> qInputs = new Vector<>();
 
     private synchronized void processQueuedInputs() {
         qInputs.forEach(Runnable::run);
@@ -249,12 +357,16 @@ public class MainPanel extends JFrame implements KeyListener, MouseListener, Reg
     @Override
     public synchronized void keyPressed(KeyEvent e) {
         qInputs.add(() -> {
-            if (state == GameState.PLAYING_LEVEL && activeLevel != null && !activeLevel.deleted)
-                activeLevel.inputHandler.queueInput(InputType.KEY_PRESSED, e);
-            if (state == GameState.MAIN_MENU) {
+            Level l = getLevel(currentLevelIndex);
+            if (state == GameState.PLAYING_LEVEL && levelExists(l)) {
+                l.inputHandler.queueInput(InputType.KEY_PRESSED, e);
+                if (networkState == NetworkState.CLIENT)
+                    Player.sendClientInput(InputType.KEY_PRESSED, e);
+            } else if (state == GameState.MAIN_MENU) {
                 seedSelector.keyPressed(e);
-                if (e.getKeyCode() == KeyEvent.VK_ENTER)
-                    startLevel();
+                serverAddressBox.keyPressed(e);
+                if (e.getKeyCode() == KeyEvent.VK_ENTER && serverAddressBox.state == ButtonState.INACTIVE)
+                    startMainLevel();
             }
         });
     }
@@ -262,8 +374,12 @@ public class MainPanel extends JFrame implements KeyListener, MouseListener, Reg
     @Override
     public synchronized void keyReleased(KeyEvent e) {
         qInputs.add(() -> {
-            if (state == GameState.PLAYING_LEVEL && activeLevel != null && !activeLevel.deleted)
-                activeLevel.inputHandler.queueInput(InputType.KEY_RELEASED, e);
+            Level l = getLevel(currentLevelIndex);
+            if (state == GameState.PLAYING_LEVEL && levelExists(l)) {
+                l.inputHandler.queueInput(InputType.KEY_RELEASED, e);
+                if (networkState == NetworkState.CLIENT)
+                    Player.sendClientInput(InputType.KEY_RELEASED, e);
+            }
         });
     }
 
@@ -280,7 +396,7 @@ public class MainPanel extends JFrame implements KeyListener, MouseListener, Reg
                 return;
             ObjPos pos = new ObjPos(point).divide((float) gameTransform.getScaleX(), ((float) gameTransform.getScaleY())).addY(BLOCK_DIMENSIONS.y);
             if (state == GameState.MAIN_MENU)
-                mainMenuClickables.forEach(c -> c.onClick(e, pos, true, c.clickBox().isPositionInside(pos)));
+                mainMenuClickables.mousePressed(e, pos);
         });
     }
 
@@ -292,7 +408,7 @@ public class MainPanel extends JFrame implements KeyListener, MouseListener, Reg
                 return;
             ObjPos pos = new ObjPos(point).divide((float) gameTransform.getScaleX(), ((float) gameTransform.getScaleY())).addY(BLOCK_DIMENSIONS.y);
             if (state == GameState.MAIN_MENU)
-                mainMenuClickables.forEach(c -> c.onClick(e, pos, false, c.clickBox().isPositionInside(pos)));
+                mainMenuClickables.mouseReleased(e, pos);
         });
     }
 

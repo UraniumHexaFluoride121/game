@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.function.Supplier;
 
 public class RenderTextDynamic extends RenderGameElement implements BoundedRenderable {
-
     private final int zOrder;
     private final float scale;
     private final TextAlign textAlign;
@@ -36,7 +35,7 @@ public class RenderTextDynamic extends RenderGameElement implements BoundedRende
         if (gamePos == null)
             return;
         ArrayList<GlyphData> glyphs = new ArrayList<>();
-        int totalWidth = 0;
+        int totalWidth = -1;
         char[] chars = text.get().toCharArray();
         boolean specialChar = false;
         StringBuilder s = new StringBuilder();
@@ -85,6 +84,39 @@ public class RenderTextDynamic extends RenderGameElement implements BoundedRende
             g.translate(glyph.width() / 16d, 0);
         }
         g.setTransform(prev);
+    }
+
+    public int calculateTotalWidth() {
+        int totalWidth = -1;
+        char[] chars = text.get().toCharArray();
+        boolean specialChar = false;
+        StringBuilder s = new StringBuilder();
+        for (char c : chars) {
+            if (c == ' ' && !specialChar) {
+                totalWidth += AssetManager.SPACE_WIDTH;
+                continue;
+            }
+            if (c == '*') {
+                if (specialChar) {
+                    GlyphData e = AssetManager.specialGlyphs.get(s.toString());
+                    if (e == null)
+                        throw new RuntimeException("Could not find special character glyph for string: \"" + s + "\"");
+                    totalWidth += e.width();
+                    s = new StringBuilder();
+                }
+                specialChar = !specialChar;
+                continue;
+            }
+            if (specialChar) {
+                s.append(c);
+                continue;
+            }
+            GlyphData e = AssetManager.glyphs.get(c);
+            if (e == null)
+                throw new RuntimeException("Could not find glyph for character: \"" + c + "\"");
+            totalWidth += e.width();
+        }
+        return totalWidth;
     }
 
     @Override

@@ -74,9 +74,14 @@ public class Level implements Deletable {
     public final RenderBackground background = new RenderBackground(Color.WHITE);
 
     public boolean deleted = false;
+    public UIProgressTracker uiProgressTracker;
 
     public Level(long seed) {
-        levelIndex = levelIndexCounter++;
+        this(seed, levelIndexCounter++);
+    }
+
+    public Level(long seed, int index) {
+        levelIndex = index;
         this.seed = seed;
         gameRenderer = new GameRenderer(gameTransform, MainPanel::getCameraTransform, this);
         randomHandler = new RandomHandler(seed);
@@ -110,6 +115,11 @@ public class Level implements Deletable {
         this.maximumHeight = maximumHeight;
 
         layout = new Layout(maximumHeight, SECTION_SIZE, 1, this);
+    }
+
+    public void finalise() {
+        generateFull();
+        createUI();
     }
 
     public AtomicBoolean interruptGeneration = new AtomicBoolean(false);
@@ -182,7 +192,8 @@ public class Level implements Deletable {
     }
 
     public void createUI() {
-        gameRenderer.registerUI(new UIProgressTracker(0, gameRenderer, this).startTime());
+        uiProgressTracker = new UIProgressTracker(0, gameRenderer, this);
+        gameRenderer.registerUI(uiProgressTracker.startTime());
     }
 
     public BlockLike getBlock(ObjectLayer layer, int x, int y) {
@@ -203,7 +214,7 @@ public class Level implements Deletable {
         return outOfBounds(pos.x, pos.y);
     }
 
-    public void addBlocks(boolean registerCollision, boolean registerProcedural, BlockLike... blockLikes) {
+    public synchronized void addBlocks(boolean registerCollision, boolean registerProcedural, BlockLike... blockLikes) {
         if (registerCollision)
             collisionHandler.register(blockLikes);
         if (registerProcedural)
@@ -221,7 +232,7 @@ public class Level implements Deletable {
         }
     }
 
-    public void removeBlocks(boolean registerCollision, BlockLike... blockLikes) {
+    public synchronized void removeBlocks(boolean registerCollision, BlockLike... blockLikes) {
         for (BlockLike b : blockLikes) {
             if (b.getLayer().addToStatic) {
                 staticBlocks.get(b.getLayer())[((int) b.pos.x)][((int) b.pos.y)] = null;
@@ -239,7 +250,7 @@ public class Level implements Deletable {
     //The procedural generator needs to know if it has overwritten a block in case the generation
     //needs to be reverted. This does not apply if the overwritten block is a part of the current
     //generation
-    public BlockLike addProceduralBlock(boolean registerCollision, boolean registerProcedural, BlockLike b) {
+    public synchronized BlockLike addProceduralBlock(boolean registerCollision, boolean registerProcedural, BlockLike b) {
         if (outOfBounds(b.pos))
             return null;
         if (registerCollision)

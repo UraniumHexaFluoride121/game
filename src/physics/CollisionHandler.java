@@ -4,6 +4,7 @@ import foundation.Main;
 import foundation.math.ObjPos;
 import foundation.tick.RegisteredTickable;
 import foundation.tick.TickOrder;
+import level.objects.PhysicsObject;
 import level.objects.Player;
 
 import java.util.HashMap;
@@ -89,6 +90,8 @@ public class CollisionHandler implements RegisteredTickable {
     public synchronized void removeProcedural(CollisionObject... objects) {
         for (CollisionObject o : objects) {
             CollisionObjectData data = proceduralObjectData.get(o);
+            if (data == null)
+                return;
             proceduralObjectData.remove(o);
             proceduralObjects[data.bottomSection].remove(o);
             proceduralObjects[data.topSection].remove(o);
@@ -183,8 +186,18 @@ public class CollisionHandler implements RegisteredTickable {
             if (!isCollision.get())
                 break;
             clearCollidedWith();
-            if (loops > 50)
-                throw new RuntimeException("Failed to solve collision");
+            if (loops > 50) {
+                System.out.println("[WARNING] Failed to solve collision. Reverting physics objects to previous state");
+                for (Set<CollisionObject> section : dynamicObjects) {
+                    section.forEach(d -> {
+                        if (d instanceof PhysicsObject p) {
+                            p.pos = p.prevPos;
+                            p.velocity = p.previousVelocity;
+                        }
+                    });
+                }
+                break;
+            }
         }
         clearCollidedWith();
         movableObjectSet.forEach(o -> o.dynamicPostTick(deltaTime));

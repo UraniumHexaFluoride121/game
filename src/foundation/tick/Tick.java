@@ -1,6 +1,8 @@
 package foundation.tick;
 
 import foundation.Main;
+import foundation.MainPanel;
+import network.NetworkState;
 
 import java.awt.*;
 import java.awt.image.BufferStrategy;
@@ -42,6 +44,9 @@ public class Tick extends Thread {
     //than normal. This is to avoid physics problems that would otherwise happen,
     //for example weird snapping and blocks phasing through each other
     public static final float MAX_DELTA_TIME = 0.01f;
+    //Clients don't need as frequent deltaTimes because they get the "correct" simulation results
+    //from the server anyway
+    public static final float MAX_CLIENT_DELTA_TIME = 0.05f;
 
     //If the dT is too long, we cap the dT to avoid lag spikes when the game
     //falls behind. This can happen if the player tabs out of the game, for example
@@ -64,7 +69,7 @@ public class Tick extends Thread {
                 //add and remove tickables
                 processQueued();
                 float finalDT = deltaTime;
-                deltaTime -= MAX_DELTA_TIME;
+                deltaTime -= MainPanel.networkState == NetworkState.CLIENT ? MAX_CLIENT_DELTA_TIME : MAX_DELTA_TIME;
                 tickables.forEach((order, set) -> set.forEach(t -> t.tick(Math.min(finalDT, MAX_DELTA_TIME))));
             } while (deltaTime > 0);
 
