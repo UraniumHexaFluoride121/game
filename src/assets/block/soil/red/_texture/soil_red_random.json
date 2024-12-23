@@ -1,0 +1,32 @@
+{
+  "renderables": [
+    {
+      "type": "ConnectedTexture",
+      "path": "block/soil/red/_texture/soil_red_connected_texture_1.json"
+    },
+    {
+      "type": "ConnectedTexture",
+      "path": "block/soil/red/_texture/soil_red_connected_texture_2.json"
+    },
+    {
+      "type": "ConnectedTexture",
+      "path": "block/soil/red/_texture/soil_red_connected_texture_4.json"
+    },
+    {
+      "type": "ConnectedTexture",
+      "path": "block/soil/red/_texture/soil_red_connected_texture_5.json"
+    },
+    {
+      "type": "ConnectedTexture",
+      "path": "block/soil/red/_texture/soil_red_connected_texture_6.json"
+    },
+    {
+      "type": "ConnectedTexture",
+      "path": "block/soil/red/_texture/soil_red_connected_texture_7.json"
+    },
+    {
+      "type": "ConnectedTexture",
+      "path": "block/soil/red/_texture/soil_red_connected_texture_8.json"
+    }
+  ]
+}

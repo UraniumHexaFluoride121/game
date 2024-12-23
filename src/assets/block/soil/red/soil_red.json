@@ -1,0 +1,15 @@
+
+{
+  "name": "soil_red",
+  "texture": {
+    "path": "block/soil/red/_texture/soil_red_random.json",
+    "type": "RandomTexture",
+    "order": "block"
+  },
+  "hitBox": {
+    "right": 15,
+    "left": -1,
+    "up": 15,
+    "down": -1
+  }
+}

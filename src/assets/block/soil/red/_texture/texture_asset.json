@@ -1,0 +1,57 @@
+{
+  "paths": [
+    "block/soil/red/middle/soil_red_middle_1.png",
+    "block/soil/red/middle/soil_red_middle_2.png",
+    "block/soil/red/middle/soil_red_middle_3.png",
+    "block/soil/red/middle/soil_red_middle_4.png",
+    "block/soil/red/middle/soil_red_middle_5.png",
+    "block/soil/red/middle/soil_red_middle_6.png",
+    "block/soil/red/middle/soil_red_middle_7.png",
+    "block/soil/red/middle/soil_red_middle_8.png",
+
+    "block/soil/red/top/soil_red_top_1.png",
+    "block/soil/red/top/soil_red_top_2.png",
+    "block/soil/red/top/soil_red_top_3.png",
+    "block/soil/red/top/soil_red_top_4.png",
+    "block/soil/red/top/soil_red_top_5.png",
+    "block/soil/red/top/soil_red_top_6.png",
+    "block/soil/red/top/soil_red_top_7.png",
+    "block/soil/red/top/soil_red_top_8.png",
+
+    "block/soil/red/bottom/soil_red_bottom_1.png",
+    "block/soil/red/bottom/soil_red_bottom_2.png",
+    "block/soil/red/bottom/soil_red_bottom_3.png",
+    "block/soil/red/bottom/soil_red_bottom_4.png",
+    "block/soil/red/bottom/soil_red_bottom_5.png",
+    "block/soil/red/bottom/soil_red_bottom_6.png",
+    "block/soil/red/bottom/soil_red_bottom_7.png",
+    "block/soil/red/bottom/soil_red_bottom_8.png",
+
+    "block/soil/red/left/soil_red_left_1.png",
+    "block/soil/red/left/soil_red_left_2.png",
+    "block/soil/red/left/soil_red_left_3.png",
+    "block/soil/red/left/soil_red_left_4.png",
+    "block/soil/red/left/soil_red_left_5.png",
+    "block/soil/red/left/soil_red_left_6.png",
+    "block/soil/red/left/soil_red_left_7.png",
+    "block/soil/red/left/soil_red_left_8.png",
+
+    "block/soil/red/right/soil_red_right_1.png",
+    "block/soil/red/right/soil_red_right_2.png",
+    "block/soil/red/right/soil_red_right_3.png",
+    "block/soil/red/right/soil_red_right_4.png",
+    "block/soil/red/right/soil_red_right_5.png",
+    "block/soil/red/right/soil_red_right_6.png",
+    "block/soil/red/right/soil_red_right_7.png",
+    "block/soil/red/right/soil_red_right_8.png"
+  ],
+  "colorFactor": {
+    "g": 1.22,
+    "r": 1.2,
+    "b": 1.2
+  },
+  "transform": {
+    "xOffset": -2,
+    "yOffset": -2
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "renderables": [
+    {
+      "type": "TextureAsset",
+      "path": "block/soil/red/_texture/texture_asset.json#soil_red_top_7.png",
+      "condition": "existsBlock[u, this.layer]"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/soil/red/_texture/texture_asset.json#soil_red_bottom_7.png",
+      "condition": "existsBlock[d, this.layer]"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/soil/red/_texture/texture_asset.json#soil_red_right_7.png",
+      "condition": "existsBlock[r, this.layer]"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/soil/red/_texture/texture_asset.json#soil_red_left_7.png",
+      "condition": "existsBlock[l, this.layer]"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/soil/red/_texture/texture_asset.json#soil_red_middle_7.png"
+    }
+  ]
+}
