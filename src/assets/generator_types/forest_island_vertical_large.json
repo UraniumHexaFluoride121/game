@@ -1,6 +1,7 @@
 {
   "forceAwayFromBorderProximity": 20,
-  "block": "stone_green",
+  "topLayerBlock": "stone_green",
+  "mainBlock": "stone_green",
   "generateNextPlatformAs": "platform",
   "generateExtraPlatformAs": "forest_island_extra"
 }

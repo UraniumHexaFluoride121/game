@@ -17,7 +17,7 @@ public class Main {
         SwingUtilities.invokeLater(Main::init);
     }
 
-    public static final int BLOCKS_X = 60, MIN_BLOCKS_Y = 15; //The minimum number of blocks that have to be able to fit on the screen
+    public static final int BLOCKS_X = 60, MIN_BLOCKS_Y = 25; //The minimum number of blocks that have to be able to fit on the screen
 
     public static void init() {
         window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);

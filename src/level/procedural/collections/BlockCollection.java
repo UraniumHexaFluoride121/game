@@ -73,6 +73,12 @@ public class BlockCollection {
         blockPositions.add(new ObjPos(x, y));
     }
 
+    public BlockCollection offset(ObjPos offset) {
+        HashSet<ObjPos> offsetPos = new HashSet<>();
+        blockPositions.forEach(pos -> offsetPos.add(pos.copy().add(offset)));
+        return new BlockCollection(offsetPos);
+    }
+
     public BlockCollection generateTopLayers(String blockName, ObjPos origin, ProceduralGenerator gen, int layers, Supplier<Boolean> extraBlockProbability) {
         HashSet<ObjPos> blocks = new HashSet<>(blockPositions);
         HashSet<ObjPos> toBeGenerated = new HashSet<>();

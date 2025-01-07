@@ -1,5 +1,6 @@
 package level.procedural.generator;
 
+import foundation.math.ObjPos;
 import level.Level;
 import level.procedural.collections.BlockCollection;
 import level.procedural.collections.BlockCollectionAction;
@@ -117,9 +118,21 @@ public class GeneratorType {
         };
     }
 
+    public static GeneratorFunction genForEachIslandCluster(String collectionDataName, BlockCollectionAction action) {
+        return (gen, lm, type) -> {
+            IslandCluster cluster = gen.getData(collectionDataName, IslandCluster.class);
+            cluster.forEachIsland((island, pos) -> offset(pos).andThen(action).generate(gen, lm, type, island));
+        };
+    }
+
     public static BlockCollectionAction topLayers(int blockNameIndex, int layers, float extraLayerProbability) {
         return (gen, lm, type, collection) ->
                 collection.generateTopLayers(type.getString(blockNameIndex), lm.pos, gen, layers, gen.probability(extraLayerProbability));
+    }
+
+    public static BlockCollectionAction offset(ObjPos pos) {
+        return (gen, lm, type, collection) ->
+                collection.offset(pos);
     }
 
     public static BlockCollectionAction allBlocks(int blockNameIndex) {
