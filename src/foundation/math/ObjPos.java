@@ -391,6 +391,23 @@ public class ObjPos implements Writable {
         return this;
     }
 
+    public void tickLerpTo(float deltaTime, float speed, ObjPos target) {
+        if (Math.abs(x - target.x) < speed * deltaTime)
+            x = target.x;
+        else
+            x -= Math.signum(x - target.x) * speed * deltaTime;
+
+        if (Math.abs(y - target.y) < speed * deltaTime)
+            y = target.y;
+        else
+            y -= Math.signum(y - target.y) * speed * deltaTime;
+    }
+
+    public void tickExponentialTo(float deltaTime, float decayConstant, ObjPos target) {
+        x = (float) ((x - target.x) * Math.exp(-decayConstant * deltaTime)) + target.x;
+        y = (float) ((y - target.y) * Math.exp(-decayConstant * deltaTime)) + target.y;
+    }
+
     @Override
     public String toString() {
         return "[" + x + ", " + y + "]";

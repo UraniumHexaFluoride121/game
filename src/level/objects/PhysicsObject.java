@@ -1,11 +1,13 @@
 package level.objects;
 
 import foundation.Direction;
+import foundation.MainPanel;
 import foundation.VelocityHandler;
 import foundation.math.MathUtil;
 import foundation.math.ObjPos;
 import level.Level;
 import level.ObjectLayer;
+import network.NetworkState;
 import physics.*;
 import render.event.RenderEvent;
 
@@ -15,6 +17,7 @@ public abstract class PhysicsObject extends BlockLike {
     public VelocityHandler velocity = new VelocityHandler(), previousVelocity = new VelocityHandler();
     public Constraints constraints = new Constraints(), previousConstraints = new Constraints();
     public ObjPos prevPos;
+    public ObjPos serverPos = new ObjPos();
     private boolean previouslyFalling = false;
     public final float mass;
 
@@ -61,6 +64,15 @@ public abstract class PhysicsObject extends BlockLike {
 
     public void processMovement(float deltaTime) {
         prevPos = pos.copy();
+
+        if (MainPanel.networkState == NetworkState.CLIENT) {
+            pos.tickLerpTo(deltaTime, 3, serverPos);
+            pos.tickExponentialTo(deltaTime, 20, serverPos);
+            if (pos.distance(serverPos) > 0.5f) {
+                pos = serverPos;
+            }
+        }
+
         float f = computeFriction();
         velocity.tickExponentialXDecay(deltaTime, EXP_X_DECAY * f);
         velocity.tickExponentialYDecay(deltaTime, EXP_Y_DECAY);

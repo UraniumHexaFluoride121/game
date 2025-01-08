@@ -155,9 +155,9 @@ public class Client {
                         if (d instanceof PhysicsBlock b) {
                             Integer i = indexSet.remove(b.index);
                             if (i != null) {
-                                b.pos = positions[i];
+                                b.serverPos = positions[i];
                                 b.velocity = velocities[i];
-                                b.prevPos = prevPositions[i];
+                                //b.prevPos = prevPositions[i];
                                 b.previousVelocity = prevVelocities[i];
                                 if (b.index == playerIndex && b instanceof Player p) {
                                     l.cameraPlayer = p;
@@ -184,6 +184,7 @@ public class Client {
                         l.addBlocks(true, false, b);
                         ((PhysicsBlock) b).velocity = velocities[i];
                         ((PhysicsBlock) b).index = index;
+                        ((PhysicsBlock) b).serverPos = positions[i];
                     });
                 });
             }

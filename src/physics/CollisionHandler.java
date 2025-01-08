@@ -1,11 +1,13 @@
 package physics;
 
 import foundation.Main;
+import foundation.MainPanel;
 import foundation.math.ObjPos;
 import foundation.tick.RegisteredTickable;
 import foundation.tick.TickOrder;
 import level.objects.PhysicsObject;
 import level.objects.Player;
+import network.NetworkState;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -187,10 +189,13 @@ public class CollisionHandler implements RegisteredTickable {
                 break;
             clearCollidedWith();
             if (loops > 50) {
-                System.out.println("[WARNING] Failed to solve collision. Reverting physics objects to previous state");
+                if (MainPanel.networkState != NetworkState.CLIENT) {
+                    throw new RuntimeException("Failed to solve collision");
+                }
                 for (Set<CollisionObject> section : dynamicObjects) {
                     section.forEach(d -> {
                         if (d instanceof PhysicsObject p) {
+                            p.constraints = p.previousConstraints;
                             p.pos = p.prevPos;
                             p.velocity = p.previousVelocity;
                         }
