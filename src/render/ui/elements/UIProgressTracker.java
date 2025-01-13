@@ -30,7 +30,7 @@ public class UIProgressTracker extends UIElement {
     }
 
     public String getTime() {
-        return "*time*" + MathUtil.floatToTime((System.currentTimeMillis() - startTime) / 1000f, 3);
+        return "*time*" + MathUtil.floatToTime(Math.max(0, (System.currentTimeMillis() - startTime) / 1000f), 3);
     }
 
     public String getHeight() {

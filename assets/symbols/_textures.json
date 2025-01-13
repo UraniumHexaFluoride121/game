@@ -14,7 +14,8 @@
     "symbols/period.png",
     "symbols/colon.png",
     "symbols/question_mark.png",
-    "symbols/slash.png"
+    "symbols/slash.png",
+    "symbols/-.png"
   ],
   "colorFactor": {
     "r": 0,

@@ -9,6 +9,11 @@
     "type": "TextureAsset",
     "width": 10
   },
+  "-": {
+    "path": "symbols/_icons.json#-.png",
+    "type": "TextureAsset",
+    "width": 4
+  },
   "!": {
     "path": "symbols/_textures.json#!.png",
     "type": "TextureAsset",
