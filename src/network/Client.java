@@ -21,7 +21,7 @@ public class Client {
     public final String address;
     public InetAddress inetAddress;
     public Socket socket;
-    public DatagramSocket udpSocket;
+    public DatagramSocket udpSocketReceive, udpSocketSend;
     private DataInputStream reader;
     private DataOutputStream writer;
     private final HashSet<PacketWriter> packetQueue = new HashSet<>();
@@ -33,8 +33,9 @@ public class Client {
         this.address = address;
         try {
             inetAddress = InetAddress.getByName(address);
+            udpSocketReceive = new DatagramSocket(Server.UDP_CLIENT_PORT);
+            udpSocketSend = new DatagramSocket(Server.UDP_SERVER_PORT);
             socket = new Socket(address, Server.TCP_PORT);
-            udpSocket = new DatagramSocket(Server.UDP_CLIENT_PORT);
             reader = new DataInputStream(socket.getInputStream());
             writer = new DataOutputStream(socket.getOutputStream());
             new Thread(this::runReader).start();
@@ -44,7 +45,7 @@ public class Client {
                     byte[] receiveBuffer = new byte[4096];
                     while (true) {
                         DatagramPacket packet = new DatagramPacket(receiveBuffer, receiveBuffer.length);
-                        udpSocket.receive(packet);
+                        udpSocketReceive.receive(packet);
                         ByteArrayInputStream bytes = new ByteArrayInputStream(packet.getData());
                         readStream(new DataInputStream(bytes));
                     }
@@ -55,7 +56,8 @@ public class Client {
         } catch (ConnectException e) {
             failed = true;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            failed = true;
+            System.out.println("[WARNING] Client port already in use");
         }
     }
 
@@ -216,7 +218,7 @@ public class Client {
                             try {
                                 PacketWriter.writeEnum(p.type(), out);
                                 p.writer().accept(out);
-                                udpSocket.send(new DatagramPacket(bytes.toByteArray(), bytes.size(), inetAddress, Server.UDP_SERVER_PORT));
+                                udpSocketSend.send(new DatagramPacket(bytes.toByteArray(), bytes.size(), inetAddress, Server.UDP_SERVER_PORT));
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }

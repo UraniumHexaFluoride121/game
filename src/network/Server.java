@@ -19,7 +19,7 @@ public class Server {
     public static final int TCP_PORT = 37001, UDP_SERVER_PORT = 37002, UDP_CLIENT_PORT = 37003;
     public ConcurrentHashMap<Integer, ClientHandler> clients = new ConcurrentHashMap<>();
     public ConcurrentHashMap<InetAddress, ClientHandler> clientsByAddress = new ConcurrentHashMap<>();
-    public static DatagramSocket udpSocket;
+    public static DatagramSocket udpSocketReceive, udpSocketSend;
 
     public HashSet<Integer> getClientIDs() {
         HashSet<Integer> ids = new HashSet<>();
@@ -28,9 +28,12 @@ public class Server {
     }
 
     public Server() {
+        ServerSocket serverSocket;
         try {
-            udpSocket = new DatagramSocket(UDP_SERVER_PORT);
-        } catch (SocketException e) {
+            udpSocketReceive = new DatagramSocket(UDP_SERVER_PORT);
+            udpSocketSend = new DatagramSocket(UDP_CLIENT_PORT);
+            serverSocket = new ServerSocket(TCP_PORT);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
         new Thread(() -> {
@@ -38,7 +41,7 @@ public class Server {
             while (true) {
                 DatagramPacket packet = new DatagramPacket(receiveBuffer, receiveBuffer.length);
                 try {
-                    udpSocket.receive(packet);
+                    udpSocketReceive.receive(packet);
                     ClientHandler client = clientsByAddress.get(packet.getAddress());
                     if (client != null) {
                         ByteArrayInputStream bytes = new ByteArrayInputStream(packet.getData());
@@ -50,7 +53,7 @@ public class Server {
             }
         }).start();
         new Thread(() -> {
-            try (ServerSocket serverSocket = new ServerSocket(TCP_PORT)) {
+            try {
                 while (true) {
                     int id = clientIDCounter++;
                     ClientHandler client = new ClientHandler(serverSocket.accept(), id).start();
@@ -243,7 +246,7 @@ public class Server {
                                 try {
                                     PacketWriter.writeEnum(p.type(), out);
                                     p.writer().accept(out);
-                                    udpSocket.send(new DatagramPacket(bytes.toByteArray(), bytes.size(), inetAddress, UDP_CLIENT_PORT));
+                                    udpSocketSend.send(new DatagramPacket(bytes.toByteArray(), bytes.size(), inetAddress, UDP_CLIENT_PORT));
                                 } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }
