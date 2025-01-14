@@ -24,7 +24,7 @@ public class UISeedSelector extends UITextInputButton implements Tickable {
     private final RenderTextDynamic seedText;
 
     public UISeedSelector(int zOrder, UIRegister register, ClickableRegister clickableRegister) {
-        super(zOrder, register, clickableRegister, ButtonState.INACTIVE, MainPanel.BLOCK_DIMENSIONS.x / 2, MainPanel.BLOCK_DIMENSIONS.y / 2 + 2, 21, 6, TextInputType.DIGITS, 19, "0");
+        super(zOrder, register, clickableRegister, ButtonState.INACTIVE, MainPanel.BLOCK_DIMENSIONS.x / 2, MainPanel.BLOCK_DIMENSIONS.y / 2 + 2, 21, 6, TextInputType.DIGITS, 18, "0");
         ObjPos enterSeedPos = MainPanel.BLOCK_DIMENSIONS.copy().divide(2).add(-9.8f, 3.5f);
         enterSeedText = new RenderTextDynamic(RenderOrder.UI, () -> enterSeedPos, this::getEnterSeedString, 1.5f, TextAlign.LEFT, 0);
         ObjPos seedPos = MainPanel.BLOCK_DIMENSIONS.copy().divide(2).add(0, 0.5f);
