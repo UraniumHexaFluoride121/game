@@ -2,6 +2,7 @@ package render.ui.elements;
 
 import foundation.math.MathUtil;
 import level.Level;
+import loader.AssetManager;
 import render.RenderOrder;
 import render.renderables.RenderTextDynamic;
 import render.renderables.TextAlign;
@@ -47,6 +48,9 @@ public class UIProgressTracker extends UIElement {
 
     @Override
     public void render(Graphics2D g) {
+        renderOffset(relativeToCamera(right() - 1, top() - 2).get(), g, g2 -> {
+            AssetManager.uiAssets.get("time").render(g2);
+        });
         timeText.render(g);
         heightText.render(g);
         maxHeightText.render(g);

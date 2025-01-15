@@ -171,19 +171,19 @@ public class MainPanel extends JFrame implements KeyListener, MouseListener, Reg
         new Thread(() -> {
             if (networkState != NetworkState.NONE)
                 return;
-            UIConnectToClient.setConnectionState(UIClientConnectionState.TRYING_CONNECTION);
+            UIConnectClient.setConnectionState(UIClientConnectionState.TRYING_CONNECTION);
             networkState = NetworkState.CLIENT;
             client = new Client(serverAddressBox.getText());
             if (client.failed) {
                 client = null;
                 networkState = NetworkState.NONE;
-                UIConnectToClient.setConnectionState(UIClientConnectionState.CONNECTION_FAILED);
+                UIConnectClient.setConnectionState(UIClientConnectionState.CONNECTION_FAILED);
                 serverAddressBox.allowClick();
                 return;
             }
             serverButton.delete();
             MainPanel.addTask(MainPanel::deleteAllLevels);
-            UIConnectToClient.setConnectionState(UIClientConnectionState.CONNECTED);
+            UIConnectClient.setConnectionState(UIClientConnectionState.CONNECTED);
         }).start();
     }
 

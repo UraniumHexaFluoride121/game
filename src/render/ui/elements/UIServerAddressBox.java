@@ -18,19 +18,19 @@ import java.awt.event.MouseEvent;
 
 import static render.ui.button.ButtonState.*;
 import static render.ui.elements.UIClientConnectionState.*;
-import static render.ui.elements.UIConnectToClient.*;
+import static render.ui.elements.UIConnectClient.*;
 
 public class UIServerAddressBox extends UITextInputButton {
     private final RenderTextDynamic enterServerAddressText;
     private final RenderTextDynamic serverAddressTextSize1, serverAddressTextSize2, serverAddressTextSize3;
 
-    private UIConnectToClient connectButton;
+    private UIConnectClient connectButton;
     private StaticHitBox enlargedBox;
 
     public UIServerAddressBox(int zOrder, UIRegister register, ClickableRegister clickableRegister) {
         super(zOrder, register, clickableRegister, INACTIVE, MainPanel.BLOCK_DIMENSIONS.x - 7, MainPanel.BLOCK_DIMENSIONS.y / 2, 12, 2, TextInputType.IP_ADDRESS, 40, "");
         enlargedBox = createHitBox(getWidth(), getHeight() + 5, getX(), getY() - 2.5f);
-        connectButton = new UIConnectToClient(0, null, null);
+        connectButton = new UIConnectClient(0, null, null);
         ObjPos enterServerAddressTextPos = getCenter().addY(-0.25f);
         enterServerAddressText = new RenderTextDynamic(RenderOrder.UI, () -> enterServerAddressTextPos, this::getEnterAddressString, 1f, TextAlign.CENTER, 0);
         ObjPos serverAddressText1Pos = getCenter().add(0, -2f);

@@ -13,7 +13,7 @@ import render.ui.button.UIButton;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
-public class UIConnectToClient extends UIButton {
+public class UIConnectClient extends UIButton {
     private final RenderTextDynamic text;
     public static UIClientConnectionState connectionState = UIClientConnectionState.NOT_CONNECTED;
     private static final Color backgroundTryingConnection = new Color(175, 172, 109);
@@ -21,7 +21,7 @@ public class UIConnectToClient extends UIButton {
     private static final Color backgroundConnectionFailed = new Color(175, 109, 109);
     private static final Color borderConnectionFailed = new Color(149, 40, 40);
 
-    public UIConnectToClient(int zOrder, UIRegister register, ClickableRegister clickableRegister) {
+    public UIConnectClient(int zOrder, UIRegister register, ClickableRegister clickableRegister) {
         super(zOrder, register, clickableRegister, ButtonState.INACTIVE, MainPanel.BLOCK_DIMENSIONS.x - 7, MainPanel.BLOCK_DIMENSIONS.y / 2 - 4, 10, 2f);
         ObjPos pos = getCenter().addY(-0.25f);
         text = new RenderTextDynamic(RenderOrder.UI, () -> pos, this::getText, 1, TextAlign.CENTER, 0);
@@ -66,7 +66,7 @@ public class UIConnectToClient extends UIButton {
     }
 
     public static void setConnectionState(UIClientConnectionState connectionState) {
-        UIConnectToClient.connectionState = connectionState;
+        UIConnectClient.connectionState = connectionState;
     }
 
     @Override
