@@ -39,6 +39,7 @@ public abstract class AssetManager {
     public static final HashMap<String, BiFunction<ObjPos, Level, ? extends BlockLike>> blocks = new HashMap<>();
     public static final HashMap<String, StaticHitBox> blockHitBoxes = new HashMap<>();
     public static final HashMap<String, Float> blockFriction = new HashMap<>(), blockBounciness = new HashMap<>();
+    public static final HashMap<String, TextureAsset> uiAssets = new HashMap<>();
 
     public static final HashMap<Character, GlyphData> glyphs = new HashMap<>();
     public static final HashMap<String, GlyphData> specialGlyphs = new HashMap<>();
@@ -58,6 +59,13 @@ public abstract class AssetManager {
             } else {
                 specialGlyphs.put(k, data);
             }
+        });
+    }
+
+    public static void readUIAssets(ResourceLocation resource) {
+        JsonObject dataElements = ((JsonObject) JsonLoader.readJsonResource(resource)).get("uiAssets", JsonType.JSON_OBJECT_TYPE);
+        dataElements.forEach(JsonType.STRING_JSON_TYPE, (name, path) -> {
+            uiAssets.put(name, (TextureAsset) deserializeRenderable(path, "TextureAsset").apply(null));
         });
     }
 
@@ -300,6 +308,69 @@ public abstract class AssetManager {
     public static Function<Level, ? extends TickedRenderable> deserializeRenderable(JsonObject object) {
         String type = object.get("type", JsonType.STRING_JSON_TYPE);
         ResourceLocation resource = new ResourceLocation(object.get("path", JsonType.STRING_JSON_TYPE));
+        return switch (type) {
+            case "TextureAsset" -> {
+                if (textureAssets.containsKey(resource)) {
+                    TextureAsset asset = textureAssets.get(resource);
+                    yield level -> asset;
+                }
+                if (resource.relativePath.contains("#")) {
+                    ArrayList<TextureAsset> assets = TextureAsset.getMultiTextureAsset(resource);
+                    assets.forEach(a -> textureAssets.put(a.resource, a));
+                    TextureAsset asset = textureAssets.get(resource);
+                    yield level -> asset;
+                } else {
+                    TextureAsset asset = TextureAsset.getTextureAsset(resource);
+                    textureAssets.put(resource, asset);
+                    yield level -> asset;
+                }
+            }
+            case "AnimatedTexture" -> {
+                if (animatedTextures.containsKey(resource)) {
+                    yield animatedTextures.get(resource);
+                }
+                Function<Level, AnimatedTexture> t = AnimatedTexture.getAnimatedTexture(resource);
+                animatedTextures.put(resource, t);
+                yield t;
+            }
+            case "LayeredTexture" -> {
+                if (layeredTextures.containsKey(resource)) {
+                    yield layeredTextures.get(resource);
+                }
+                Function<Level, LayeredTexture> t = LayeredTexture.getLayeredTexture(resource);
+                layeredTextures.put(resource, t);
+                yield t;
+            }
+            case "EventSwitcherTexture" -> {
+                if (eventSwitcherTextures.containsKey(resource)) {
+                    yield eventSwitcherTextures.get(resource);
+                }
+                Function<Level, EventSwitcherTexture> t = EventSwitcherTexture.getEventSwitcherTexture(resource);
+                eventSwitcherTextures.put(resource, t);
+                yield t;
+            }
+            case "RandomTexture" -> {
+                if (randomTextures.containsKey(resource)) {
+                    yield randomTextures.get(resource);
+                }
+                Function<Level, RandomTexture> t = RandomTexture.getRandomTexture(resource);
+                randomTextures.put(resource, t);
+                yield t;
+            }
+            case "ConnectedTexture" -> {
+                if (connectedTextures.containsKey(resource)) {
+                    yield connectedTextures.get(resource);
+                }
+                Function<Level, ConnectedTexture> t = ConnectedTexture.getConnectedTexture(resource);
+                connectedTextures.put(resource, t);
+                yield t;
+            }
+            default -> throw new IllegalArgumentException("Unknown Renderable type: " + type);
+        };
+    }
+
+    public static Function<Level, ? extends TickedRenderable> deserializeRenderable(String path, String type) {
+        ResourceLocation resource = new ResourceLocation(path);
         return switch (type) {
             case "TextureAsset" -> {
                 if (textureAssets.containsKey(resource)) {

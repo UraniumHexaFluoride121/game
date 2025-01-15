@@ -1,6 +1,7 @@
 package render.ui.button;
 
 import foundation.math.ObjPos;
+import loader.AssetManager;
 import physics.HitBox;
 import physics.StaticHitBox;
 import render.ui.UIElement;
@@ -140,6 +141,12 @@ public abstract class UIButton extends UIElement implements Clickable {
             clickableRegister.removeClickable(this);
             clickableRegister = null;
         }
+    }
+
+    protected void renderImage(Graphics2D g, String name) {
+        g.translate(x - width / 2, y - height / 2);
+        AssetManager.uiAssets.get(name).render(g);
+        g.translate(width / 2- x, height / 2 - y);
     }
 
     protected abstract void buttonClicked();

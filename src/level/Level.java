@@ -71,7 +71,7 @@ public class Level implements Deletable {
     public ObjPos spawnLocation = null;
     public Player cameraPlayer = null;
     public final HashMap<Integer, Player> players = new HashMap<>();
-    public final RenderBackground background = new RenderBackground(Color.WHITE);
+    public final RenderBackground background = new RenderBackground(new Color(185, 231, 241));
 
     public boolean deleted = false;
     public UIProgressTracker uiProgressTracker;

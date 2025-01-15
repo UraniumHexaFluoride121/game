@@ -65,7 +65,8 @@ public class UISeedSelector extends UITextInputButton implements Tickable {
 
     @Override
     public void render(Graphics2D g) {
-        super.render(g);
+        renderImage(g, "seed_selector");
+        //super.render(g);
         enterSeedText.render(g);
         seedText.render(g);
     }

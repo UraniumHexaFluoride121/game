@@ -48,5 +48,8 @@
     "forest_island_vertical": "generator_types/forest_island_vertical.json",
     "forest_island_vertical_large": "generator_types/forest_island_vertical_large.json"
   },
+  "uiAssets": {
+    "seed_selector": "ui/seed_selector.json"
+  },
   "glyphs": "symbols/glyphs.json"
 }

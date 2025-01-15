@@ -74,6 +74,7 @@ public class MainPanel extends JFrame implements KeyListener, MouseListener, Reg
         AssetManager.readRegions(LEVEL_PATH);
         AssetManager.readBlocks(LEVEL_PATH);
         AssetManager.readGlyphs(LEVEL_PATH);
+        AssetManager.readUIAssets(LEVEL_PATH);
         AssetManager.readLayoutMarkerData(LEVEL_PATH);
 
         seedSelector = new UISeedSelector(0, mainMenuUI, mainMenuClickables);
