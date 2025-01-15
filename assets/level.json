@@ -10,7 +10,7 @@
     "y": 0
   },
   "blocks": [
-    "player.json",
+    "player/player.json",
     "testblock.json",
     "staticblock.json",
     "staticblock2.json",
@@ -49,7 +49,8 @@
     "forest_island_vertical_large": "generator_types/forest_island_vertical_large.json"
   },
   "uiAssets": {
-    "seed_selector": "ui/seed_selector.json"
+    "seed_selector": "ui/seed_selector.json",
+    "time": "ui/time.json"
   },
   "glyphs": "symbols/glyphs.json"
 }

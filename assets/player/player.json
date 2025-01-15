@@ -1,8 +1,8 @@
 {
   "name": "player",
   "texture": {
-    "path": "testimages.json#silicon_casing.png",
-    "type": "TextureAsset",
+    "path": "player/player_event_switcher.json",
+    "type": "EventSwitcherTexture",
     "order": "player"
   },
   "hitBox": {

@@ -1,0 +1,9 @@
+{
+  "renderables": [
+    {
+      "event": "onPlayerInputStandingStill",
+      "type": "TextureAsset",
+      "path": "player/idle/idle.json"
+    }
+  ]
+}
