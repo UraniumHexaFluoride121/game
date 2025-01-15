@@ -149,5 +149,11 @@ public abstract class UIButton extends UIElement implements Clickable {
         g.translate(width / 2- x, height / 2 - y);
     }
 
+    protected void renderImage(Graphics2D g, String name, float x, float y) {
+        g.translate(this.x - width / 2 + x, this.y - height / 2 + y);
+        AssetManager.uiAssets.get(name).render(g);
+        g.translate(width / 2 - this.x - x, height / 2 - this.y - y);
+    }
+
     protected abstract void buttonClicked();
 }
