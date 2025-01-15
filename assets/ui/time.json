@@ -2,8 +2,6 @@
   "path": "ui/ui_time.png",
   "transform": {
     "xScale": 2,
-    "yScale": 2,
-    "xOffset": -25,
-    "yOffset": -10
+    "yScale": 2
   }
 }

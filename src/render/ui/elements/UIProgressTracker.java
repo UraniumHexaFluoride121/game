@@ -48,7 +48,7 @@ public class UIProgressTracker extends UIElement {
 
     @Override
     public void render(Graphics2D g) {
-        renderOffset(relativeToCamera(right() - 1, top() - 2).get(), g, g2 -> {
+        renderOffset(relativeToCamera(right() - 9.5f, top() - 2.7f).get(), g, g2 -> {
             AssetManager.uiAssets.get("time").render(g2);
         });
         timeText.render(g);
