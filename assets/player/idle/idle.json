@@ -1,3 +1,6 @@
 {
-  "path": "player/idle/idle.png"
+  "path": "player/idle/idle.png",
+  "transform": {
+    "xOffset": -4
+  }
 }
