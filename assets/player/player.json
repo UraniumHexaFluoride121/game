@@ -6,7 +6,7 @@
     "order": "player"
   },
   "hitBox": {
-    "up": 16,
+    "up": 10,
     "down": 0,
     "right": 16
   },
