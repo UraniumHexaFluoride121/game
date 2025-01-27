@@ -1,0 +1,21 @@
+{
+  "renderables": [
+    {
+      "type": "TextureAsset",
+      "path": "player/jump/jump_1.json"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "player/jump/jump_2.json"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "player/jump/jump_3.json"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "player/jump/jump_4.json"
+    }
+  ],
+  "frameDuration": 0.4
+}

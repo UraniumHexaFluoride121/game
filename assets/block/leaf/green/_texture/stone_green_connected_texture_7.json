@@ -1,0 +1,28 @@
+{
+  "renderables": [
+    {
+      "type": "TextureAsset",
+      "path": "block/stone/green/_texture/texture_asset.json#stone_green_top_7.png",
+      "condition": "existsBlock[u, this.layer]"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/stone/green/_texture/texture_asset.json#stone_green_bottom_7.png",
+      "condition": "existsBlock[d, this.layer]"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/stone/green/_texture/texture_asset.json#stone_green_right_7.png",
+      "condition": "existsBlock[r, this.layer]"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/stone/green/_texture/texture_asset.json#stone_green_left_7.png",
+      "condition": "existsBlock[l, this.layer]"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/stone/green/_texture/texture_asset.json#stone_green_middle_7.png"
+    }
+  ]
+}

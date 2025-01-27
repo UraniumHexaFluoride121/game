@@ -5,5 +5,15 @@
       "type": "TextureAsset",
       "path": "player/idle/idle.json"
     }
+    {
+      "event": "onPlayerInputJump",
+      "type": "AnimatedTexture",
+      "path": "player/jump/jump.json"
+    }
+    {
+      "event": "onBlockLand",
+      "type": "TextureAsset",
+      "path": "player/idle/idle.json"
+    }
   ]
 }

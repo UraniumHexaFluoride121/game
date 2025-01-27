@@ -1,0 +1,57 @@
+{
+  "paths": [
+    "block/stone/green/middle/stone_green_middle_1.png",
+    "block/stone/green/middle/stone_green_middle_2.png",
+    "block/stone/green/middle/stone_green_middle_3.png",
+    "block/stone/green/middle/stone_green_middle_4.png",
+    "block/stone/green/middle/stone_green_middle_5.png",
+    "block/stone/green/middle/stone_green_middle_6.png",
+    "block/stone/green/middle/stone_green_middle_7.png",
+    "block/stone/green/middle/stone_green_middle_8.png",
+
+    "block/stone/green/top/stone_green_top_1.png",
+    "block/stone/green/top/stone_green_top_2.png",
+    "block/stone/green/top/stone_green_top_3.png",
+    "block/stone/green/top/stone_green_top_4.png",
+    "block/stone/green/top/stone_green_top_5.png",
+    "block/stone/green/top/stone_green_top_6.png",
+    "block/stone/green/top/stone_green_top_7.png",
+    "block/stone/green/top/stone_green_top_8.png",
+
+    "block/stone/green/bottom/stone_green_bottom_1.png",
+    "block/stone/green/bottom/stone_green_bottom_2.png",
+    "block/stone/green/bottom/stone_green_bottom_3.png",
+    "block/stone/green/bottom/stone_green_bottom_4.png",
+    "block/stone/green/bottom/stone_green_bottom_5.png",
+    "block/stone/green/bottom/stone_green_bottom_6.png",
+    "block/stone/green/bottom/stone_green_bottom_7.png",
+    "block/stone/green/bottom/stone_green_bottom_8.png",
+
+    "block/stone/green/left/stone_green_left_1.png",
+    "block/stone/green/left/stone_green_left_2.png",
+    "block/stone/green/left/stone_green_left_3.png",
+    "block/stone/green/left/stone_green_left_4.png",
+    "block/stone/green/left/stone_green_left_5.png",
+    "block/stone/green/left/stone_green_left_6.png",
+    "block/stone/green/left/stone_green_left_7.png",
+    "block/stone/green/left/stone_green_left_8.png",
+
+    "block/stone/green/right/stone_green_right_1.png",
+    "block/stone/green/right/stone_green_right_2.png",
+    "block/stone/green/right/stone_green_right_3.png",
+    "block/stone/green/right/stone_green_right_4.png",
+    "block/stone/green/right/stone_green_right_5.png",
+    "block/stone/green/right/stone_green_right_6.png",
+    "block/stone/green/right/stone_green_right_7.png",
+    "block/stone/green/right/stone_green_right_8.png"
+  ],
+  "colorFactor": {
+    "g": 1.22,
+    "r": 1.2,
+    "b": 1.2
+  },
+  "transform": {
+    "xOffset": -2,
+    "yOffset": -2
+  }
+}
