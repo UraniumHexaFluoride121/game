@@ -27,7 +27,13 @@ public class TextureAsset implements TickedRenderable {
     }
 
     public TextureAsset colourModified(RescaleOp op) {
-        return new TextureAsset(resource, op.filter(image, op.createCompatibleDestImage(image, image.getColorModel())), transform, false);
+        if (image.getData().getNumDataElements() == 4)
+            return new TextureAsset(resource, op.filter(image, op.createCompatibleDestImage(image, image.getColorModel())), transform, false);
+        else {
+            System.out.println("[WARNING] Formatting of image with path \"" + resource.relativePath + "\" does not support color modification");
+            return this;
+        }
+
     }
 
     @Override
