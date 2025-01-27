@@ -3,6 +3,7 @@ package render.texture;
 import foundation.math.MathUtil;
 import foundation.tick.Tickable;
 import level.Level;
+import level.objects.Player;
 import loader.*;
 import render.Renderable;
 import render.TickedRenderable;
@@ -23,6 +24,7 @@ public class RandomTexture implements TickedRenderable, RenderEventListener, Tic
     private final Vector<TickedRenderable> textures = new Vector<>();
     private final HashSet<RenderEvent> events;
     private Renderable activeTexture = null;
+    private int index = 0;
     private Tickable tickable = null;
     private final boolean guaranteeUnique;
     private Random textureRandom;
@@ -51,18 +53,19 @@ public class RandomTexture implements TickedRenderable, RenderEventListener, Tic
         if (guaranteeUnique) {
             Renderable prev = activeTexture;
             while (prev == activeTexture && (transform == null || transform.equals(prevTransform))) {
-                activeTexture = textures.get((int) (random.get() * textures.size()));
+                index = (int) (random.get() * textures.size());
+                activeTexture = textures.get(index);
                 createNewTransform(random);
             }
         } else {
-            activeTexture = textures.get((int) (random.get() * textures.size()));
+            index = (int) (random.get() * textures.size());
+            activeTexture = textures.get(index);
             createNewTransform(random);
         }
-        if (activeTexture instanceof Tickable t) {
+        if (activeTexture instanceof Tickable t)
             tickable = t;
-        } else {
+        else
             tickable = null;
-        }
     }
 
     private void createNewTransform(Supplier<Double> random) {
@@ -83,18 +86,33 @@ public class RandomTexture implements TickedRenderable, RenderEventListener, Tic
 
     @Override
     public void onEvent(RenderEvent event) {
-        //Randomise the initial texture
-        if (event instanceof RenderBlockUpdate u && u.type == RenderEvent.ON_GAME_INIT) {
-            textureRandom = new Random(u.block.randomSeed);
-            switchToNewTexture(textureRandom::nextDouble);
+        if (event instanceof RenderBlockUpdate u) {
+            //Randomise the initial texture
+            if (u.type == RenderEvent.ON_GAME_INIT) {
+                textureRandom = new Random(u.block.randomSeed);
+                switchToNewTexture(textureRandom::nextDouble);
+            } else if (u.type == RenderEvent.PLAYER_COLOUR_UPDATE) {
+                textures.replaceAll(r -> {
+                    if (r instanceof TextureAsset t)
+                        return t.colourModified(((Player) u.block).colour);
+                    return r;
+                });
+                activeTexture = textures.get(index);
+                if (activeTexture instanceof Tickable t)
+                    tickable = t;
+                else
+                    tickable = null;
+            }
         }
 
         //Randomise the texture upon receiving an event specified in the events list
         if (events.contains(event))
             switchToNewTexture(textureRandom::nextDouble);
 
-        if (activeTexture instanceof RenderEventListener l)
-            l.onEvent(event);
+        textures.forEach(t -> {
+            if (t instanceof RenderEventListener l)
+                l.onEvent(event);
+        });
     }
 
     @Override

@@ -1,5 +1,10 @@
 {
-  "path": "ui/ui_time.png",
+  "paths": [
+    "ui/ui_time_h.png",
+    "ui/ui_time_m.png",
+    "ui/ui_time_s.png",
+    "ui/ui_time_ms.png"
+  ],
   "transform": {
     "xScale": 2,
     "yScale": 2

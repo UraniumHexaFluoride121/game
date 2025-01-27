@@ -2,9 +2,11 @@ package render.texture;
 
 import foundation.tick.Tickable;
 import level.Level;
+import level.objects.Player;
 import loader.*;
 import render.Renderable;
 import render.TickedRenderable;
+import render.event.RenderBlockUpdate;
 import render.event.RenderEvent;
 import render.event.RenderEventListener;
 
@@ -74,6 +76,18 @@ public class AnimatedTexture implements TickedRenderable, Tickable, RenderEventL
 
     @Override
     public void onEvent(RenderEvent event) {
+        if (event instanceof RenderBlockUpdate u && u.type == RenderEvent.PLAYER_COLOUR_UPDATE) {
+            elements.replaceAll(r -> {
+                if (r instanceof TextureAsset t)
+                    return t.colourModified(((Player) u.block).colour);
+                return r;
+            });
+            initial.replaceAll(r -> {
+                if (r instanceof TextureAsset t)
+                    return t.colourModified(((Player) u.block).colour);
+                return r;
+            });
+        }
         if (startInitialEvents.contains(event)) {
             if (!pickRandomFrame) {
                 index = 0;
@@ -81,8 +95,14 @@ public class AnimatedTexture implements TickedRenderable, Tickable, RenderEventL
                 currentTime = 0;
             }
         }
-        if (getActiveList().get(index) instanceof RenderEventListener listener)
-            listener.onEvent(event);
+        elements.forEach(t -> {
+            if (t instanceof RenderEventListener listener)
+                listener.onEvent(event);
+        });
+        initial.forEach(t -> {
+            if (t instanceof RenderEventListener listener)
+                listener.onEvent(event);
+        });
     }
 
     public static Function<Level, AnimatedTexture> getAnimatedTexture(ResourceLocation resource) {

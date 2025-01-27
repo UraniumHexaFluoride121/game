@@ -7,6 +7,7 @@ public class RenderEvent {
     public static final RenderEvent
             //Internal only events (used by RenderBlockUpdate)
             ON_GAME_INIT = new RenderEvent("onGameInit"),
+            PLAYER_COLOUR_UPDATE = new RenderEvent("playerColourUpdate"),
 
     //Texture events
     ON_SWITCH_TO = new RenderEvent("onSwitchTo"),

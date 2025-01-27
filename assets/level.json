@@ -50,7 +50,10 @@
   },
   "uiAssets": {
     "seed_selector": "ui/seed_selector.json",
-    "time": "ui/time.json"
+    "time_h": "ui/time.json#ui_time_h.png",
+    "time_m": "ui/time.json#ui_time_m.png",
+    "time_s": "ui/time.json#ui_time_s.png",
+    "time_ms": "ui/time.json#ui_time_ms.png"
   },
   "glyphs": "symbols/glyphs.json"
 }

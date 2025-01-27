@@ -21,6 +21,9 @@ public final class JsonObject extends JsonDataStructure {
                 case INTEGER -> o = n.intValue();
             }
         }
+        if (!type.clazz.isInstance(o))
+            throw new RuntimeException("Incorrectly formatted Json, encountered a type mismatch while loading json. Expected " +
+                    "value of type " + type.debugName + ", but instead found a value of type " + o.getClass().getSimpleName());
         return (T) o;
     }
 
@@ -34,6 +37,9 @@ public final class JsonObject extends JsonDataStructure {
                 case INTEGER -> o = n.intValue();
             }
         }
+        if (!type.clazz.isInstance(o))
+            throw new RuntimeException("Incorrectly formatted Json, encountered a type mismatch while loading json. Expected " +
+                    "value of type " + type.debugName + ", but instead found a value of type " + o.getClass().getSimpleName());
         return (T) o;
     }
 

@@ -179,6 +179,7 @@ public class Level implements Deletable {
         });
         clientIDs.forEach(id -> {
             Player player = (Player) AssetManager.createBlock("player", spawnLocation.copy(), this);
+            player.updateColour(id);
             players.put(id, player);
             addBlocks(true, false, player);
         });

@@ -53,7 +53,11 @@ public abstract class AssetManager {
         JsonObject dataElements = (JsonObject) JsonLoader.readJsonResource(new ResourceLocation(((JsonObject) JsonLoader.readJsonResource(resource))
                 .get("glyphs", JsonType.STRING_JSON_TYPE)));
         dataElements.forEach(JsonType.JSON_OBJECT_TYPE, (k, v) -> {
-            GlyphData data = new GlyphData(v.get("width", JsonType.INTEGER_JSON_TYPE), deserializeRenderable(v).apply(null));
+            GlyphData data;
+            if (v.containsName("path"))
+                data = new GlyphData(v.get("width", JsonType.INTEGER_JSON_TYPE), deserializeRenderable(v).apply(null));
+            else
+                data = new GlyphData(v.get("width", JsonType.INTEGER_JSON_TYPE), null);
             if (k.length() == 1) {
                 glyphs.put(k.charAt(0), data);
             } else {

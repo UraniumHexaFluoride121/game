@@ -14,6 +14,7 @@ import render.event.RenderEvent;
 import render.renderables.RenderGameElement;
 
 import java.awt.*;
+import java.util.HashMap;
 
 public abstract class BlockLike implements RegisteredTickable, BoundedRenderable, CollisionObject {
     public HitBox hitBox;
@@ -23,6 +24,8 @@ public abstract class BlockLike implements RegisteredTickable, BoundedRenderable
     public CollisionHandler.CollisionObjectData collisionObjectData;
     public final String name;
     public int zOrder;
+
+    public final HashMap<String, Object> properties = new HashMap<>();
 
     public Level level;
 
@@ -64,6 +67,18 @@ public abstract class BlockLike implements RegisteredTickable, BoundedRenderable
 
     public synchronized void renderUpdateBlock(RenderEvent type) {
         renderElement.onEvent(new RenderBlockUpdate(type, this));
+    }
+
+    public BlockLike addProperty(String name, Object value) {
+        properties.put(name, value);
+        return this;
+    }
+
+    public <T> T getProperty(Class<T> clazz, String name) {
+        Object o = properties.get(name);
+        if (!clazz.isInstance(o))
+            return null;
+        return (T) o;
     }
 
     @Override

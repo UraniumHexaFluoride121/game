@@ -9,12 +9,25 @@ import foundation.math.ObjPos;
 import level.Level;
 import network.PacketType;
 import network.PacketWriter;
+import render.event.RenderBlockUpdate;
 import render.event.RenderEvent;
 
 import java.awt.event.KeyEvent;
+import java.awt.image.RescaleOp;
 import java.io.IOException;
 
 public class Player extends PhysicsBlock {
+    private static final RescaleOp[] TEXTURE_COLOURS = new RescaleOp[]{
+            new RescaleOp(new float[]{0.7f, 1.1f, 1.1f}, new float[]{0, 0, 0}, null), //cyan
+            new RescaleOp(new float[]{0.8f, 1.1f, 0.8f}, new float[]{0, 0, 0}, null), //green
+            new RescaleOp(new float[]{1.1f, 0.8f, 0.8f}, new float[]{0, 0, 0}, null), //red
+            new RescaleOp(new float[]{0.8f, 0.8f, 1.1f}, new float[]{0, 0, 0}, null), //blue
+            new RescaleOp(new float[]{1.1f, 1.1f, 0.7f}, new float[]{0, 0, 0}, null), //yellow
+            new RescaleOp(new float[]{1.1f, 0.7f, 1.1f}, new float[]{0, 0, 0}, null), //pink
+    };
+
+    public RescaleOp colour;
+
     public boolean space, left, right;
     public long timeSpace = 0, timeLeft = 0, timeRight = 0;
     private boolean isLongJump = false;
@@ -161,6 +174,10 @@ public class Player extends PhysicsBlock {
         right = false;
     }
 
+    public synchronized void updateColour(int id) {
+        colour = TEXTURE_COLOURS[id % TEXTURE_COLOURS.length];
+        renderElement.onEvent(new RenderBlockUpdate(RenderEvent.PLAYER_COLOUR_UPDATE, this));
+    }
 
     public static final float MOVEMENT_ACCELERATION = 30, JUMP_IMPULSE = 22.7f;
 

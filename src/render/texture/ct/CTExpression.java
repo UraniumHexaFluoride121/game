@@ -25,6 +25,30 @@ public class CTExpression extends Expression<CTExpressionData> {
         addValue(new ExpressionValue<>("r", new ExpressionObject<>(ObjPos.class, o -> o.b.getPos().copy().add(1, 0))));
         addValue(new ExpressionValue<>("this", new ExpressionObject<>(BlockLike.class, o -> o.b)));
 
+        addFunction(new ExpressionFunction<>("intProperty", args -> {
+            if (args.size() != 1)
+                throw new IllegalArgumentException("Incorrectly formatted expression, the \"intProperty\" function requires exactly one argument");
+            return new ExpressionObject<>(Integer.class, o -> {
+                String name = getArg(0, args, o, String.class);
+                return o.b.getProperty(Integer.class, name);
+            });
+        }));
+        addFunction(new ExpressionFunction<>("booleanProperty", args -> {
+            if (args.size() != 1)
+                throw new IllegalArgumentException("Incorrectly formatted expression, the \"booleanProperty\" function requires exactly one argument");
+            return new ExpressionObject<>(Boolean.class, o -> {
+                String name = getArg(0, args, o, String.class);
+                return o.b.getProperty(Boolean.class, name);
+            });
+        }));
+        addFunction(new ExpressionFunction<>("stringProperty", args -> {
+            if (args.size() != 1)
+                throw new IllegalArgumentException("Incorrectly formatted expression, the \"stringProperty\" function requires exactly one argument");
+            return new ExpressionObject<>(String.class, o -> {
+                String name = getArg(0, args, o, String.class);
+                return o.b.getProperty(String.class, name);
+            });
+        }));
         //Get the block at the specified position on the specified layer. Returns block name
         addFunction(new ExpressionFunction<>("block", args -> {
             if (args.size() == 2)

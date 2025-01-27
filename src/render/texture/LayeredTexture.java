@@ -2,8 +2,10 @@ package render.texture;
 
 import foundation.tick.Tickable;
 import level.Level;
+import level.objects.Player;
 import loader.*;
 import render.TickedRenderable;
+import render.event.RenderBlockUpdate;
 import render.event.RenderEvent;
 import render.event.RenderEventListener;
 
@@ -28,6 +30,17 @@ public class LayeredTexture implements TickedRenderable, Tickable, RenderEventLi
             renderEventTextures.add(l);
     }
 
+    private void updateTextureCaches() {
+        tickableTextures.clear();
+        renderEventTextures.clear();
+        textures.forEach(r -> {
+            if (r instanceof Tickable t)
+                tickableTextures.add(t);
+            if (r instanceof RenderEventListener l)
+                renderEventTextures.add(l);
+        });
+    }
+
     @Override
     public void tick(float deltaTime) {
         tickableTextures.forEach(t -> t.tick(deltaTime));
@@ -36,6 +49,14 @@ public class LayeredTexture implements TickedRenderable, Tickable, RenderEventLi
     @Override
     public void onEvent(RenderEvent event) {
         renderEventTextures.forEach(l -> l.onEvent(event));
+        if (event instanceof RenderBlockUpdate u && u.type == RenderEvent.PLAYER_COLOUR_UPDATE) {
+            textures.replaceAll(r -> {
+                if (r instanceof TextureAsset t)
+                    return t.colourModified(((Player) u.block).colour);
+                return r;
+            });
+            updateTextureCaches();
+        }
     }
 
     @Override

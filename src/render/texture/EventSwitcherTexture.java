@@ -2,9 +2,11 @@ package render.texture;
 
 import foundation.tick.Tickable;
 import level.Level;
+import level.objects.Player;
 import loader.*;
 import render.Renderable;
 import render.TickedRenderable;
+import render.event.RenderBlockUpdate;
 import render.event.RenderEvent;
 import render.event.RenderEventListener;
 
@@ -44,6 +46,18 @@ public class EventSwitcherTexture implements TickedRenderable, Tickable, RenderE
                 activeTextureAsTickable = t;
             else
                 activeTextureAsTickable = null;
+        }
+        textures.forEach((e, t) -> {
+            if (t instanceof RenderEventListener l) {
+                l.onEvent(event);
+            }
+        });
+        if (event instanceof RenderBlockUpdate u && u.type == RenderEvent.PLAYER_COLOUR_UPDATE) {
+            textures.replaceAll((e, r) -> {
+                if (r instanceof TextureAsset t)
+                    return t.colourModified(((Player) u.block).colour);
+                return r;
+            });
         }
         if (activeTexture instanceof RenderEventListener l) {
             l.onEvent(event);

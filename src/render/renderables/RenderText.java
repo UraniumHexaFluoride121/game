@@ -79,7 +79,8 @@ public class RenderText extends RenderGameElement implements BoundedRenderable {
                 g.translate(AssetManager.SPACE_WIDTH / 16d, 0);
                 continue;
             }
-            glyph.asset().render(g);
+            if (glyph.asset() != null)
+                glyph.asset().render(g);
             g.translate(glyph.width() / 16d, 0);
         }
         g.setTransform(prev);

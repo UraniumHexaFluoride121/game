@@ -1,4 +1,10 @@
 {
+  "space_4": {
+    "width": 4
+  },
+  "space_6": {
+    "width": 6
+  },
   "time": {
     "path": "symbols/_icons.json#time.png",
     "type": "TextureAsset",

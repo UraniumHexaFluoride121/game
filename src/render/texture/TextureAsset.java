@@ -16,12 +16,18 @@ public class TextureAsset implements TickedRenderable {
     public BufferedImage image;
     public AffineTransform transform;
 
-    private TextureAsset(ResourceLocation resource, BufferedImage image, AffineTransform transform) {
+    private TextureAsset(ResourceLocation resource, BufferedImage image, AffineTransform transform, boolean flip) {
         this.resource = resource;
         this.image = image;
-        transform.scale(1, -1);
-        transform.translate(0, -image.getHeight());
+        if (flip) {
+            transform.scale(1, -1);
+            transform.translate(0, -image.getHeight());
+        }
         this.transform = transform;
+    }
+
+    public TextureAsset colourModified(RescaleOp op) {
+        return new TextureAsset(resource, op.filter(image, op.createCompatibleDestImage(image, image.getColorModel())), transform, false);
     }
 
     @Override
@@ -72,9 +78,9 @@ public class TextureAsset implements TickedRenderable {
             if (image.getData().getNumDataElements() == 4) {
                 op4.apply(image.createGraphics()).filter(image, image);
             } else
-                System.out.println("[WARNING] Formatting of image with path " + imageResource.relativePath + " does not support color modification");
+                System.out.println("[WARNING] Formatting of image with path \"" + imageResource.relativePath + "\" does not support color modification");
         }
-        return new TextureAsset(resource, image, transform);
+        return new TextureAsset(resource, image, transform, true);
     }
 
     public static ArrayList<TextureAsset> getMultiTextureAsset(ResourceLocation resource) {
@@ -121,13 +127,13 @@ public class TextureAsset implements TickedRenderable {
                 if (image.getData().getNumDataElements() == 4)
                     op4.apply(image.createGraphics()).filter(image, image);
                 else
-                    System.out.println("[WARNING] Formatting of image with path " + path + " does not support color modification");
+                    System.out.println("[WARNING] Formatting of image with path \"" + path + "\" does not support color modification");
             }
             assets.add(new TextureAsset(
                     new ResourceLocation(multiTextureResource.relativePath + "#" + imageFile),
                     image,
-                    transform
-            ));
+                    transform,
+                    true));
         }, JsonType.STRING_JSON_TYPE);
         return assets;
     }

@@ -2,10 +2,13 @@ package render.renderables;
 
 import foundation.math.ObjPos;
 import foundation.tick.Tickable;
+import level.objects.Player;
 import render.RenderOrder;
 import render.TickedRenderable;
+import render.event.RenderBlockUpdate;
 import render.event.RenderEvent;
 import render.event.RenderEventListener;
+import render.texture.TextureAsset;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -18,6 +21,10 @@ public class RenderTexture extends RenderGameElement implements RenderEventListe
 
     public RenderTexture(RenderOrder renderOrder, Supplier<ObjPos> gamePos, TickedRenderable texture) {
         super(renderOrder, gamePos);
+        updateTexture(texture);
+    }
+
+    private void updateTexture(TickedRenderable texture) {
         this.texture = texture;
         if (texture instanceof Tickable tickable)
             textureAsTickable = tickable;
@@ -49,6 +56,9 @@ public class RenderTexture extends RenderGameElement implements RenderEventListe
     public void onEvent(RenderEvent event) {
         if (textureAsEventListener != null)
             textureAsEventListener.onEvent(event);
+        if (event instanceof RenderBlockUpdate u && u.type == RenderEvent.PLAYER_COLOUR_UPDATE && texture instanceof TextureAsset t) {
+            updateTexture(t.colourModified(((Player) u.block).colour));
+        }
     }
 
     @Override

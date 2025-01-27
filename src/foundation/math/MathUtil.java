@@ -19,7 +19,7 @@ public abstract class MathUtil {
         float lerped = lerp(toMin, toMax, normalise(fromMin, fromMax, v));
         return clamp ? clamp(toMin, toMax, lerped) : lerped;
     }
-    
+
     public static float clamp(float min, float max, float value) {
         return Math.min(max, Math.max(min, value));
     }
@@ -56,7 +56,7 @@ public abstract class MathUtil {
         float a = ext / (mid * mid + p * mid + q);
         if (Float.isNaN(a))
             return null;
-        return new float[] {
+        return new float[]{
                 a, p * a, q * a
         };
     }
@@ -69,7 +69,7 @@ public abstract class MathUtil {
         float a = py / (px * px + p * px + q);
         if (Float.isNaN(a))
             return null;
-        return new float[] {
+        return new float[]{
                 a, p * a, q * a
         };
     }
@@ -164,6 +164,38 @@ public abstract class MathUtil {
                 s.append('0');
         }
         s.append(floatToString(seconds, decimals).replace('.', ':'));
+        return s.toString();
+    }
+
+    public static String floatToTimeSpaced(float seconds, int decimals) {
+        int minutes = (int) (seconds / 60);
+        seconds -= minutes * 60;
+        int hours = minutes / 60;
+        minutes -= hours * 60;
+        StringBuilder s = new StringBuilder();
+        if (hours != 0) {
+            if (hours < 10)
+                s.append("*space_6");
+            s.append(hours).append("*space_4*");
+            if (minutes < 10)
+                s.append('0');
+            if (minutes == 0) {
+                s.append("0*space_4*");
+                if (seconds < 10)
+                    s.append('0');
+            }
+        }
+        if (minutes != 0) {
+            if (hours == 0 && minutes < 10)
+                s.append("*space_6*");
+            s.append(minutes).append("*space_4*");
+            if (seconds < 10)
+                s.append('0');
+        }
+        if (seconds < 10 && minutes == 0 && hours == 0)
+            s.append("*space_6*");
+
+        s.append(floatToString(seconds, decimals).replace(".", "*space_4*"));
         return s.toString();
     }
 
