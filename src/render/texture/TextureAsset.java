@@ -67,7 +67,8 @@ public class TextureAsset implements TickedRenderable {
             float rFactor = colorFactorObj.getOrDefault("r", 1f, JsonType.FLOAT_JSON_TYPE);
             float gFactor = colorFactorObj.getOrDefault("g", 1f, JsonType.FLOAT_JSON_TYPE);
             float bFactor = colorFactorObj.getOrDefault("b", 1f, JsonType.FLOAT_JSON_TYPE);
-            Function<Graphics2D, RescaleOp> op4 = g -> new RescaleOp(new float[]{rFactor, gFactor, bFactor, 1}, new float[]{0, 0, 0, 0}, g.getRenderingHints());
+            float aFactor = colorFactorObj.getOrDefault("a", 1f, JsonType.FLOAT_JSON_TYPE);
+            Function<Graphics2D, RescaleOp> op4 = g -> new RescaleOp(new float[]{rFactor, gFactor, bFactor, aFactor}, new float[]{0, 0, 0, 0}, g.getRenderingHints());
             if (image.getData().getNumDataElements() == 4) {
                 op4.apply(image.createGraphics()).filter(image, image);
             } else
@@ -88,7 +89,8 @@ public class TextureAsset implements TickedRenderable {
             float rFactor = colorFactorObj.getOrDefault("r", 1f, JsonType.FLOAT_JSON_TYPE);
             float gFactor = colorFactorObj.getOrDefault("g", 1f, JsonType.FLOAT_JSON_TYPE);
             float bFactor = colorFactorObj.getOrDefault("b", 1f, JsonType.FLOAT_JSON_TYPE);
-            op4 = g -> new RescaleOp(new float[]{rFactor, gFactor, bFactor, 1}, new float[]{0, 0, 0, 0}, g.getRenderingHints());
+            float aFactor = colorFactorObj.getOrDefault("a", 1f, JsonType.FLOAT_JSON_TYPE);
+            op4 = g -> new RescaleOp(new float[]{rFactor, gFactor, bFactor, aFactor}, new float[]{0, 0, 0, 0}, g.getRenderingHints());
         } else {
             op4 = null;
         }
