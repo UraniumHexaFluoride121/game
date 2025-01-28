@@ -3,6 +3,5 @@
   "topLayerBlock": "soil_red",
   "mainBlock": "stone_green",
   "grassBlock": "grass",
-  "generateNextPlatformAs": "platform",
-  "generateExtraPlatformAs": "forest_island_extra"
+  "generateNextPlatformAs": "platform"
 }

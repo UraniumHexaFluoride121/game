@@ -6,6 +6,7 @@ public enum RenderOrder {
     BACKGROUND("background"),
     PLAYER("player"),
     BLOCK("block"),
+    GRASS_FRONT("grass_front"),
     UI("ui"),
     DEBUG("debug"); //Debug is not accessible through json
 

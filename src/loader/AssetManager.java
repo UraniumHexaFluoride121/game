@@ -217,7 +217,7 @@ public abstract class AssetManager {
                 throw new IllegalArgumentException("HitBox cannot have negative size");
 
             boolean hasCollision = blockObj.getOrDefault("hasCollision", true, JsonType.BOOLEAN_JSON_TYPE);
-            ObjectLayer layer = ObjectLayer.getObjectLayer(texture.getOrDefault("layer", "foreground", JsonType.STRING_JSON_TYPE));
+            ObjectLayer layer = ObjectLayer.getObjectLayer(blockObj.getOrDefault("layer", "foreground", JsonType.STRING_JSON_TYPE));
 
             blockFriction.put(blockName, friction);
             blockBounciness.put(blockName, bounciness);

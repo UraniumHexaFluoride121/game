@@ -79,7 +79,7 @@ public class BlockCollection {
         return new BlockCollection(offsetPos);
     }
 
-    public BlockCollection generateTopLayers(String blockName, ObjPos origin, ProceduralGenerator gen, int layers, Supplier<Boolean> extraBlockProbability) {
+    public BlockCollection generateTopLayers(String blockName, ObjPos origin, ProceduralGenerator gen, int layers, Supplier<Boolean> extraBlockProbability, boolean returnUnchanged) {
         HashSet<ObjPos> blocks = new HashSet<>(blockPositions);
         HashSet<ObjPos> toBeGenerated = new HashSet<>();
         for (int i = 0; i < layers + 1; i++) {
@@ -106,7 +106,7 @@ public class BlockCollection {
             blocks.removeIf(topLayer::containsValue);
         }
         generateSet(blockName, origin, gen, toBeGenerated);
-        return new BlockCollection(blocks);
+        return new BlockCollection(returnUnchanged ? blockPositions : blocks);
     }
 
     public BlockCollection generateBlocks(String blockName, ProceduralGenerator gen) {

@@ -127,7 +127,12 @@ public class GeneratorType {
 
     public static BlockCollectionAction topLayers(int blockNameIndex, int layers, float extraLayerProbability) {
         return (gen, lm, type, collection) ->
-                collection.generateTopLayers(type.getString(blockNameIndex), lm.pos, gen, layers, gen.probability(extraLayerProbability));
+                collection.generateTopLayers(type.getString(blockNameIndex), lm.pos, gen, layers, gen.probability(extraLayerProbability), false);
+    }
+
+    public static BlockCollectionAction topLayersUnchanged(int blockNameIndex, int layers, float extraLayerProbability) {
+        return (gen, lm, type, collection) ->
+                collection.generateTopLayers(type.getString(blockNameIndex), lm.pos, gen, layers, gen.probability(extraLayerProbability), true);
     }
 
     public static BlockCollectionAction offset(ObjPos pos) {

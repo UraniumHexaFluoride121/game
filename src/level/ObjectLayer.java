@@ -1,6 +1,7 @@
 package level;
 
 public enum ObjectLayer {
+    GRASS_FRONT(false, true, "grass_front"),
     FOREGROUND(false, true, "foreground"),
     BACKGROUND(false, true, "background"),
     DYNAMIC(true, false, "dynamic");

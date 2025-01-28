@@ -1,5 +1,6 @@
 {
   "forceAwayFromBorderProximity": 10,
   "topLayerBlock": "soil_red",
-  "mainBlock": "stone_green"
+  "mainBlock": "stone_green",
+  "grassBlock": "grass"
 }

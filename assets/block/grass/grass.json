@@ -1,10 +1,10 @@
-
 {
   "name": "grass",
+  "layer": "grass_front",
   "texture": {
     "path": "block/grass/_texture/grass_texture.json",
     "type": "RandomTexture",
-    "order": "block"
+    "order": "grass_front"
   },
   "hitBox": {
     "right": 15,

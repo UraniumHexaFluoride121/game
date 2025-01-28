@@ -119,8 +119,8 @@ public abstract class ForestTypes {
                     .andThen(storeString("topLayerBlock"))
                     .andThen(storeString("mainBlock"))
                     .andThen(storeString("generateNextPlatformAs")),
-                    genForEachIslandCluster("blocks", topLayers(0, 1, 0.5f)
-                                    .andThen(allBlocks(1))),
+            genForEachIslandCluster("blocks", topLayers(0, 1, 0.5f)
+                    .andThen(allBlocks(1))),
             GeneratorLMFunction.generateAbove(0, 2)
                     .setTopOffsetFromCollection("blocks", 0.5f)
                     .setMinLength(10)
@@ -135,8 +135,10 @@ public abstract class ForestTypes {
                     .andThen(storeString("topLayerBlock"))
                     .andThen(storeString("mainBlock"))
                     .andThen(storeString("generateNextPlatformAs"))
-                    .andThen(storeString("generateExtraPlatformAs")),
-            genCollection("blocks", topLayers(0, 2, 0.3f)
+                    .andThen(storeString("generateExtraPlatformAs"))
+                    .andThen(storeString("grassBlock")),
+            genCollection("blocks", topLayersUnchanged(4, 1, 0)
+                    .andThen(topLayers(0, 2, 0.3f))
                     .andThen(allBlocks(1))),
             GeneratorLMFunction.generateAbove(0, 2).finalise()
                     .andThen(GeneratorLMFunction.generateAround(0, 3, 15, 0.3f).finalise()),
@@ -156,8 +158,10 @@ public abstract class ForestTypes {
             storeInt("forceAwayFromBorderProximity")
                     .andThen(storeString("topLayerBlock"))
                     .andThen(storeString("mainBlock"))
-                    .andThen(storeString("generateNextPlatformAs")),
-            genCollection("blocks", topLayers(0, 1, 0.5f)
+                    .andThen(storeString("generateNextPlatformAs"))
+                    .andThen(storeString("grassBlock")),
+            genCollection("blocks", topLayersUnchanged(3, 1, 0)
+                    .andThen(topLayers(0, 1, 0.5f))
                     .andThen(allBlocks(1))),
             GeneratorLMFunction.generateAbove(0, 2).finalise(),
             new FunctionalWeightedRandom<Integer, StackRandomData>()
@@ -167,8 +171,10 @@ public abstract class ForestTypes {
     public static final GeneratorType FOREST_ISLAND_DEFAULT_SMALL_EXTRA = PresetTypes.defaultIsland("forest_island_default_small_extra", 1, 2,
             storeInt("forceAwayFromBorderProximity")
                     .andThen(storeString("topLayerBlock"))
-                    .andThen(storeString("mainBlock")),
-            genCollection("blocks", topLayers(0, 1, 0.5f)
+                    .andThen(storeString("mainBlock"))
+                    .andThen(storeString("grassBlock")),
+            genCollection("blocks", topLayersUnchanged(2, 1, 0)
+                    .andThen(topLayers(0, 1, 0.5f))
                     .andThen(allBlocks(1))),
             GeneratorLMFunction.generateNothing(), new FunctionalWeightedRandom<Integer, StackRandomData>()
                     .add(0, s -> s.lastSize() <= 1 ? 1f : s.lastValue() == 0 ? 2f : 8f)
