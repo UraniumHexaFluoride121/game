@@ -12,8 +12,8 @@ public abstract class EvaluateOperation {
         for (int i = 0; i < objArgs.length; i++) {
             args[i] = ((ExpressionObject<T, ?>) objArgs[i]);
         }
-        final boolean bothNumbers = args[0].returnType.equals(Number.class) && args[1].returnType.equals(Number.class);
-        final boolean bothBooleans = args[0].returnType.equals(Boolean.class) && args[1].returnType.equals(Boolean.class);
+        final boolean bothNumbers = args.length == 2 && args[0].returnType.equals(Number.class) && args[1].returnType.equals(Number.class);
+        final boolean bothBooleans = args.length == 2 && args[0].returnType.equals(Boolean.class) && args[1].returnType.equals(Boolean.class);
         return switch (op) {
             case DOT -> {
                 if (args[0].returnType.equals(Number.class) && args[0] instanceof ExpressionObjectStatic<T, ?> static0 &&
