@@ -1,0 +1,24 @@
+[
+  {
+    "blocks": [
+      "                               M                            ",
+      "                                                            ",
+      "                                                            ",
+      "                                                            ",
+      "                                                            ",
+      "                                                            ",
+      "                                                            ",
+      "                                                            ",
+      "                                                            "
+    ],
+    "key": {
+      "-": "test",
+      "#": "static_example"
+    },
+    "markerKey": {
+      "M": {
+        "type": "initial_island"
+      }
+    }
+  }
+]

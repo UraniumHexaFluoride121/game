@@ -1,7 +1,7 @@
 {
   "insertedSections": [
     {
-      "path": "level_section_1.json",
+      "path": "level_section.json",
       "heightOffset": 0
     }
   ],
@@ -11,9 +11,6 @@
   },
   "blocks": [
     "player/player.json",
-    "testblock.json",
-    "staticblock.json",
-    "staticblock2.json",
     "block/soil/red/soil_red.json",
     "block/stone/grey/stone_grey.json",
     "block/stone/green/stone_green.json",
