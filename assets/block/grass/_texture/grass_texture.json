@@ -1,0 +1,8 @@
+{
+  "renderables": [
+    {
+      "type": "TextureAsset",
+      "path": "block/grass/_texture/texture_asset.json#grass_1.png"
+    }
+  ]
+}

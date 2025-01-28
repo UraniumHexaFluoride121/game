@@ -1,7 +1,8 @@
+
 {
-  "name": "soil_red",
+  "name": "grass",
   "texture": {
-    "path": "block/soil/red/_texture/soil_red_random.json",
+    "path": "block/grass/_texture/grass_texture.json",
     "type": "RandomTexture",
     "order": "block"
   },
@@ -10,5 +11,6 @@
     "left": -1,
     "up": 15,
     "down": -1
-  }
+  },
+  "hasCollision": false
 }
