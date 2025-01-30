@@ -2,5 +2,6 @@
   "forceAwayFromBorderProximity": 20,
   "topLayerBlock": "soil_red",
   "mainBlock": "stone_green",
+  "grassBlock": "grass",
   "generateNextPlatformAs": "platform"
 }

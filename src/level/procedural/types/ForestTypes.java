@@ -118,8 +118,10 @@ public abstract class ForestTypes {
             storeInt("forceAwayFromBorderProximity")
                     .andThen(storeString("topLayerBlock"))
                     .andThen(storeString("mainBlock"))
-                    .andThen(storeString("generateNextPlatformAs")),
-            genForEachIslandCluster("blocks", topLayers(0, 1, 0.5f)
+                    .andThen(storeString("generateNextPlatformAs"))
+                    .andThen(storeString("grassBlock")),
+            genForEachIslandCluster("blocks", topLayersUnchanged(3, 1, 0)
+                    .andThen(topLayers(0, 1, 0.5f))
                     .andThen(allBlocks(1))),
             GeneratorLMFunction.generateAbove(0, 2)
                     .setTopOffsetFromCollection("blocks", 0.5f)

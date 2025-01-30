@@ -175,7 +175,7 @@ public abstract class MathUtil {
         StringBuilder s = new StringBuilder();
         if (hours != 0) {
             if (hours < 10)
-                s.append("*space_6");
+                s.append("*space_6*");
             s.append(hours).append("*space_4*");
             if (minutes < 10)
                 s.append('0');
