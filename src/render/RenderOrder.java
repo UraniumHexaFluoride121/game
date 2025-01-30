@@ -4,6 +4,7 @@ public enum RenderOrder {
     //Higher up on this list means lower Z-order
     SOLID_COLOUR_BACKGROUND("solidColourBackground"),
     BACKGROUND("background"),
+    GRASS_BACK("grass_back"),
     PLAYER("player"),
     BLOCK("block"),
     GRASS_FRONT("grass_front"),
