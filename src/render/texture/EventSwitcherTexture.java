@@ -4,7 +4,6 @@ import foundation.tick.Tickable;
 import level.Level;
 import level.objects.Player;
 import loader.*;
-import render.Renderable;
 import render.TickedRenderable;
 import render.event.RenderBlockUpdate;
 import render.event.RenderEvent;
@@ -17,7 +16,7 @@ import java.util.function.Function;
 
 public class EventSwitcherTexture implements TickedRenderable, Tickable, RenderEventListener {
     private final HashMap<RenderEvent, TickedRenderable> textures = new HashMap<>();
-    private Renderable activeTexture = null;
+    private TickedRenderable activeTexture = null;
     private Tickable activeTextureAsTickable = null;
 
     private EventSwitcherTexture() {
@@ -61,7 +60,8 @@ public class EventSwitcherTexture implements TickedRenderable, Tickable, RenderE
         }
         if (activeTexture instanceof RenderEventListener l) {
             l.onEvent(event);
-            l.onEvent(RenderEvent.ON_SWITCH_TO);
+            if (textures.get(event) == activeTexture)
+                l.onEvent(RenderEvent.ON_SWITCH_TO);
         }
     }
 

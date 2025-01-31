@@ -39,6 +39,5 @@ public abstract class RenderGameElement implements OrderedRenderable, Tickable, 
 
     @Override
     public void onEvent(RenderEvent event) {
-
     }
 }

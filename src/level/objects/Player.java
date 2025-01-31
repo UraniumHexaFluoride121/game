@@ -188,12 +188,14 @@ public class Player extends PhysicsBlock {
         if (jumpTimer > 0)
             jumpTimer = Math.max(0, jumpTimer - deltaTime);
 
-        if (space && jumpTimer == 0 && constraints.is(Direction.DOWN)) {
+        if (space && jumpTimer == 0 && constraints.is(Direction.DOWN) && hasLanded) {
             isLongJump = true;
             jumpTimer = 0.2f;
             applyImpulse(new ObjPos(0, JUMP_IMPULSE));
             renderElement.onEvent(RenderEvent.ON_PLAYER_INPUT_JUMP);
+            hasLanded = false;
         }
+
         if (!space)
             isLongJump = false;
         if (velocity.y < 0)
