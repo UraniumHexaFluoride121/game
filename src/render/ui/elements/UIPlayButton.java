@@ -28,7 +28,7 @@ public class UIPlayButton extends UIButton {
 
     @Override
     public void render(Graphics2D g) {
-        super.render(g);
+        renderImage(g, "start");
         if (MainPanel.networkState == NetworkState.CLIENT && !MainPanel.levelFullyGenerated(MainPanel.currentLevelIndex)) {
             waitingForHostLine1.render(g);
             waitingForHostLine2.render(g);
