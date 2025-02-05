@@ -1,0 +1,9 @@
+{
+  "path": "ui/ui_lan.png",
+  "transform": {
+    "xScale": 2,
+    "yScale": 2,
+    "xOffset": -15,
+    "yOffset": -10
+  }
+}

@@ -1,6 +1,4 @@
 {
-
-      "type": "TextureAsset",
-      "path": "block/branch/green/branch_1/texture_asset.json#branch_3.png"
-
+  "type": "TextureAsset",
+  "path": "block/branch/green/branch_1/texture_asset.json#branch_3.png"
 }

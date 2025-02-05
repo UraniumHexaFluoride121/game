@@ -28,7 +28,7 @@ public class UIHostServer extends UIButton {
 
     @Override
     public void render(Graphics2D g) {
-        super.render(g);
+        renderImage(g, "lan");
         text.render(g);
     }
 

@@ -70,17 +70,21 @@ public class UIServerAddressBox extends UITextInputButton {
 
     @Override
     protected float getHeight() {
-        return state == INACTIVE || connectionState == CONNECTED ? super.getHeight() : super.getHeight() + 5;
+        return isSmall() ? super.getHeight() : super.getHeight() + 5;
     }
 
     @Override
     protected float getY() {
-        return state == INACTIVE || connectionState == CONNECTED ? super.getY() : super.getY() - 2.5f;
+        return isSmall() ? super.getY() : super.getY() - 2.5f;
+    }
+
+    private boolean isSmall() {
+        return state == INACTIVE || connectionState == CONNECTED;
     }
 
     @Override
     public HitBox clickBox() {
-        return state == INACTIVE || connectionState == CONNECTED ? super.clickBox() : enlargedBox;
+        return isSmall() ? super.clickBox() : enlargedBox;
     }
 
     @Override
@@ -97,7 +101,11 @@ public class UIServerAddressBox extends UITextInputButton {
 
     @Override
     public void render(Graphics2D g) {
-        super.render(g);
+        if (isSmall()) {
+            renderImage(g, "lan");
+        } else {
+            super.render(g);
+        }
         enterServerAddressText.render(g);
         if (state != INACTIVE && connectionState != CONNECTED) {
             connectButton.render(g);
