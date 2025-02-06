@@ -46,8 +46,6 @@ public abstract class PhysicsObject extends BlockLike {
         return mass;
     }
 
-    public boolean hasLanded = true;
-
     @Override
     public void tick(float deltaTime) {
         if (velocity.y < 0 && !previouslyFalling)
@@ -55,15 +53,11 @@ public abstract class PhysicsObject extends BlockLike {
         previouslyFalling = velocity.y < 0;
 
         super.tick(deltaTime);
-        processMovement(deltaTime);
-
-        if (!constraints.is(Direction.DOWN))
-            hasLanded = false;
 
         if (constraints.is(Direction.DOWN) && !previousConstraints.onceConstrainedTo(Direction.DOWN)) {
             renderElement.onEvent(RenderEvent.ON_BLOCK_LAND);
-            hasLanded = true;
         }
+        processMovement(deltaTime);
         previousConstraints = constraints;
     }
 
