@@ -2,7 +2,36 @@
   "renderables": [
     {
       "type": "TextureAsset",
+      "path": "block/grass/_texture/texture_asset.json#grass_1.png"
+    },
+    {
+      "type": "TextureAsset",
       "path": "block/grass/_texture/texture_asset.json#grass_2.png"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/grass/_texture/texture_asset.json#grass_3.png"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/grass/_texture/texture_asset.json#grass_4.png"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/grass/_texture/texture_asset.json#grass_5.png"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/grass/_texture/texture_asset.json#grass_6.png"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/grass/_texture/texture_asset.json#grass_7.png"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/grass/_texture/texture_asset.json#grass_8.png"
     }
+
   ]
 }

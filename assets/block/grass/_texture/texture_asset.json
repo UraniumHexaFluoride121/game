@@ -1,6 +1,13 @@
 {
   "paths": [
-    "block/grass/_texture/grass_2.png"
+    "block/grass/_texture/grass_1.png",
+    "block/grass/_texture/grass_2.png",
+    "block/grass/_texture/grass_3.png",
+    "block/grass/_texture/grass_4.png",
+    "block/grass/_texture/grass_5.png",
+    "block/grass/_texture/grass_6.png",
+    "block/grass/_texture/grass_7.png",
+    "block/grass/_texture/grass_8.png"
   ],
   "colorFactor": {
     "g": 1.0,
