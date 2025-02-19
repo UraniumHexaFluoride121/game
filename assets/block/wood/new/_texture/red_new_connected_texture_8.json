@@ -1,0 +1,28 @@
+{
+  "renderables": [
+    {
+      "type": "TextureAsset",
+      "path": "block/wood/new/_texture/texture_asset.json#wood_top_8.png",
+      "condition": "existsBlock[u, this.layer]"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/wood/new/_texture/texture_asset.json#wood_bottom_8.png",
+      "condition": "existsBlock[d, this.layer]"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/wood/new/_texture/texture_asset.json#wood_right_8.png",
+      "condition": "existsBlock[r, this.layer]"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/wood/new/_texture/texture_asset.json#wood_left_8.png",
+      "condition": "existsBlock[l, this.layer]"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/wood/new/_texture/texture_asset.json#wood_middle_8.png"
+    }
+  ]
+}
