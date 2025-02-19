@@ -104,7 +104,7 @@ public class UIServerAddressBox extends UITextInputButton {
         if (isSmall()) {
             renderImage(g, "lan");
         } else {
-            super.render(g);
+            renderImage(g, "lan_large");
         }
         enterServerAddressText.render(g);
         if (state != INACTIVE && connectionState != CONNECTED) {

@@ -1,9 +1,8 @@
-
 {
-  "name": "stone_green",
+  "name": "branch",
   "texture": {
-    "path": "block/stone/green/_texture/stone_green_random.json",
-    "type": "RandomTexture",
+    "path": "block/branch/green/_texture/branch_texture.json",
+    "type": "TextureAsset",
     "order": "block"
   },
   "hitBox": {
