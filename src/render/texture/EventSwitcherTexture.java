@@ -53,8 +53,13 @@ public class EventSwitcherTexture implements TickedRenderable, Tickable, RenderE
         });
         if (event instanceof RenderBlockUpdate u && u.type == RenderEvent.PLAYER_COLOUR_UPDATE) {
             textures.replaceAll((e, r) -> {
-                if (r instanceof TextureAsset t)
-                    return t.colourModified(((Player) u.block).colour);
+                if (r instanceof TextureAsset t) {
+                    TextureAsset newAsset = t.colourModified(((Player) u.block).colour);
+                    if (r == activeTexture) {
+                        activeTexture = newAsset;
+                    }
+                    return newAsset;
+                }
                 return r;
             });
         }

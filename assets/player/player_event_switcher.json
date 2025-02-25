@@ -1,19 +1,14 @@
 {
   "renderables": [
     {
-      "event": "onPlayerInputStandingStill",
-      "type": "TextureAsset",
-      "path": "player/idle/idle.json"
-    },
-    {
       "event": "onPlayerInputJump",
-      "type": "AnimatedTexture",
-      "path": "player/jump/jump.json"
+      "type": "EventSwitcherTexture",
+      "path": "player/jump/player_jump_event_switcher.json"
     },
     {
       "event": "onBlockLand",
-      "type": "TextureAsset",
-      "path": "player/idle/idle.json"
+      "type": "EventSwitcherTexture",
+      "path": "player/player_move_event_switcher.json"
     }
   ]
 }

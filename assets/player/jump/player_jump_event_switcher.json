@@ -1,0 +1,9 @@
+{
+  "renderables": [
+    {
+      "event": "onPlayerInputJump",
+      "type": "AnimatedTexture",
+      "path": "player/jump/jump.json"
+    }
+  ]
+}

@@ -15,6 +15,7 @@ public class TextureAsset implements TickedRenderable {
     public ResourceLocation resource;
     public BufferedImage image;
     public AffineTransform transform;
+    private boolean recoloured = false;
 
     private TextureAsset(ResourceLocation resource, BufferedImage image, AffineTransform transform, boolean flip) {
         this.resource = resource;
@@ -27,9 +28,13 @@ public class TextureAsset implements TickedRenderable {
     }
 
     public TextureAsset colourModified(RescaleOp op) {
-        if (image.getData().getNumDataElements() == 4)
-            return new TextureAsset(resource, op.filter(image, op.createCompatibleDestImage(image, image.getColorModel())), transform, false);
-        else {
+        if (recoloured)
+            return this;
+        if (image.getData().getNumDataElements() == 4) {
+            TextureAsset t = new TextureAsset(resource, op.filter(image, op.createCompatibleDestImage(image, image.getColorModel())), transform, false);
+            t.recoloured = true;
+            return t;
+        } else {
             System.out.println("[WARNING] Formatting of image with path \"" + resource.relativePath + "\" does not support color modification");
             return this;
         }
