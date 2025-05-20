@@ -1,14 +1,16 @@
 {
-  "name": "branch",
+  "name": "branch_top",
+  "layer": "branches",
   "texture": {
     "path": "block/branch/green/_texture/branch_texture.json",
     "type": "TextureAsset",
-    "order": "block"
+    "order": "branches"
   },
   "hitBox": {
     "right": 15,
     "left": -1,
-    "up": 15,
+    "up": 150,
     "down": -1
-  }
+  },
+  "hasCollision": false
 }

@@ -109,6 +109,35 @@ public class BlockCollection {
         return new BlockCollection(returnUnchanged ? blockPositions : blocks);
     }
 
+    public BlockCollection getTopLayer() {
+        HashMap<Integer, ObjPos> topLayer = new HashMap<>();
+        blockPositions.forEach(pos -> {
+            int xPos = (int) pos.x;
+            if (!topLayer.containsKey(xPos))
+                topLayer.put(xPos, pos);
+            else if (topLayer.get(xPos).y < pos.y)
+                topLayer.put(xPos, pos);
+        });
+        return new BlockCollection(new HashSet<>(topLayer.values()));
+    }
+
+    public BlockCollection filter(float percentage, ProceduralGenerator gen) {
+        HashSet<ObjPos> newPositions = new HashSet<>(blockPositions);
+        return new BlockCollection(new HashSet<>(newPositions.stream().filter(p -> gen.randomBoolean(percentage)).toList()));
+    }
+
+    public BlockCollection spaceLine(int min, int max, ProceduralGenerator gen) {
+        ArrayList<ObjPos> list = new ArrayList<>(blockPositions);
+        list.sort(Comparator.comparingDouble(p -> p.x));
+        int index = gen.randomInt(min, max) / 2;
+        HashSet<ObjPos> blocks = new HashSet<>();
+        while (index < list.size()) {
+            blocks.add(list.get(index));
+            index += gen.randomInt(min, max);
+        }
+        return new BlockCollection(blocks);
+    }
+
     public BlockCollection generateBlocks(String blockName, ProceduralGenerator gen) {
         generateSet(blockName, new ObjPos(), gen, blockPositions);
         return null;

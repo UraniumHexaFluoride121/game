@@ -69,6 +69,10 @@ public abstract class ForestTypes {
             blocks = curve.forEachBlockNearCurve(2, (point, dist) -> dist < FOREST_BRANCH_CURVE_SIZE.apply(length, point));
         }
         blocks.generateBlocks(type.getString(0), gen);
+        if (lm.pos.x < Main.BLOCKS_X / 2f) {
+            BlockCollection branchesTop = blocks.getTopLayer().offset(new ObjPos(0, 1)).spaceLine(6, 12, gen);
+            branchesTop.generateBlocks(type.getString(2), gen);
+        }
         gen.addData("blocks", blocks);
     }, (gen, lm, type) -> {
         BlockCollection blocks = gen.getData("blocks", BlockCollection.class);
@@ -87,7 +91,8 @@ public abstract class ForestTypes {
         }
     }),
             storeString("woodBlock")
-                    .andThen(storeString("generateNextPlatformAs")), true
+                    .andThen(storeString("generateNextPlatformAs"))
+                    .andThen(storeString("branchTop")), true
     );
     public static final GeneratorType FOREST_ISLAND_CLUSTER = PresetTypes.islandCluster("forest_island_cluster", 9, 4, 10,
             new WeightedRandom<Integer>()

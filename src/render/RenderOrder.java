@@ -8,6 +8,7 @@ public enum RenderOrder {
     PLAYER("player"),
     BLOCK("block"),
     GRASS_FRONT("grass_front"),
+    BRANCHES("branches"),
     UI("ui"),
     DEBUG("debug"); //Debug is not accessible through json
 
