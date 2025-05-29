@@ -2,7 +2,7 @@
   "type": "TextureAsset",
   "path": "block/branch/green/branch_2/branch_4.png",
   "transform": {
-    "yOffset": -1,
+    "yOffset": 1,
     "yScale": -1,
     "xScale": -1
   }
