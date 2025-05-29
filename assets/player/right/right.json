@@ -1,0 +1,34 @@
+{
+  "renderables": [
+    {
+      "type": "TextureAsset",
+      "path": "player/right/right_3.json"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "player/right/right_4.json"
+    }
+  ],
+  "initial": [
+    {
+      "type": "TextureAsset",
+      "path": "player/right/right_1.json"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "player/right/right_2.json"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "player/right/right_3.json"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "player/right/right_4.json"
+    }
+  ],
+  "startInitialEvents": [
+    "onSwitchTo"
+  ],
+  "frameDuration": 0.2
+}

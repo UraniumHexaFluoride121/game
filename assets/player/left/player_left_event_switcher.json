@@ -1,0 +1,9 @@
+{
+  "renderables": [
+    {
+      "event": "onPlayerInputLeft",
+      "type": "AnimatedTexture",
+      "path": "player/left/left.json"
+    }
+  ]
+}

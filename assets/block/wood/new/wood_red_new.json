@@ -1,0 +1,14 @@
+{
+  "name": "wood_red",
+  "texture": {
+    "path": "block/wood/new/_texture/red_new_random.json",
+    "type": "RandomTexture",
+    "order": "block"
+  },
+  "hitBox": {
+    "right": 15,
+    "left": -1,
+    "up": 15,
+    "down": -1
+  }
+}

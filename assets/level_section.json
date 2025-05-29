@@ -2,26 +2,54 @@
   {
     "blocks": [
       "                                                            ",
-      "                                                            ",
-      "                                                            ",
-      "                                                            ",
-      "                               M                            ",
-      "                                                            ",
+      "                             M                              ",
       "                                                            ",
       "                                                            ",
       "                                                            ",
       "                                                            ",
       "                                                            ",
-      "                                                            ",
-      "                                                            "
+      "            ss                                              ",
+      "ddddddd    sssss                                     dddd   ",
+      "dddddddddddddddddddd      ssssssssss         ddddddddddddddd",
+      "ssssssddddddddddddddddddddsssssssssssddddddddddddddssssssddd",
+      "ssssssssssssssssssssssdddssssssssssssssssddddddsssssssssssss",
+      "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
     ],
     "key": {
-      "-": "test"
+      "s": "stone_green",
+      "d": "soil_red"
     },
     "markerKey": {
       "M": {
         "type": "initial_island"
       }
     }
+  },
+  {
+  "blocks": [
+    "                                                            ",
+    "                             M                              ",
+    "                                                            ",
+    "                                                            ",
+    "                                                            ",
+    "                                                            ",
+    "                                                            ",
+    "                                                            ",
+    "ggggggg                                              gggg   ",
+    "       ggggggggggggg                         gggggggg    ggg",
+    "                    gggggg           gggggggg               ",
+    "                                                            ",
+    "                                                            "
+  ],
+  "key": {
+    "s": "stone_green",
+    "g": "grass",
+    "d": "soil_red"
+  },
+  "markerKey": {
+    "M": {
+      "type": "initial_island"
+    }
   }
+}
 ]

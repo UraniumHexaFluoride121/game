@@ -4,6 +4,16 @@
       "event": "onPlayerInputStandingStill",
       "type": "TextureAsset",
       "path": "player/idle/idle.json"
+    },
+    {
+      "event": "onPlayerInputLeft",
+      "type": "EventSwitcherTexture",
+      "path": "player/left/player_left_event_switcher.json"
+    },
+    {
+      "event": "onPlayerInputRight",
+      "type": "EventSwitcherTexture",
+      "path": "player/right/player_right_event_switcher.json"
     }
   ]
 }

@@ -7,7 +7,7 @@
   ],
   "spawnLocation": {
     "x": 29,
-    "y": 0
+    "y": 4
   },
   "blocks": [
     "player/player.json",
@@ -16,7 +16,8 @@
     "block/stone/green/stone_green.json",
     "block/branch/green/branch_top.json",
     "block/wood/red/wood_red.json",
-    "block/grass/grass.json"
+    "block/grass/grass.json",
+    "block/wood/new/wood_red_new.json"
   ],
   "regionTypes": [
     {
