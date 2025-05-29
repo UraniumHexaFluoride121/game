@@ -1,0 +1,16 @@
+{
+  "renderables": [
+    {
+      "type": "TextureAsset",
+      "path": "block/branch/green/_texture/branch_texture_up_right_1.json"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/branch/green/_texture/branch_texture_up_right_2.json"
+    },
+    {
+      "type": "TextureAsset",
+      "path": "block/branch/green/_texture/branch_texture_up_right_3.json"
+    }
+  ]
+}

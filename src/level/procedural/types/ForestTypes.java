@@ -13,6 +13,7 @@ import level.procedural.marker.LayoutMarker;
 import loader.AssetManager;
 import physics.StaticHitBox;
 
+import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BinaryOperator;
 
@@ -70,8 +71,15 @@ public abstract class ForestTypes {
         }
         blocks.generateBlocks(type.getString(0), gen);
         if (lm.pos.x < Main.BLOCKS_X / 2f) {
-            BlockCollection branchesTop = blocks.getTopLayer().offset(new ObjPos(0, 1)).spaceLine(6, 12, gen);
+            BlockCollection branchesTop = blocks.getTopLayer().offset(new ObjPos(0, 1)).filterLine(Comparator.comparingDouble(p -> p.x), (block, next) -> next.y >= block.y).spaceLine(Comparator.comparingDouble(p -> p.x), 5, 10, gen);
             branchesTop.generateBlocks(type.getString(2), gen);
+            BlockCollection branchesBottom = blocks.getBottomLayer().filterLine(Comparator.comparingDouble(p -> p.x), (block, next) -> next.y <= block.y).spaceLine(Comparator.comparingDouble(p -> p.x), 5, 10, gen);
+            branchesBottom.generateBlocks(type.getString(4), gen);
+        } else {
+            BlockCollection branchesTop = blocks.getTopLayer().offset(new ObjPos(0, 1)).filterLine(Comparator.comparingDouble(p -> -p.x), (block, next) -> next.y >= block.y).spaceLine(Comparator.comparingDouble(p -> -p.x), 5, 10, gen);
+            branchesTop.generateBlocks(type.getString(3), gen);
+            BlockCollection branchesBottom = blocks.getBottomLayer().filterLine(Comparator.comparingDouble(p -> -p.x), (block, next) -> next.y <= block.y).spaceLine(Comparator.comparingDouble(p -> -p.x), 5, 10, gen);
+            branchesBottom.generateBlocks(type.getString(5), gen);
         }
         gen.addData("blocks", blocks);
     }, (gen, lm, type) -> {
@@ -92,7 +100,10 @@ public abstract class ForestTypes {
     }),
             storeString("woodBlock")
                     .andThen(storeString("generateNextPlatformAs"))
-                    .andThen(storeString("branchTop")), true
+                    .andThen(storeString("branchUpLeft"))
+                    .andThen(storeString("branchUpRight"))
+                    .andThen(storeString("branchDownLeft"))
+                    .andThen(storeString("branchDownRight")), true
     );
     public static final GeneratorType FOREST_ISLAND_CLUSTER = PresetTypes.islandCluster("forest_island_cluster", 9, 4, 10,
             new WeightedRandom<Integer>()

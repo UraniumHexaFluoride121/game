@@ -41,7 +41,7 @@ public class LMDPlayerMovement extends LMData {
         if (blocks == 0 || blocks > 0 != right)
             return this;
         acceleration.add(VelocityHandler.getVelocityToDistance(0, PhysicsObject.EXP_X_DECAY * friction, PhysicsObject.LINEAR_X_DECAY * friction, Player.MOVEMENT_ACCELERATION * Math.signum(blocks), blocks));
-        if (Layout.DEBUG_RENDER) {
+        if (Layout.DEBUG_RENDER && Layout.DEBUG_RENDER_JUMP_MOVEMENT_DISTANCE) {
             if (blocks > 0)
                 debugRenderables.add(new RenderGameSquare(DEBUG_ACCELERATION_COLOR_RIGHT, new StaticHitBox(lm.pos.copy().addY(0.05f), lm.pos.copy().add(-blocks, 0.05f))));
             else

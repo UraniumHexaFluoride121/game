@@ -1,9 +1,9 @@
 {
-  "name": "branch_top",
+  "name": "branch_up_right",
   "layer": "branches",
   "texture": {
-    "path": "block/branch/green/_texture/branch_texture.json",
-    "type": "TextureAsset",
+    "path": "block/branch/green/_texture/branch_up_right.json",
+    "type": "RandomTexture",
     "order": "branches"
   },
   "hitBox": {

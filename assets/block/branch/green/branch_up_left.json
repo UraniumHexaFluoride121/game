@@ -1,0 +1,16 @@
+{
+  "name": "branch_up_left",
+  "layer": "branches",
+  "texture": {
+    "path": "block/branch/green/_texture/branch_up_left.json",
+    "type": "RandomTexture",
+    "order": "branches"
+  },
+  "hitBox": {
+    "right": 15,
+    "left": -1,
+    "up": 150,
+    "down": -1
+  },
+  "hasCollision": false
+}

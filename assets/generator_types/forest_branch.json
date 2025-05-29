@@ -1,5 +1,8 @@
 {
   "woodBlock": "wood_red",
-  "branchTop": "branch_top",
+  "branchUpLeft": "branch_up_left",
+  "branchUpRight": "branch_up_right",
+  "branchDownLeft": "branch_down_left",
+  "branchDownRight": "branch_down_right",
   "generateNextPlatformAs": "platform"
 }

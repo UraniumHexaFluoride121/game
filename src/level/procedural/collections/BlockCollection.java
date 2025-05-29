@@ -11,6 +11,7 @@ import loader.AssetManager;
 import physics.StaticHitBox;
 
 import java.util.*;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -121,19 +122,37 @@ public class BlockCollection {
         return new BlockCollection(new HashSet<>(topLayer.values()));
     }
 
-    public BlockCollection filter(float percentage, ProceduralGenerator gen) {
-        HashSet<ObjPos> newPositions = new HashSet<>(blockPositions);
-        return new BlockCollection(new HashSet<>(newPositions.stream().filter(p -> gen.randomBoolean(percentage)).toList()));
+    public BlockCollection getBottomLayer() {
+        HashMap<Integer, ObjPos> bottomLayer = new HashMap<>();
+        blockPositions.forEach(pos -> {
+            int xPos = (int) pos.x;
+            if (!bottomLayer.containsKey(xPos))
+                bottomLayer.put(xPos, pos);
+            else if (bottomLayer.get(xPos).y > pos.y)
+                bottomLayer.put(xPos, pos);
+        });
+        return new BlockCollection(new HashSet<>(bottomLayer.values()));
     }
 
-    public BlockCollection spaceLine(int min, int max, ProceduralGenerator gen) {
+    public BlockCollection spaceLine(Comparator<ObjPos> sortingOrder, int min, int max, ProceduralGenerator gen) {
         ArrayList<ObjPos> list = new ArrayList<>(blockPositions);
-        list.sort(Comparator.comparingDouble(p -> p.x));
+        list.sort(sortingOrder);
         int index = gen.randomInt(min, max) / 2;
         HashSet<ObjPos> blocks = new HashSet<>();
         while (index < list.size()) {
             blocks.add(list.get(index));
             index += gen.randomInt(min, max);
+        }
+        return new BlockCollection(blocks);
+    }
+
+    public BlockCollection filterLine(Comparator<ObjPos> sortingOrder, BiPredicate<ObjPos, ObjPos> filter) {
+        ArrayList<ObjPos> list = new ArrayList<>(blockPositions);
+        list.sort(sortingOrder);
+        HashSet<ObjPos> blocks = new HashSet<>();
+        for (int i = 0; i < list.size() - 1; i++) {
+            if (filter.test(list.get(i), list.get(i + 1)))
+                blocks.add(list.get(i));
         }
         return new BlockCollection(blocks);
     }

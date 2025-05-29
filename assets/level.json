@@ -14,7 +14,10 @@
     "block/soil/red/soil_red.json",
     "block/stone/grey/stone_grey.json",
     "block/stone/green/stone_green.json",
-    "block/branch/green/branch_top.json",
+    "block/branch/green/branch_up_left.json",
+    "block/branch/green/branch_up_right.json",
+    "block/branch/green/branch_down_left.json",
+    "block/branch/green/branch_down_right.json",
     "block/wood/red/wood_red.json",
     "block/grass/grass.json",
     "block/wood/new/wood_red_new.json"

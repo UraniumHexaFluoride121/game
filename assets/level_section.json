@@ -26,30 +26,25 @@
     }
   },
   {
-  "blocks": [
-    "                                                            ",
-    "                             M                              ",
-    "                                                            ",
-    "                                                            ",
-    "                                                            ",
-    "                                                            ",
-    "                                                            ",
-    "                                                            ",
-    "ggggggg                                              gggg   ",
-    "       ggggggggggggg                         gggggggg    ggg",
-    "                    gggggg           gggggggg               ",
-    "                                                            ",
-    "                                                            "
-  ],
-  "key": {
-    "s": "stone_green",
-    "g": "grass",
-    "d": "soil_red"
-  },
-  "markerKey": {
-    "M": {
-      "type": "initial_island"
+    "blocks": [
+      "                                                            ",
+      "                                                            ",
+      "                                                            ",
+      "                                                            ",
+      "                                                            ",
+      "                                                            ",
+      "                                                            ",
+      "                                                            ",
+      "ggggggg                                              gggg   ",
+      "       ggggggggggggg                         gggggggg    ggg",
+      "                    gggggg           gggggggg               ",
+      "                                                            ",
+      "                                                            "
+    ],
+    "key": {
+      "s": "stone_green",
+      "g": "grass",
+      "d": "soil_red"
     }
   }
-}
 ]
